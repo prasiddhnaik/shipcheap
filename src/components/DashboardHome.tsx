@@ -111,6 +111,7 @@ function applyAdditionalNeeds(results: RecommendedResult[], additionalNeeds: Rec
 
 export function DashboardHome() {
   const [input, setInput] = useState<CalculatorInput>(defaultCalculatorInput);
+  const [appliedInput, setAppliedInput] = useState<CalculatorInput>(defaultCalculatorInput);
   const [submitted, setSubmitted] = useState(false);
   const [selectedPlatformSlug, setSelectedPlatformSlug] = useState<string | null>(null);
   const [additionalNeeds, setAdditionalNeeds] = useState<Record<AdditionalNeed, boolean>>({
@@ -119,8 +120,10 @@ export function DashboardHome() {
     customDomain: false,
     dailyBackups: false,
   });
-  const baseResults = useMemo(() => recommendPlatforms(input), [input]);
-  const results = useMemo(() => applyAdditionalNeeds(baseResults, additionalNeeds), [baseResults, additionalNeeds]);
+  const [appliedAdditionalNeeds, setAppliedAdditionalNeeds] = useState<Record<AdditionalNeed, boolean>>(additionalNeeds);
+  const isDirty = input !== appliedInput || additionalNeeds !== appliedAdditionalNeeds;
+  const baseResults = useMemo(() => recommendPlatforms(appliedInput), [appliedInput]);
+  const results = useMemo(() => applyAdditionalNeeds(baseResults, appliedAdditionalNeeds), [baseResults, appliedAdditionalNeeds]);
   const topResults = useMemo(() => results.slice(0, 3), [results]);
   const selectedResult = topResults.find((result) => result.platform.slug === selectedPlatformSlug) ?? topResults[0];
   const activePlatformSlug = selectedResult?.platform.slug;
@@ -137,8 +140,16 @@ export function DashboardHome() {
 
   function toggleAdditionalNeed(need: AdditionalNeed) {
     setAdditionalNeeds((current) => ({ ...current, [need]: !current[need] }));
+  }
+
+  function applyPreferences() {
+    setAppliedInput(input);
+    setAppliedAdditionalNeeds(additionalNeeds);
     setSelectedPlatformSlug(null);
     setSubmitted(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById("recommendations")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   return (
@@ -166,7 +177,7 @@ export function DashboardHome() {
               <form
                 onSubmit={(event) => {
                   event.preventDefault();
-                  setSubmitted(true);
+                  applyPreferences();
                 }}
                 className="relative rounded-lg border border-white/10 bg-[#111821]/85 p-4 shadow-2xl shadow-black/20"
               >
@@ -195,7 +206,7 @@ export function DashboardHome() {
                 <div className="mt-2 flex justify-end lg:absolute lg:bottom-4 lg:right-4 lg:mt-0">
                   <button className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-violet-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-950/40 transition hover:bg-violet-400 sm:w-auto">
                     <Search size={15} />
-                    Find Best Options
+                    {isDirty ? "Update Best Options" : "Find Best Options"}
                   </button>
                 </div>
               </form>
@@ -209,14 +220,16 @@ export function DashboardHome() {
                     <Info size={15} className="text-slate-500" />
                   </div>
                   <p className="mt-1 text-sm text-slate-400">
-                    {selectedResult
-                      ? `${selectedResult.platform.name} selected. Choose another card to update the preview.`
-                      : submitted
-                        ? "Ranked from your latest preferences and additional needs."
-                        : "Ranked by affordability, transparency, and low billing risk."}
+                    {isDirty
+                      ? "Preferences changed. Click Find Best Options to refresh this list."
+                      : selectedResult
+                        ? `${selectedResult.platform.name} selected. Choose another card to update the preview.`
+                        : submitted
+                          ? "Ranked from your latest preferences and additional needs."
+                          : "Ranked by affordability, transparency, and low billing risk."}
                   </p>
                 </div>
-                <SaveComparisonButton input={input} results={results} />
+                <SaveComparisonButton input={appliedInput} results={results} />
               </div>
               <div className="grid items-start gap-4 xl:grid-cols-3">
                 {topResults.map((result, index) => (
