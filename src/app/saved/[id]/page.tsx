@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AppChrome } from "@/components/AppChrome";
 import { PlatformCard } from "@/components/PlatformCard";
-import { SiteHeader } from "@/components/SiteHeader";
 import { prisma } from "@/lib/prisma";
 import type { RankedPlatform } from "@/lib/types";
 import { appTypeLabels, budgetLabels, databaseLabels, regionLabels, riskLabels } from "@/lib/utils";
+import { ArrowRight } from "lucide-react";
 
 export default async function SavedComparisonPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,12 +18,11 @@ export default async function SavedComparisonPage({ params }: { params: Promise<
   const results = saved.resultJson as unknown as RankedPlatform[];
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-6">
-          <p className="font-mono text-xs text-cyan-200">Saved {saved.createdAt.toLocaleString()}</p>
-          <h1 className="mt-3 text-4xl font-semibold text-white">Saved hosting comparison</h1>
+    <AppChrome active="saved">
+      <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
+        <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+          <p className="text-xs font-medium text-violet-200">Saved {saved.createdAt.toLocaleString()}</p>
+          <h1 className="mt-3 text-[28px] font-semibold leading-tight text-white sm:text-[34px]">Saved hosting comparison</h1>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Meta label="App type" value={appTypeLabels[saved.appType as keyof typeof appTypeLabels] ?? saved.appType} />
             <Meta label="Budget" value={budgetLabels[saved.budget as keyof typeof budgetLabels] ?? saved.budget} />
@@ -40,17 +40,18 @@ export default async function SavedComparisonPage({ params }: { params: Promise<
           ))}
         </div>
 
-        <Link className="mt-8 inline-flex rounded-md bg-cyan-300 px-4 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-200" href="/">
+        <Link className="mt-8 inline-flex items-center gap-2 rounded-md bg-violet-500 px-4 py-3 text-sm font-bold text-white hover:bg-violet-400" href="/">
           Run another comparison
+          <ArrowRight size={15} />
         </Link>
       </main>
-    </>
+    </AppChrome>
   );
 }
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-white/10 bg-slate-950/70 p-3">
+    <div className="rounded-md border border-white/10 bg-[#080d14] p-3">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
       <p className="mt-2 text-sm font-medium text-slate-100">{value}</p>
     </div>

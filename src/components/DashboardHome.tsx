@@ -20,14 +20,12 @@ import {
   Grid2X2,
   Info,
   MessageSquare,
-  Moon,
   Package,
   Search,
   Settings2,
   Shield,
   ShieldCheck,
   Star,
-  Sun,
 } from "lucide-react";
 
 const appTypes = Object.entries(appTypeLabels) as [AppType, string][];
@@ -50,8 +48,8 @@ const navItems = [
   { label: "Recommendations", href: "#recommendations", icon: Settings2 },
   { label: "Compare", href: "/compare", icon: BadgeDollarSign },
   { label: "Providers", href: "/compare", icon: Package },
-  { label: "Saved Filters", href: "#recommendations", icon: Boxes },
-  { label: "Favorites", href: "#recommendations", icon: Star },
+  { label: "Saved Filters", href: "/saved", icon: Boxes },
+  { label: "Favorites", href: "/favorites", icon: Star },
 ];
 
 const supportItems = [
@@ -377,17 +375,7 @@ function Sidebar() {
           All rights reserved.
         </p>
 
-        <div className="mt-4 inline-flex rounded-md border border-white/10 bg-white/[0.03] p-1 text-slate-400">
-          <button className="rounded px-2 py-1" aria-label="Moon theme">
-            <Moon size={15} />
-          </button>
-          <button className="rounded bg-violet-500 px-3 py-1 text-white" aria-label="Active theme">
-            <Moon size={15} />
-          </button>
-          <button className="rounded px-2 py-1" aria-label="Sun theme">
-            <Sun size={15} />
-          </button>
-        </div>
+        <p className="mt-4 rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-medium text-slate-400">Dark mode active</p>
       </div>
     </aside>
   );
@@ -411,7 +399,7 @@ function Topbar() {
           <span className="text-slate-500">1.2k</span>
         </a>
         <Link
-          href="/compare"
+          href="/feedback"
           className="hidden items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/[0.05] sm:inline-flex"
         >
           <MessageSquare size={15} />
