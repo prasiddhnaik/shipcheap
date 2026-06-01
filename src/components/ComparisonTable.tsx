@@ -7,7 +7,7 @@ import { FeatureBadge } from "@/components/FeatureBadge";
 import { platforms } from "@/data/platforms";
 import type { Platform } from "@/lib/types";
 import { appTypeLabels, databaseLabels, regionLabels } from "@/lib/utils";
-import { ArrowRight, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 
 type FilterKey = "free" | "noCard" | "docker" | "database" | "lowRisk";
 
@@ -84,7 +84,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
 
       <div className="overflow-hidden rounded-lg border border-white/10 bg-[#111821]/85">
         <div className="overflow-x-auto">
-          <table className="min-w-[1160px] w-full border-collapse text-left text-sm">
+          <table className="min-w-[960px] w-full table-fixed border-collapse text-left text-sm">
             <thead className="bg-white/[0.04] text-xs font-semibold text-slate-300">
               <tr>
                 <Th>Platform</Th>
@@ -97,8 +97,6 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                 <Th>Always-on</Th>
                 <Th>Regions</Th>
                 <Th>Billing risk</Th>
-                <Th>Best for</Th>
-                <Th>Action</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
@@ -131,18 +129,6 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                   <Td>
                     <BillingRiskBadge risk={platform.billingRisk} />
                   </Td>
-                  <Td>
-                    <span className="line-clamp-3 max-w-44">{platform.bestFor.join(", ")}</span>
-                  </Td>
-                  <Td>
-                    <Link
-                      href={`/platforms/${platform.slug}`}
-                      className="inline-flex items-center gap-2 rounded-md border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-white/[0.05] hover:text-white"
-                    >
-                      Details
-                      <ArrowRight size={13} />
-                    </Link>
-                  </Td>
                 </tr>
               ))}
             </tbody>
@@ -168,7 +154,7 @@ function support(platform: Platform, appType: Platform["supports"][number]) {
 }
 
 function Th({ children }: { children: React.ReactNode }) {
-  return <th className="px-4 py-3 font-semibold">{children}</th>;
+  return <th className="px-4 py-3 font-semibold first:w-[18%]">{children}</th>;
 }
 
 function Td({ children }: { children: React.ReactNode }) {

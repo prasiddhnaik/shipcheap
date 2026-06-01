@@ -9,8 +9,8 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const selectedPlatform = platform && getPlatformBySlug(platform) ? platform : undefined;
 
   return (
-    <AppChrome active="compare">
-      <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
+    <AppChrome active="compare" compactSidebar>
+      <main className="mx-auto max-w-[1360px] px-4 py-5 sm:px-5 lg:px-6">
         <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-violet-300 transition hover:text-violet-200">
           <ArrowLeft size={15} />
           Dashboard
