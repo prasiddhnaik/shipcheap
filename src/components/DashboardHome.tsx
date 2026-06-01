@@ -35,6 +35,15 @@ const budgets = Object.entries(budgetLabels) as [Budget, string][];
 const databases = Object.entries(databaseLabels) as [DatabaseNeed, string][];
 const regions = Object.entries(regionLabels) as [Region, string][];
 const risks = Object.entries(riskLabels) as [RiskLevel, string][];
+type AdditionalNeed = "docker" | "serverless" | "customDomain" | "dailyBackups";
+type RecommendedResult = ReturnType<typeof recommendPlatforms>[number];
+
+const additionalNeedLabels: Record<AdditionalNeed, string> = {
+  docker: "Docker",
+  serverless: "Serverless",
+  customDomain: "Custom Domain",
+  dailyBackups: "Daily Backups",
+};
 
 const navItems = [
   { label: "Dashboard", href: "/", icon: Grid2X2, active: true },
@@ -50,11 +59,68 @@ const supportItems = [
   { label: "How It Works", href: "#calculator", icon: CircleHelp },
 ];
 
+function applyAdditionalNeeds(results: RecommendedResult[], additionalNeeds: Record<AdditionalNeed, boolean>) {
+  const activeNeeds = Object.entries(additionalNeeds).filter(([, active]) => active).map(([need]) => need as AdditionalNeed);
+  if (activeNeeds.length === 0) return results;
+
+  return results
+    .map((result) => {
+      let scoreAdjustment = 0;
+      const matchedReasons = [...result.matchedReasons];
+      const platform = result.platform;
+
+      if (additionalNeeds.docker) {
+        if (platform.supports.includes("docker")) {
+          scoreAdjustment += 10;
+          matchedReasons.unshift("Matches your Docker preference.");
+        } else {
+          scoreAdjustment -= 14;
+        }
+      }
+
+      if (additionalNeeds.serverless) {
+        if (platform.supports.includes("worker") || platform.supports.includes("static") || !platform.alwaysOn) {
+          scoreAdjustment += 8;
+          matchedReasons.unshift("Fits serverless-style workloads.");
+        } else {
+          scoreAdjustment -= 4;
+        }
+      }
+
+      if (additionalNeeds.customDomain) {
+        if (platform.supports.some((support) => support !== "database")) {
+          scoreAdjustment += 4;
+          matchedReasons.unshift("Good fit for app deployments with custom domains.");
+        }
+      }
+
+      if (additionalNeeds.dailyBackups) {
+        if (platform.databases.includes("postgres") || platform.databases.includes("mysql")) {
+          scoreAdjustment += 6;
+          matchedReasons.unshift("Pairs well with database backup workflows.");
+        } else {
+          scoreAdjustment -= 3;
+        }
+      }
+
+      return { ...result, score: result.score + scoreAdjustment, matchedReasons };
+    })
+    .sort((a, b) => b.score - a.score || a.platform.name.localeCompare(b.platform.name))
+    .map((result, index) => ({ ...result, rank: index + 1 }));
+}
+
 export function DashboardHome() {
   const [input, setInput] = useState<CalculatorInput>(defaultCalculatorInput);
   const [submitted, setSubmitted] = useState(false);
   const [selectedPlatformSlug, setSelectedPlatformSlug] = useState<string | null>(null);
-  const results = useMemo(() => recommendPlatforms(input), [input]);
+  const [additionalNeeds, setAdditionalNeeds] = useState<Record<AdditionalNeed, boolean>>({
+    docker: true,
+    serverless: false,
+    customDomain: false,
+    dailyBackups: false,
+  });
+  const baseResults = useMemo(() => recommendPlatforms(input), [input]);
+  const results = useMemo(() => applyAdditionalNeeds(baseResults, additionalNeeds), [baseResults, additionalNeeds]);
   const topResults = useMemo(() => results.slice(0, 3), [results]);
   const selectedResult = topResults.find((result) => result.platform.slug === selectedPlatformSlug) ?? topResults[0];
   const activePlatformSlug = selectedResult?.platform.slug;
@@ -67,6 +133,12 @@ export function DashboardHome() {
 
   function update<K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) {
     setInput((current) => ({ ...current, [key]: value }));
+  }
+
+  function toggleAdditionalNeed(need: AdditionalNeed) {
+    setAdditionalNeeds((current) => ({ ...current, [need]: !current[need] }));
+    setSelectedPlatformSlug(null);
+    setSubmitted(true);
   }
 
   return (
@@ -109,13 +181,14 @@ export function DashboardHome() {
                   <div className="lg:col-span-1">
                     <RiskControl value={input.riskLevel} onChange={(value) => update("riskLevel", value)} />
                   </div>
-                  <div className="lg:col-span-2">
+                  <div className="lg:col-span-2 lg:pr-48">
                     <p className="text-xs font-medium text-slate-300">Additional needs (optional)</p>
                     <div className="mt-1.5 flex flex-wrap gap-3">
-                      <NeedPill checked>Docker</NeedPill>
-                      <NeedPill>Serverless</NeedPill>
-                      <NeedPill>Custom Domain</NeedPill>
-                      <NeedPill>Daily Backups</NeedPill>
+                      {(Object.keys(additionalNeedLabels) as AdditionalNeed[]).map((need) => (
+                        <NeedPill key={need} checked={additionalNeeds[need]} onClick={() => toggleAdditionalNeed(need)}>
+                          {additionalNeedLabels[need]}
+                        </NeedPill>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -139,7 +212,7 @@ export function DashboardHome() {
                     {selectedResult
                       ? `${selectedResult.platform.name} selected. Choose another card to update the preview.`
                       : submitted
-                        ? "Ranked from your latest preferences."
+                        ? "Ranked from your latest preferences and additional needs."
                         : "Ranked by affordability, transparency, and low billing risk."}
                   </p>
                 </div>
@@ -467,14 +540,31 @@ function RiskControl({ value, onChange }: { value: RiskLevel; onChange: (value: 
   );
 }
 
-function NeedPill({ children, checked = false }: { children: React.ReactNode; checked?: boolean }) {
+function NeedPill({
+  children,
+  checked = false,
+  onClick,
+}: {
+  children: React.ReactNode;
+  checked?: boolean;
+  onClick: () => void;
+}) {
   return (
-    <span className="inline-flex h-7 items-center gap-2 rounded-md border border-white/10 bg-[#080d14] px-3 text-sm text-slate-300">
+    <button
+      type="button"
+      aria-pressed={checked}
+      onClick={onClick}
+      className={`inline-flex h-7 items-center gap-2 rounded-md border px-3 text-sm transition ${
+        checked
+          ? "border-violet-300/45 bg-violet-500/20 text-white"
+          : "border-white/10 bg-[#080d14] text-slate-300 hover:bg-white/[0.04] hover:text-white"
+      }`}
+    >
       <span className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${checked ? "border-violet-300 bg-violet-500" : "border-white/15"}`}>
         {checked && <Check size={10} />}
       </span>
       {children}
-    </span>
+    </button>
   );
 }
 
