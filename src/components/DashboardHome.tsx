@@ -521,7 +521,12 @@ function RecommendationCard({
         <Link href={`/platforms/${platform.slug}`} className={`inline-flex items-center gap-2 text-sm font-semibold ${accent.link}`}>
           View details <ArrowRight size={14} />
         </Link>
-        <span className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-300">Compare</span>
+        <Link
+          href={`/compare?platform=${platform.slug}`}
+          className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
+        >
+          Compare
+        </Link>
       </div>
     </article>
   );
