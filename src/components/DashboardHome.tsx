@@ -54,8 +54,17 @@ const supportItems = [
 export function DashboardHome() {
   const [input, setInput] = useState<CalculatorInput>(defaultCalculatorInput);
   const [submitted, setSubmitted] = useState(false);
+  const [selectedPlatformSlug, setSelectedPlatformSlug] = useState<string | null>(null);
   const results = useMemo(() => recommendPlatforms(input), [input]);
-  const previewRows = platforms.slice(0, 5);
+  const topResults = useMemo(() => results.slice(0, 3), [results]);
+  const selectedResult = topResults.find((result) => result.platform.slug === selectedPlatformSlug) ?? topResults[0];
+  const activePlatformSlug = selectedResult?.platform.slug;
+  const previewRows = useMemo(() => {
+    if (!activePlatformSlug) return platforms.slice(0, 5);
+    const selectedPlatform = platforms.find((platform) => platform.slug === activePlatformSlug);
+    const remainingPlatforms = platforms.filter((platform) => platform.slug !== activePlatformSlug);
+    return selectedPlatform ? [selectedPlatform, ...remainingPlatforms].slice(0, 5) : platforms.slice(0, 5);
+  }, [activePlatformSlug]);
 
   function update<K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) {
     setInput((current) => ({ ...current, [key]: value }));
@@ -128,14 +137,24 @@ export function DashboardHome() {
                     <Info size={15} className="text-slate-500" />
                   </div>
                   <p className="mt-1 text-sm text-slate-400">
-                    {submitted ? "Ranked from your latest preferences." : "Ranked by affordability, transparency, and low billing risk."}
+                    {selectedResult
+                      ? `${selectedResult.platform.name} selected. Choose another card to update the preview.`
+                      : submitted
+                        ? "Ranked from your latest preferences."
+                        : "Ranked by affordability, transparency, and low billing risk."}
                   </p>
                 </div>
                 <SaveComparisonButton input={input} results={results} />
               </div>
               <div className="grid items-start gap-4 xl:grid-cols-3">
-                {results.slice(0, 3).map((result, index) => (
-                  <RecommendationCard key={result.platform.slug} result={result} index={index} />
+                {topResults.map((result, index) => (
+                  <RecommendationCard
+                    key={result.platform.slug}
+                    result={result}
+                    index={index}
+                    selected={result.platform.slug === activePlatformSlug}
+                    onSelect={() => setSelectedPlatformSlug(result.platform.slug)}
+                  />
                 ))}
               </div>
             </section>
@@ -147,7 +166,7 @@ export function DashboardHome() {
                   <p className="mt-1 text-sm text-slate-400">Side-by-side snapshot of key platform details. See full comparison for more.</p>
                 </div>
                 <Link
-                  href="/compare"
+                  href={activePlatformSlug ? `/compare?platform=${activePlatformSlug}` : "/compare"}
                   className="inline-flex items-center gap-2 rounded-md border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
                 >
                   View full comparison
@@ -463,9 +482,13 @@ function NeedPill({ children, checked = false }: { children: React.ReactNode; ch
 function RecommendationCard({
   result,
   index,
+  selected,
+  onSelect,
 }: {
   result: ReturnType<typeof recommendPlatforms>[number];
   index: number;
+  selected: boolean;
+  onSelect: () => void;
 }) {
   const accents = [
     {
@@ -491,7 +514,21 @@ function RecommendationCard({
   const platform = result.platform;
 
   return (
-    <article className={`rounded-lg border ${accent.border} bg-[#111821]/90 p-3.5 shadow-2xl shadow-black/20`}>
+    <article
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
+      className={`cursor-pointer rounded-lg border ${accent.border} bg-[#111821]/90 p-3.5 shadow-2xl shadow-black/20 outline-none transition hover:-translate-y-0.5 hover:bg-[#131d28] focus-visible:ring-2 focus-visible:ring-violet-300/70 ${
+        selected ? "ring-2 ring-violet-300/70 ring-offset-2 ring-offset-[#070b10]" : ""
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${accent.rank}`}>
@@ -512,17 +549,28 @@ function RecommendationCard({
           </div>
         </div>
         <div className="shrink-0 text-right">
+          {selected && (
+            <span className="mb-1 inline-flex items-center gap-1 rounded-full border border-violet-300/30 bg-violet-500/20 px-2 py-0.5 text-[11px] font-semibold text-violet-100">
+              <Check size={11} />
+              Selected
+            </span>
+          )}
           <p className="text-lg font-semibold text-white">{platform.hasFreeTier ? "$0" : "$5"}<span className="text-xs font-normal text-slate-400"> /mo</span></p>
           <p className="text-xs text-slate-500">est. monthly</p>
         </div>
       </div>
       <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-400">{result.matchedReasons[0] ?? platform.description}</p>
       <div className="mt-2.5 flex items-center justify-between border-t border-white/10 pt-2.5">
-        <Link href={`/platforms/${platform.slug}`} className={`inline-flex items-center gap-2 text-sm font-semibold ${accent.link}`}>
+        <Link
+          href={`/platforms/${platform.slug}`}
+          onClick={(event) => event.stopPropagation()}
+          className={`inline-flex items-center gap-2 text-sm font-semibold ${accent.link}`}
+        >
           View details <ArrowRight size={14} />
         </Link>
         <Link
           href={`/compare?platform=${platform.slug}`}
+          onClick={(event) => event.stopPropagation()}
           className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
         >
           Compare
