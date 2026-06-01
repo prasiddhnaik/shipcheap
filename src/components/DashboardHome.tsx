@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ComponentType } from "react";
 import { useMemo, useState } from "react";
 import { AuthControls } from "@/components/AuthControls";
 import { ProviderLogo } from "@/components/ProviderLogo";
@@ -15,13 +16,14 @@ import {
   Boxes,
   Check,
   CircleHelp,
-  Cloud,
+  CreditCard,
   GitBranch,
   Grid2X2,
   Info,
   MessageSquare,
   Package,
   Search,
+  Server,
   Settings2,
   Shield,
   ShieldCheck,
@@ -125,6 +127,8 @@ export function DashboardHome() {
   const topResults = useMemo(() => results.slice(0, 3), [results]);
   const selectedResult = topResults.find((result) => result.platform.slug === selectedPlatformSlug) ?? topResults[0];
   const activePlatformSlug = selectedResult?.platform.slug;
+  const noCardCount = useMemo(() => platforms.filter((platform) => !platform.creditCardRequired).length, []);
+  const lowRiskCount = useMemo(() => platforms.filter((platform) => platform.billingRisk === "low").length, []);
   const previewRows = useMemo(() => {
     if (!activePlatformSlug) return platforms.slice(0, 5);
     const selectedPlatform = platforms.find((platform) => platform.slug === activePlatformSlug);
@@ -158,17 +162,35 @@ export function DashboardHome() {
           <Topbar />
 
           <div className="mx-auto max-w-[1260px] px-4 py-4 sm:px-6 lg:px-10">
-            <section className="grid gap-5 pb-4 xl:grid-cols-[1fr_360px]">
-              <div>
-                <h1 className="max-w-3xl text-[26px] font-semibold leading-tight tracking-normal text-white sm:text-[30px]">
-                  Backend hosting without billing jumpscares.
-                </h1>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-                  ShipCheap compares backend hosting platforms and highlights options that fit your needs without risky billing
-                  or surprise costs. Set your preferences and get ranked recommendations you can trust.
-                </p>
+            <section className="grid gap-4 pb-4 xl:grid-cols-[1fr_390px]">
+              <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h1 className="max-w-3xl text-[26px] font-semibold leading-tight tracking-normal text-white sm:text-[32px]">
+                      Backend hosting without billing jumpscares.
+                    </h1>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+                      Rank backend platforms by cost, card requirements, database fit, and billing risk before you deploy.
+                    </p>
+                  </div>
+                  {selectedResult && (
+                    <Link
+                      href={`/platforms/${selectedResult.platform.slug}`}
+                      className="inline-flex items-center gap-2 rounded-md border border-violet-300/25 bg-violet-500/10 px-3 py-2 text-sm font-semibold text-violet-100 transition hover:bg-violet-500/20"
+                    >
+                      Current pick: {selectedResult.platform.name}
+                      <ArrowRight size={14} />
+                    </Link>
+                  )}
+                </div>
+
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                  <HeroStat icon={ShieldCheck} label="Low-risk options" value={`${lowRiskCount} providers`} />
+                  <HeroStat icon={CreditCard} label="No-card paths" value={`${noCardCount} providers`} />
+                  <HeroStat icon={Server} label="Active filter" value={appTypeLabels[appliedInput.appType]} />
+                </div>
               </div>
-              <HeroGraphic />
+              <HeroSummary selectedResult={selectedResult} isDirty={isDirty} />
             </section>
 
             <section id="calculator">
@@ -411,32 +433,76 @@ function Topbar() {
   );
 }
 
-function HeroGraphic() {
+function HeroStat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="hidden items-center justify-end gap-4 xl:flex" aria-hidden="true">
-      <div className="rounded-lg border border-violet-300/30 bg-slate-950/70 p-3 shadow-2xl shadow-violet-950/20">
-        <div className="mb-3 flex gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
-          <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
-          <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
-        </div>
-        <div className="space-y-2">
-          <span className="block h-1 w-24 rounded-full bg-violet-400" />
-          <span className="block h-1 w-16 rounded-full bg-cyan-300" />
-          <span className="block h-1 w-28 rounded-full bg-emerald-300" />
-          <span className="block h-1 w-20 rounded-full bg-rose-300" />
-          <span className="block h-1 w-32 rounded-full bg-violet-300" />
-        </div>
+    <div className="rounded-lg border border-white/10 bg-[#080d14] p-3">
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+        <Icon size={14} className="text-violet-300" />
+        {label}
       </div>
-      <ArrowRight className="text-violet-400" size={22} />
-      <div className="relative flex h-24 w-24 items-center justify-center">
-        <div className="absolute inset-1 rounded-full bg-violet-500/15 blur-xl" />
-        <ShieldCheck className="relative text-violet-300" size={66} strokeWidth={1.8} />
-      </div>
-      <div className="rounded-lg border border-dashed border-violet-300/30 p-5 text-slate-500">
-        <Cloud size={34} />
-      </div>
+      <p className="mt-2 truncate text-sm font-semibold text-white">{value}</p>
     </div>
+  );
+}
+
+function HeroSummary({
+  selectedResult,
+  isDirty,
+}: {
+  selectedResult?: RecommendedResult;
+  isDirty: boolean;
+}) {
+  return (
+    <aside className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-500/10 text-violet-200">
+            {isDirty ? <Search size={19} /> : <ShieldCheck size={19} />}
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-white">{isDirty ? "Refresh needed" : "Recommendation ready"}</h2>
+            <p className="mt-1 text-xs text-slate-500">{isDirty ? "Your form has unapplied changes" : "Based on the applied preferences"}</p>
+          </div>
+        </div>
+        <span className={`rounded-full border px-2 py-1 text-xs font-medium ${isDirty ? "border-amber-400/30 bg-amber-400/10 text-amber-300" : "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"}`}>
+          {isDirty ? "Pending" : "Live"}
+        </span>
+      </div>
+
+      <div className="mt-4 rounded-lg border border-white/10 bg-[#080d14] p-4">
+        <p className="text-xs font-medium text-slate-500">Top match</p>
+        <div className="mt-3 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xl font-semibold text-white">{selectedResult?.platform.name ?? "Run preferences"}</p>
+            <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-400">
+              {selectedResult?.matchedReasons[0] ?? "Apply your preferences to generate recommendations."}
+            </p>
+          </div>
+          <p className="shrink-0 text-right text-lg font-semibold text-white">
+            {selectedResult?.platform.hasFreeTier ? "$0" : "$5"}
+            <span className="text-xs font-normal text-slate-500"> /mo</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <Link href="#calculator" className="inline-flex items-center justify-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.05]">
+          Edit filters
+        </Link>
+        <Link href={selectedResult ? `/compare?platform=${selectedResult.platform.slug}` : "/compare"} className="inline-flex items-center justify-center gap-2 rounded-md bg-violet-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-400">
+          Compare
+          <ArrowRight size={14} />
+        </Link>
+      </div>
+    </aside>
   );
 }
 
