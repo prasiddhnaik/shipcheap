@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AuthControls } from "@/components/AuthControls";
+import { ProviderLogo } from "@/components/ProviderLogo";
 import { SaveComparisonButton } from "@/components/SaveComparisonButton";
 import { platforms } from "@/data/platforms";
 import { defaultCalculatorInput, recommendPlatforms } from "@/lib/recommend-platform";
@@ -15,8 +16,6 @@ import {
   Check,
   CircleHelp,
   Cloud,
-  Code2,
-  Database,
   GitBranch,
   Grid2X2,
   Info,
@@ -193,7 +192,7 @@ export function DashboardHome() {
                         <tr key={platform.slug} className="text-slate-300">
                           <Td>
                             <Link href={`/platforms/${platform.slug}`} className="flex items-center gap-3 font-medium text-white hover:text-violet-200">
-                              <ProviderIcon name={platform.name} />
+                              <ProviderLogo name={platform.name} />
                               {platform.name}
                             </Link>
                           </Td>
@@ -534,7 +533,7 @@ function RecommendationCard({
           <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${accent.rank}`}>
             {result.rank}
           </span>
-          <ProviderMark name={platform.name} />
+          <ProviderLogo name={platform.name} large />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
               <h3 className="truncate text-base font-semibold text-white">{platform.name}</h3>
@@ -578,22 +577,6 @@ function RecommendationCard({
       </div>
     </article>
   );
-}
-
-function ProviderMark({ name }: { name: string }) {
-  if (name === "Fly.io") {
-    return <Code2 className="h-10 w-10 rounded-lg border border-white/10 bg-white/[0.04] p-2.5 text-white" />;
-  }
-  if (name === "Neon" || name === "Supabase") {
-    return <Database className="h-10 w-10 rounded-lg border border-white/10 bg-white/[0.04] p-2.5 text-cyan-200" />;
-  }
-  return <ProviderIcon name={name} large />;
-}
-
-function ProviderIcon({ name, large = false }: { name: string; large?: boolean }) {
-  const size = large ? "h-10 w-10 text-base" : "h-6 w-6 text-xs";
-  const colors = name === "Railway" ? "bg-purple-500 text-white" : name === "Fly.io" ? "bg-slate-800 text-white" : "bg-white text-slate-950";
-  return <span className={`inline-flex shrink-0 items-center justify-center rounded-md font-black ${size} ${colors}`}>{name.slice(0, 1)}</span>;
 }
 
 function MiniBadge({ children }: { children: React.ReactNode }) {

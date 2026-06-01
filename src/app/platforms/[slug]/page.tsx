@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AppChrome } from "@/components/AppChrome";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
+import { ProviderLogo } from "@/components/ProviderLogo";
 import { getPlatformBySlug, platforms, pricingDisclaimer } from "@/data/platforms";
 import { appTypeLabels, budgetLabels, databaseLabels, regionLabels } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, Check, CreditCard, Database, Server, ShieldAlert, Sparkles, X } from "lucide-react";
@@ -39,7 +40,7 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <div className="mb-4 flex items-center gap-3">
-                  <ProviderIcon name={platform.name} />
+                  <ProviderLogo name={platform.name} large />
                   <div>
                     <h1 className="text-[30px] font-semibold leading-tight text-white sm:text-[38px]">{platform.name}</h1>
                     <p className="mt-1 text-sm text-slate-500">Provider details</p>
@@ -166,9 +167,4 @@ function List({ title, tone, items }: { title: string; tone: "good" | "warn"; it
       </ul>
     </div>
   );
-}
-
-function ProviderIcon({ name }: { name: string }) {
-  const colors = name === "Railway" ? "bg-purple-500 text-white" : name === "Fly.io" ? "bg-slate-800 text-white" : "bg-white text-slate-950";
-  return <span className={`inline-flex h-13 w-13 shrink-0 items-center justify-center rounded-lg text-xl font-black ${colors}`}>{name.slice(0, 1)}</span>;
 }

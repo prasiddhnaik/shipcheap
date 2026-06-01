@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
+import { ProviderLogo } from "@/components/ProviderLogo";
 import { platforms } from "@/data/platforms";
 import type { Platform } from "@/lib/types";
 import { appTypeLabels, databaseLabels, regionLabels } from "@/lib/utils";
@@ -109,7 +110,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                 >
                   <Td>
                     <div className="flex items-center gap-3">
-                      <ProviderIcon name={platform.name} />
+                      <ProviderLogo name={platform.name} />
                       <div>
                         <Link className="font-semibold text-white hover:text-violet-200" href={`/platforms/${platform.slug}`}>
                           {platform.name}
@@ -159,9 +160,4 @@ function Th({ children }: { children: React.ReactNode }) {
 
 function Td({ children }: { children: React.ReactNode }) {
   return <td className="px-4 py-4 leading-6">{children}</td>;
-}
-
-function ProviderIcon({ name }: { name: string }) {
-  const colors = name === "Railway" ? "bg-purple-500 text-white" : name === "Fly.io" ? "bg-slate-800 text-white" : "bg-white text-slate-950";
-  return <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-black ${colors}`}>{name.slice(0, 1)}</span>;
 }
