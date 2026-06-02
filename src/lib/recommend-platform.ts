@@ -1,5 +1,6 @@
 import { platforms } from "@/data/platforms";
 import type { CalculatorInput, Platform, RankedPlatform, RiskLevel } from "@/lib/types";
+import { databaseLabels } from "@/lib/utils";
 
 const riskOrder: Record<RiskLevel, number> = {
   low: 1,
@@ -43,7 +44,7 @@ function scorePlatform(platform: Platform, input: CalculatorInput) {
     matchedReasons.push(
       input.database === "none"
         ? `No database requirement keeps this option simple.`
-        : `Supports ${input.database.toUpperCase()} for your app.`,
+        : `Supports ${databaseLabels[input.database]} for your app.`,
     );
   } else {
     warnings.push(`Does not directly match your selected database need.`);

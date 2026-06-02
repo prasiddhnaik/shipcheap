@@ -7,7 +7,7 @@ export type AppType =
   | "database";
 
 export type Budget = "free" | "under-5" | "under-10" | "under-25" | "custom";
-export type DatabaseNeed = "none" | "postgres" | "redis" | "mysql";
+export type DatabaseNeed = "none" | "postgres" | "redis" | "mysql" | "sqlite" | "document";
 export type Region = "asia" | "us" | "europe" | "any";
 export type RiskLevel = "low" | "medium" | "high";
 

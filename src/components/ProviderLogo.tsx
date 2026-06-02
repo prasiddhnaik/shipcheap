@@ -1,8 +1,14 @@
 import {
+  siAppwrite,
+  siCloudflareworkers,
+  siConvex,
   siDigitalocean,
+  siFirebase,
   siFlydotio,
+  siGooglecloud,
   siKoyeb,
   siNeon,
+  siNetlify,
   siRailway,
   siRender,
   siSupabase,
@@ -10,10 +16,16 @@ import {
 } from "simple-icons";
 
 const logoByName = {
+  Appwrite: siAppwrite,
+  "Cloudflare Workers": siCloudflareworkers,
+  Convex: siConvex,
   "DigitalOcean App Platform": siDigitalocean,
+  "Firebase App Hosting": siFirebase,
   "Fly.io": siFlydotio,
+  "Google Cloud Run": siGooglecloud,
   Koyeb: siKoyeb,
   Neon: siNeon,
+  Netlify: siNetlify,
   Railway: siRailway,
   Render: siRender,
   Supabase: siSupabase,
@@ -21,10 +33,16 @@ const logoByName = {
 };
 
 const colorByName: Record<string, string> = {
+  Appwrite: "text-[#FD366E]",
+  "Cloudflare Workers": "text-[#F38020]",
+  Convex: "text-[#EE342F]",
   "DigitalOcean App Platform": "text-[#0080FF]",
+  "Firebase App Hosting": "text-[#FFCA28]",
   "Fly.io": "text-white",
+  "Google Cloud Run": "text-[#4285F4]",
   Koyeb: "text-white",
   Neon: "text-[#00E599]",
+  Netlify: "text-[#00C7B7]",
   Railway: "text-[#B066FF]",
   Render: "text-white",
   Supabase: "text-[#3ECF8E]",

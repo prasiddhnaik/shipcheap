@@ -26,6 +26,8 @@ export const databaseLabels: Record<DatabaseNeed, string> = {
   postgres: "Postgres",
   redis: "Redis",
   mysql: "MySQL",
+  sqlite: "SQLite",
+  document: "Backend database",
 };
 
 export const regionLabels: Record<Region, string> = {
