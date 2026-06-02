@@ -2,11 +2,14 @@ import Link from "next/link";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
 import { ProviderLogo } from "@/components/ProviderLogo";
+import { getPlatformCategory } from "@/data/platforms";
 import type { RankedPlatform } from "@/lib/types";
+import { categoryLabels } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 
 export function PlatformCard({ result }: { result: RankedPlatform }) {
   const { platform } = result;
+  const category = getPlatformCategory(platform.slug);
 
   return (
     <article className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
@@ -16,6 +19,7 @@ export function PlatformCard({ result }: { result: RankedPlatform }) {
           <div>
             <p className="text-xs font-medium text-violet-200">Rank #{result.rank} · Score {result.score}</p>
             <h3 className="mt-1 text-xl font-semibold text-white">{platform.name}</h3>
+            <p className="mt-1 text-xs font-medium text-cyan-200">{categoryLabels[category]}</p>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{platform.description}</p>
           </div>
         </div>

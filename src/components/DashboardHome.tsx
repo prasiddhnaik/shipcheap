@@ -6,10 +6,10 @@ import { useMemo, useState } from "react";
 import { AuthControls } from "@/components/AuthControls";
 import { ProviderLogo } from "@/components/ProviderLogo";
 import { SaveComparisonButton } from "@/components/SaveComparisonButton";
-import { platforms } from "@/data/platforms";
+import { getPlatformCategory, platforms } from "@/data/platforms";
 import { defaultCalculatorInput, recommendPlatforms } from "@/lib/recommend-platform";
 import type { AppType, Budget, CalculatorInput, DatabaseNeed, Region, RiskLevel } from "@/lib/types";
-import { appTypeLabels, budgetLabels, databaseLabels, regionLabels, riskLabels } from "@/lib/utils";
+import { appTypeLabels, budgetLabels, categoryLabels, databaseLabels, regionLabels, riskLabels } from "@/lib/utils";
 import {
   ArrowRight,
   BadgeDollarSign,
@@ -668,6 +668,7 @@ function RecommendationCard({
   ];
   const accent = accents[index] ?? accents[0];
   const platform = result.platform;
+  const category = getPlatformCategory(platform.slug);
 
   return (
     <article
@@ -696,6 +697,7 @@ function RecommendationCard({
               <h3 className="truncate text-base font-semibold text-white">{platform.name}</h3>
               <span className="whitespace-nowrap rounded-full bg-violet-500/20 px-1.5 py-0.5 text-[11px] font-medium text-violet-200">{accent.tag}</span>
             </div>
+            <p className="mt-0.5 text-xs font-medium text-cyan-200">{categoryLabels[category]}</p>
             <div className="mt-1.5 flex flex-wrap gap-1">
               {platform.hasFreeTier && <MiniBadge>Free tier</MiniBadge>}
               {!platform.creditCardRequired && <MiniBadge>No card</MiniBadge>}

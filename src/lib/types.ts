@@ -8,6 +8,15 @@ export type AppType =
 
 export type Budget = "free" | "under-5" | "under-10" | "under-25" | "custom";
 export type DatabaseNeed = "none" | "postgres" | "redis" | "mysql" | "sqlite" | "document";
+export type PlatformCategory =
+  | "app-hosting"
+  | "serverless"
+  | "database"
+  | "frontend"
+  | "cloud-vm"
+  | "self-hosted"
+  | "enterprise-paas"
+  | "developer-workspace";
 export type Region = "asia" | "us" | "europe" | "any";
 export type RiskLevel = "low" | "medium" | "high";
 
@@ -39,6 +48,11 @@ export type Platform = {
   cons: string[];
   warningNotes: string[];
   freeTierDetails: string;
+};
+
+export type SourceLink = {
+  label: string;
+  url: string;
 };
 
 export type RankedPlatform = {

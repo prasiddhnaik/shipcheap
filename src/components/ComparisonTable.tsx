@@ -5,9 +5,9 @@ import Link from "next/link";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
 import { ProviderLogo } from "@/components/ProviderLogo";
-import { platforms } from "@/data/platforms";
-import type { Platform } from "@/lib/types";
-import { appTypeLabels, databaseLabels, regionLabels } from "@/lib/utils";
+import { getPlatformCategory, platforms } from "@/data/platforms";
+import type { Platform, PlatformCategory } from "@/lib/types";
+import { appTypeLabels, categoryLabels, databaseLabels, regionLabels } from "@/lib/utils";
 import { Check, X } from "lucide-react";
 
 type FilterKey = "free" | "noCard" | "docker" | "database" | "lowRisk";
@@ -21,6 +21,7 @@ const filters: { key: FilterKey; label: string }[] = [
 ];
 
 export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug?: string }) {
+  const [activeCategory, setActiveCategory] = useState<PlatformCategory | "all">("all");
   const [activeFilters, setActiveFilters] = useState<Record<FilterKey, boolean>>({
     free: false,
     noCard: false,
@@ -31,6 +32,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
 
   const filteredPlatforms = useMemo(() => {
     return platforms.filter((platform) => {
+      if (activeCategory !== "all" && getPlatformCategory(platform.slug) !== activeCategory) return false;
       if (activeFilters.free && !platform.hasFreeTier) return false;
       if (activeFilters.noCard && platform.creditCardRequired) return false;
       if (activeFilters.docker && !platform.supports.includes("docker")) return false;
@@ -43,7 +45,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
       if (b.slug === selectedPlatformSlug) return 1;
       return 0;
     });
-  }, [activeFilters, selectedPlatformSlug]);
+  }, [activeCategory, activeFilters, selectedPlatformSlug]);
 
   return (
     <div className="space-y-4">
@@ -61,6 +63,18 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
         </div>
 
         <div className="flex flex-wrap gap-2">
+        <select
+          value={activeCategory}
+          onChange={(event) => setActiveCategory(event.target.value as PlatformCategory | "all")}
+          className="rounded-md border border-white/10 bg-[#080d14] px-3 py-2 text-sm font-semibold text-slate-200 outline-none transition focus:border-violet-300/60"
+        >
+          <option value="all">All categories</option>
+          {(Object.entries(categoryLabels) as [PlatformCategory, string][]).map(([category, label]) => (
+            <option key={category} value={category}>
+              {label}
+            </option>
+          ))}
+        </select>
         {filters.map((filter) => (
           <button
             key={filter.key}
@@ -85,10 +99,11 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
 
       <div className="overflow-hidden rounded-lg border border-white/10 bg-[#111821]/85">
         <div className="overflow-x-auto">
-          <table className="min-w-[960px] w-full table-fixed border-collapse text-left text-sm">
+          <table className="min-w-[1080px] w-full table-fixed border-collapse text-left text-sm">
             <thead className="bg-white/[0.04] text-xs font-semibold text-slate-300">
               <tr>
                 <Th>Platform</Th>
+                <Th>Category</Th>
                 <Th>Free tier</Th>
                 <Th>Credit card</Th>
                 <Th>Node.js</Th>
@@ -119,6 +134,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                       </div>
                     </div>
                   </Td>
+                  <Td>{categoryLabels[getPlatformCategory(platform.slug)]}</Td>
                   <Td>{platform.hasFreeTier ? <FeatureBadge tone="good">Yes</FeatureBadge> : "No"}</Td>
                   <Td>{platform.creditCardRequired ? <FeatureBadge tone="warn">Required</FeatureBadge> : <FeatureBadge tone="good">No card</FeatureBadge>}</Td>
                   <Td>{support(platform, "node")}</Td>

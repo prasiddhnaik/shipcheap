@@ -4,9 +4,9 @@ import { AppChrome } from "@/components/AppChrome";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
 import { ProviderLogo } from "@/components/ProviderLogo";
-import { getPlatformBySlug, platforms, pricingDisclaimer } from "@/data/platforms";
-import { appTypeLabels, budgetLabels, databaseLabels, regionLabels } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, Check, CreditCard, Database, Server, ShieldAlert, Sparkles, X } from "lucide-react";
+import { getPlatformBySlug, getPlatformCategory, getPlatformSourceLinks, platforms, pricingDisclaimer } from "@/data/platforms";
+import { appTypeLabels, budgetLabels, categoryLabels, databaseLabels, regionLabels } from "@/lib/utils";
+import { ArrowLeft, ArrowRight, Check, CreditCard, Database, ExternalLink, Server, ShieldAlert, Sparkles, Tags, X } from "lucide-react";
 
 export function generateStaticParams() {
   return platforms.map((platform) => ({ slug: platform.slug }));
@@ -19,6 +19,8 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
   if (!platform) {
     notFound();
   }
+  const category = getPlatformCategory(platform.slug);
+  const sourceLinks = getPlatformSourceLinks(platform.slug);
 
   const stats = [
     { label: "Starter cost", value: platform.hasFreeTier ? "$0 entry" : "Paid entry", tone: platform.hasFreeTier ? "good" : "warn" },
@@ -43,7 +45,7 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
                   <ProviderLogo name={platform.name} large />
                   <div>
                     <h1 className="text-[30px] font-semibold leading-tight text-white sm:text-[38px]">{platform.name}</h1>
-                    <p className="mt-1 text-sm text-slate-500">Provider details</p>
+                    <p className="mt-1 text-sm text-slate-500">{categoryLabels[category]}</p>
                   </div>
                 </div>
                 <p className="max-w-3xl text-sm leading-6 text-slate-400">{platform.description}</p>
@@ -80,12 +82,35 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
               Compare this provider
               <ArrowRight size={15} />
             </Link>
+            {sourceLinks.length > 0 && (
+              <div className="mt-4 border-t border-violet-300/15 pt-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-100/55">Official sources</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {sourceLinks.map((link) => (
+                    <a
+                      key={link.url}
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-violet-300/20 px-2.5 py-1.5 text-xs font-semibold text-violet-100 transition hover:bg-violet-400/10"
+                    >
+                      {link.label}
+                      <ExternalLink size={12} />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </aside>
         </section>
 
         <section className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
+          <InfoPanel icon={Tags} title="Category" value={categoryLabels[category]} />
           <InfoPanel icon={CreditCard} title="Cost range" value={platform.costRange} />
           <InfoPanel icon={Server} title="Free tier details" value={platform.freeTierDetails} />
+        </section>
+
+        <section className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
           <InfoPanel
             icon={Database}
             title="Database fit"

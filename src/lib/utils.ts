@@ -1,4 +1,4 @@
-import type { AppType, Budget, DatabaseNeed, Region, RiskLevel } from "@/lib/types";
+import type { AppType, Budget, DatabaseNeed, PlatformCategory, Region, RiskLevel } from "@/lib/types";
 
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -28,6 +28,17 @@ export const databaseLabels: Record<DatabaseNeed, string> = {
   mysql: "MySQL",
   sqlite: "SQLite",
   document: "Backend database",
+};
+
+export const categoryLabels: Record<PlatformCategory, string> = {
+  "app-hosting": "App hosting",
+  serverless: "Serverless/edge",
+  database: "Database/BaaS",
+  frontend: "Frontend + functions",
+  "cloud-vm": "Cloud VM/IaaS",
+  "self-hosted": "Self-hosted PaaS",
+  "enterprise-paas": "Enterprise PaaS",
+  "developer-workspace": "Browser IDE deploys",
 };
 
 export const regionLabels: Record<Region, string> = {
