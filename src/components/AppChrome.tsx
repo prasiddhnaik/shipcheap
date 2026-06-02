@@ -8,7 +8,6 @@ import {
   Boxes,
   CircleHelp,
   Grid2X2,
-  MessageSquare,
   Package,
   Settings2,
   Shield,
@@ -127,13 +126,6 @@ function Topbar() {
       </Link>
       <div className="hidden text-sm text-slate-500 lg:block"> </div>
       <div className="flex items-center gap-3">
-        <Link
-          href="/feedback"
-          className="hidden items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/[0.05] sm:inline-flex"
-        >
-          <MessageSquare size={15} />
-          Feedback
-        </Link>
         <AuthControls />
       </div>
     </header>
