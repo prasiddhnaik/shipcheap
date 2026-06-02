@@ -20,22 +20,32 @@ function scorePlatform(platform: Platform, input: CalculatorInput) {
   if (platform.supports.includes(input.appType)) {
     score += 30;
     matchedReasons.push(`Supports your selected app type.`);
+  } else {
+    score -= 40;
+    warnings.push(`Does not directly support your selected app type.`);
   }
 
   if (platform.budgetFit.includes(input.budget) || input.budget === "custom") {
     score += 25;
     matchedReasons.push(`Looks compatible with your selected budget range.`);
+  } else {
+    score -= 20;
+    warnings.push(`Does not cleanly fit your selected budget range.`);
   }
 
   if (input.budget === "free" && platform.hasFreeTier) {
     score += 20;
     matchedReasons.push(`Has a starter free tier.`);
+  } else if (input.budget === "free" && !platform.hasFreeTier) {
+    score -= 20;
+    warnings.push(`No durable free starter path is listed.`);
   }
 
   if (!input.hasCard && !platform.creditCardRequired) {
     score += 20;
     matchedReasons.push(`Does not require a credit card for the beginner path.`);
   } else if (!input.hasCard && platform.creditCardRequired) {
+    score -= 35;
     warnings.push(`Likely blocked because a credit card is required.`);
   }
 
@@ -47,6 +57,7 @@ function scorePlatform(platform: Platform, input: CalculatorInput) {
         : `Supports ${databaseLabels[input.database]} for your app.`,
     );
   } else {
+    score -= 30;
     warnings.push(`Does not directly match your selected database need.`);
   }
 
@@ -54,18 +65,23 @@ function scorePlatform(platform: Platform, input: CalculatorInput) {
     score += 15;
     matchedReasons.push(input.alwaysOn ? `Supports always-on hosting.` : `Can fit non always-on workloads.`);
   } else {
+    score -= 20;
     warnings.push(`May not fit always-on backend services.`);
   }
 
   if (input.region === "any" || platform.regions.includes(input.region)) {
     score += 10;
     matchedReasons.push(`Covers your preferred region.`);
+  } else {
+    score -= 12;
+    warnings.push(`Does not list your preferred region as a direct fit.`);
   }
 
   if (fitsRiskTolerance(platform.billingRisk, input.riskLevel)) {
     score += 15;
     matchedReasons.push(`Billing risk fits your tolerance.`);
   } else {
+    score -= 20;
     warnings.push(`Billing risk is higher than your selected tolerance.`);
   }
 

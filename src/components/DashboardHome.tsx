@@ -69,35 +69,36 @@ function applyAdditionalNeeds(results: RecommendedResult[], additionalNeeds: Rec
 
       if (additionalNeeds.docker) {
         if (platform.supports.includes("docker")) {
-          scoreAdjustment += 10;
+          scoreAdjustment += 16;
           matchedReasons.unshift("Matches your Docker preference.");
         } else {
-          scoreAdjustment -= 14;
+          scoreAdjustment -= 20;
         }
       }
 
       if (additionalNeeds.serverless) {
-        if (platform.supports.includes("worker") || platform.supports.includes("static") || !platform.alwaysOn) {
-          scoreAdjustment += 8;
+        const category = getPlatformCategory(platform.slug);
+        if (category === "serverless" || category === "frontend" || !platform.alwaysOn) {
+          scoreAdjustment += 22;
           matchedReasons.unshift("Fits serverless-style workloads.");
         } else {
-          scoreAdjustment -= 4;
+          scoreAdjustment -= 12;
         }
       }
 
       if (additionalNeeds.customDomain) {
         if (platform.supports.some((support) => support !== "database")) {
-          scoreAdjustment += 4;
+          scoreAdjustment += 6;
           matchedReasons.unshift("Good fit for app deployments with custom domains.");
         }
       }
 
       if (additionalNeeds.dailyBackups) {
         if (platform.databases.includes("postgres") || platform.databases.includes("mysql")) {
-          scoreAdjustment += 6;
+          scoreAdjustment += 10;
           matchedReasons.unshift("Pairs well with database backup workflows.");
         } else {
-          scoreAdjustment -= 3;
+          scoreAdjustment -= 8;
         }
       }
 
@@ -109,7 +110,6 @@ function applyAdditionalNeeds(results: RecommendedResult[], additionalNeeds: Rec
 
 export function DashboardHome() {
   const [input, setInput] = useState<CalculatorInput>(defaultCalculatorInput);
-  const [appliedInput, setAppliedInput] = useState<CalculatorInput>(defaultCalculatorInput);
   const [submitted, setSubmitted] = useState(false);
   const [selectedPlatformSlug, setSelectedPlatformSlug] = useState<string | null>(null);
   const [additionalNeeds, setAdditionalNeeds] = useState<Record<AdditionalNeed, boolean>>({
@@ -118,10 +118,8 @@ export function DashboardHome() {
     customDomain: false,
     dailyBackups: false,
   });
-  const [appliedAdditionalNeeds, setAppliedAdditionalNeeds] = useState<Record<AdditionalNeed, boolean>>(additionalNeeds);
-  const isDirty = input !== appliedInput || additionalNeeds !== appliedAdditionalNeeds;
-  const baseResults = useMemo(() => recommendPlatforms(appliedInput), [appliedInput]);
-  const results = useMemo(() => applyAdditionalNeeds(baseResults, appliedAdditionalNeeds), [baseResults, appliedAdditionalNeeds]);
+  const baseResults = useMemo(() => recommendPlatforms(input), [input]);
+  const results = useMemo(() => applyAdditionalNeeds(baseResults, additionalNeeds), [baseResults, additionalNeeds]);
   const topResults = useMemo(() => results.slice(0, 3), [results]);
   const selectedResult = topResults.find((result) => result.platform.slug === selectedPlatformSlug) ?? topResults[0];
   const activePlatformSlug = selectedResult?.platform.slug;
@@ -135,16 +133,16 @@ export function DashboardHome() {
   }, [activePlatformSlug]);
 
   function update<K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) {
+    setSelectedPlatformSlug(null);
     setInput((current) => ({ ...current, [key]: value }));
   }
 
   function toggleAdditionalNeed(need: AdditionalNeed) {
+    setSelectedPlatformSlug(null);
     setAdditionalNeeds((current) => ({ ...current, [need]: !current[need] }));
   }
 
   function applyPreferences() {
-    setAppliedInput(input);
-    setAppliedAdditionalNeeds(additionalNeeds);
     setSelectedPlatformSlug(null);
     setSubmitted(true);
     window.requestAnimationFrame(() => {
@@ -185,10 +183,10 @@ export function DashboardHome() {
                 <div className="mt-5 grid gap-3 sm:grid-cols-3">
                   <HeroStat icon={ShieldCheck} label="Low-risk options" value={`${lowRiskCount} providers`} />
                   <HeroStat icon={CreditCard} label="No-card paths" value={`${noCardCount} providers`} />
-                  <HeroStat icon={Server} label="Active filter" value={appTypeLabels[appliedInput.appType]} />
+                  <HeroStat icon={Server} label="Active filter" value={appTypeLabels[input.appType]} />
                 </div>
               </div>
-              <HeroSummary selectedResult={selectedResult} isDirty={isDirty} />
+              <HeroSummary selectedResult={selectedResult} />
             </section>
 
             <section id="calculator">
@@ -205,7 +203,7 @@ export function DashboardHome() {
                   <BudgetInput value={input.budget} onChange={(value) => update("budget", value)} />
                   <Select label="Database" value={input.database} onChange={(value) => update("database", value as DatabaseNeed)} options={databases} />
                   <Toggle label="Always-on required" value={input.alwaysOn} onChange={(value) => update("alwaysOn", value)} />
-                  <Toggle label="Credit card required?" value={input.hasCard} onChange={(value) => update("hasCard", value)} yesLabel="Yes" noLabel="No" />
+                  <Toggle label="Can use credit card?" value={input.hasCard} onChange={(value) => update("hasCard", value)} yesLabel="Yes" noLabel="No" />
                   <Select label="Region" value={input.region} onChange={(value) => update("region", value as Region)} options={regions} />
                   <div className="lg:col-span-1">
                     <RiskControl value={input.riskLevel} onChange={(value) => update("riskLevel", value)} />
@@ -224,7 +222,7 @@ export function DashboardHome() {
                 <div className="mt-2 flex justify-end lg:absolute lg:bottom-4 lg:right-4 lg:mt-0">
                   <button className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-violet-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-950/40 transition hover:bg-violet-400 sm:w-auto">
                     <Search size={15} />
-                    {isDirty ? "Update Best Options" : "Find Best Options"}
+                    Show Best Options
                   </button>
                 </div>
               </form>
@@ -238,16 +236,14 @@ export function DashboardHome() {
                     <Info size={15} className="text-slate-500" />
                   </div>
                   <p className="mt-1 text-sm text-slate-400">
-                    {isDirty
-                      ? "Preferences changed. Click Find Best Options to refresh this list."
-                      : selectedResult
+                    {selectedResult
                         ? `${selectedResult.platform.name} selected. Choose another card to update the preview.`
                         : submitted
-                          ? "Ranked from your latest preferences and additional needs."
-                          : "Ranked by affordability, transparency, and low billing risk."}
+                          ? "Ranked live from your preferences and additional needs."
+                          : "Updates instantly as you change preferences."}
                   </p>
                 </div>
-                <SaveComparisonButton input={appliedInput} results={results} />
+                <SaveComparisonButton input={input} results={results} />
               </div>
               <div className="grid items-start gap-4 xl:grid-cols-3">
                 {topResults.map((result, index) => (
@@ -436,27 +432,21 @@ function HeroStat({
   );
 }
 
-function HeroSummary({
-  selectedResult,
-  isDirty,
-}: {
-  selectedResult?: RecommendedResult;
-  isDirty: boolean;
-}) {
+function HeroSummary({ selectedResult }: { selectedResult?: RecommendedResult }) {
   return (
     <aside className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-500/10 text-violet-200">
-            {isDirty ? <Search size={19} /> : <ShieldCheck size={19} />}
+            <ShieldCheck size={19} />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-white">{isDirty ? "Refresh needed" : "Recommendation ready"}</h2>
-            <p className="mt-1 text-xs text-slate-500">{isDirty ? "Your form has unapplied changes" : "Based on the applied preferences"}</p>
+            <h2 className="text-base font-semibold text-white">Recommendation ready</h2>
+            <p className="mt-1 text-xs text-slate-500">Updates as preferences change</p>
           </div>
         </div>
-        <span className={`rounded-full border px-2 py-1 text-xs font-medium ${isDirty ? "border-amber-400/30 bg-amber-400/10 text-amber-300" : "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"}`}>
-          {isDirty ? "Pending" : "Live"}
+        <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-xs font-medium text-emerald-300">
+          Live
         </span>
       </div>
 
