@@ -1,4 +1,4 @@
-import type { Platform, PlatformCategory, SourceLink } from "@/lib/types";
+import type { CommunityInfo, Platform, PlatformCategory, SourceLink } from "@/lib/types";
 
 export const pricingDisclaimer =
   "Starter data, verify before relying on it. Hosting prices, free tiers, and card requirements change often.";
@@ -679,6 +679,299 @@ export const platformSourceLinks: Record<string, SourceLink[]> = {
   "platform-sh": [{ label: "Pricing", url: "https://platform.sh/pricing/" }],
 };
 
+export const platformCommunityInfo: Record<string, CommunityInfo> = {
+  render: {
+    userCount: "Public customer count not listed by ShipCheap yet.",
+    strength: "large",
+    summary: "Strong docs, active product changelog, and public support channels make it relatively easy to find deployment answers.",
+    links: [
+      { label: "Docs", url: "https://render.com/docs" },
+      { label: "Community", url: "https://community.render.com/" },
+      { label: "Status", url: "https://status.render.com/" },
+    ],
+  },
+  railway: {
+    userCount: "Public user count not listed by ShipCheap yet.",
+    strength: "large",
+    summary: "Developer-heavy community with active docs, Discord, templates, and social discussion around common deploy patterns.",
+    links: [
+      { label: "Docs", url: "https://docs.railway.com/" },
+      { label: "Discord", url: "https://discord.gg/railway" },
+      { label: "Templates", url: "https://railway.com/templates" },
+    ],
+  },
+  fly: {
+    userCount: "Public customer count not listed by ShipCheap yet.",
+    strength: "large",
+    summary: "Healthy technical community with strong docs, public forum threads, and many operational examples for Docker apps.",
+    links: [
+      { label: "Docs", url: "https://fly.io/docs/" },
+      { label: "Community", url: "https://community.fly.io/" },
+      { label: "Status", url: "https://status.flyio.net/" },
+    ],
+  },
+  koyeb: {
+    userCount: "Public customer count not listed by ShipCheap yet.",
+    strength: "medium",
+    summary: "Smaller but focused community for serverless/container hosting with docs, examples, and direct support paths.",
+    links: [
+      { label: "Docs", url: "https://www.koyeb.com/docs" },
+      { label: "Community", url: "https://community.koyeb.com/" },
+      { label: "Status", url: "https://status.koyeb.com/" },
+    ],
+  },
+  vercel: {
+    userCount: "Public user count changes often; verify current company claims before quoting a number.",
+    strength: "very-large",
+    summary: "Very large Next.js/frontend ecosystem with extensive docs, templates, GitHub activity, community examples, and support resources.",
+    links: [
+      { label: "Docs", url: "https://vercel.com/docs" },
+      { label: "Community", url: "https://community.vercel.com/" },
+      { label: "Templates", url: "https://vercel.com/templates" },
+    ],
+  },
+  supabase: {
+    userCount: "Public project/developer counts change often; verify current Supabase claims before quoting a number.",
+    strength: "very-large",
+    summary: "Large open-source community with Discord, GitHub, docs, examples, and many third-party tutorials around Postgres apps.",
+    links: [
+      { label: "Docs", url: "https://supabase.com/docs" },
+      { label: "Discord", url: "https://discord.supabase.com/" },
+      { label: "GitHub", url: "https://github.com/supabase/supabase" },
+    ],
+  },
+  neon: {
+    userCount: "Public developer/customer count not listed by ShipCheap yet.",
+    strength: "large",
+    summary: "Strong Postgres-focused ecosystem with docs, community forum, Discord, and examples for serverless database workflows.",
+    links: [
+      { label: "Docs", url: "https://neon.com/docs" },
+      { label: "Community", url: "https://community.neon.com/" },
+      { label: "Discord", url: "https://discord.gg/92vNTzKDGp" },
+    ],
+  },
+  "digitalocean-app-platform": {
+    userCount: "DigitalOcean has a large cloud customer base; App Platform-specific user count is not listed by ShipCheap yet.",
+    strength: "very-large",
+    summary: "Large general cloud community with tutorials, Q&A, docs, and support content that helps beyond App Platform itself.",
+    links: [
+      { label: "Docs", url: "https://docs.digitalocean.com/products/app-platform/" },
+      { label: "Community", url: "https://www.digitalocean.com/community" },
+      { label: "Questions", url: "https://www.digitalocean.com/community/questions" },
+    ],
+  },
+  "cloudflare-workers": {
+    userCount: "Cloudflare has very large platform adoption; Workers-specific active user count should be verified from current Cloudflare claims.",
+    strength: "very-large",
+    summary: "Large edge/serverless ecosystem with official docs, Discord, community forum, examples, and many framework integrations.",
+    links: [
+      { label: "Docs", url: "https://developers.cloudflare.com/workers/" },
+      { label: "Discord", url: "https://discord.cloudflare.com/" },
+      { label: "Community", url: "https://community.cloudflare.com/" },
+    ],
+  },
+  "google-cloud-run": {
+    userCount: "Google Cloud has very large enterprise adoption; Cloud Run-specific user count is not listed by ShipCheap yet.",
+    strength: "very-large",
+    summary: "Large cloud ecosystem with official docs, samples, support, Stack Overflow activity, and enterprise partner resources.",
+    links: [
+      { label: "Docs", url: "https://cloud.google.com/run/docs" },
+      { label: "Community", url: "https://cloud.google.com/community" },
+      { label: "Samples", url: "https://cloud.google.com/run/docs/samples" },
+    ],
+  },
+  "aws-app-runner": {
+    userCount: "AWS has very large cloud adoption; App Runner-specific user count is not listed by ShipCheap yet.",
+    strength: "very-large",
+    summary: "Large AWS ecosystem with docs, re:Post, support channels, samples, and many adjacent RDS/VPC/ECR resources.",
+    links: [
+      { label: "Docs", url: "https://docs.aws.amazon.com/apprunner/" },
+      { label: "re:Post", url: "https://repost.aws/tags/TA4NxKkB4hR-mHQWIGY0AsSw/aws-app-runner" },
+      { label: "Samples", url: "https://github.com/aws-samples" },
+    ],
+  },
+  heroku: {
+    userCount: "Public current user count not listed by ShipCheap yet.",
+    strength: "very-large",
+    summary: "Long-running PaaS ecosystem with mature docs, support, add-ons, and many historical deployment examples.",
+    links: [
+      { label: "Docs", url: "https://devcenter.heroku.com/" },
+      { label: "Support", url: "https://help.heroku.com/" },
+      { label: "Status", url: "https://status.heroku.com/" },
+    ],
+  },
+  northflank: {
+    userCount: "Public user count not listed by ShipCheap yet.",
+    strength: "medium",
+    summary: "Focused developer community with docs, templates, Discord, and examples for containers, databases, and preview environments.",
+    links: [
+      { label: "Docs", url: "https://northflank.com/docs" },
+      { label: "Discord", url: "https://discord.gg/northflank" },
+      { label: "Templates", url: "https://northflank.com/templates" },
+    ],
+  },
+  netlify: {
+    userCount: "Public current user count should be verified from Netlify claims before quoting.",
+    strength: "very-large",
+    summary: "Large Jamstack/frontend ecosystem with docs, forums, templates, plugins, and framework-specific deployment guides.",
+    links: [
+      { label: "Docs", url: "https://docs.netlify.com/" },
+      { label: "Forum", url: "https://answers.netlify.com/" },
+      { label: "Integrations", url: "https://www.netlify.com/integrations/" },
+    ],
+  },
+  "azure-app-service": {
+    userCount: "Azure has very large enterprise adoption; App Service-specific user count is not listed by ShipCheap yet.",
+    strength: "very-large",
+    summary: "Large Microsoft/Azure ecosystem with docs, Learn modules, Q&A, enterprise support, and many integration examples.",
+    links: [
+      { label: "Docs", url: "https://learn.microsoft.com/azure/app-service/" },
+      { label: "Q&A", url: "https://learn.microsoft.com/answers/tags/436/azure-app-service" },
+      { label: "Learn", url: "https://learn.microsoft.com/training/azure/" },
+    ],
+  },
+  "oracle-cloud": {
+    userCount: "Oracle Cloud user/customer count should be verified from current Oracle claims before quoting.",
+    strength: "large",
+    summary: "Large enterprise cloud ecosystem with docs, forums, training, and support, though beginner app-hosting examples can be less PaaS-focused.",
+    links: [
+      { label: "Docs", url: "https://docs.oracle.com/en-us/iaas/" },
+      { label: "Community", url: "https://forums.oracle.com/ords/apexds/domain/dev-community/category/cloud" },
+      { label: "Learning", url: "https://mylearn.oracle.com/" },
+    ],
+  },
+  "firebase-app-hosting": {
+    userCount: "Firebase has large developer adoption; App Hosting-specific user count is not listed by ShipCheap yet.",
+    strength: "very-large",
+    summary: "Large Firebase/Google developer ecosystem with docs, samples, Discord-style community paths, and many auth/database examples.",
+    links: [
+      { label: "Docs", url: "https://firebase.google.com/docs/app-hosting" },
+      { label: "Community", url: "https://firebase.google.com/community" },
+      { label: "Samples", url: "https://firebase.google.com/docs/samples" },
+    ],
+  },
+  appwrite: {
+    userCount: "Public developer/project count should be verified from current Appwrite claims before quoting.",
+    strength: "large",
+    summary: "Open-source BaaS community with Discord, GitHub, docs, and self-hosting discussions.",
+    links: [
+      { label: "Docs", url: "https://appwrite.io/docs" },
+      { label: "Discord", url: "https://appwrite.io/discord" },
+      { label: "GitHub", url: "https://github.com/appwrite/appwrite" },
+    ],
+  },
+  convex: {
+    userCount: "Public developer/customer count not listed by ShipCheap yet.",
+    strength: "medium",
+    summary: "Focused TypeScript backend community with docs, Discord, examples, and realtime-app patterns.",
+    links: [
+      { label: "Docs", url: "https://docs.convex.dev/" },
+      { label: "Discord", url: "https://convex.dev/community" },
+      { label: "GitHub", url: "https://github.com/get-convex/convex-backend" },
+    ],
+  },
+  "deno-deploy": {
+    userCount: "Deno ecosystem adoption is public in broad terms; Deploy-specific user count is not listed by ShipCheap yet.",
+    strength: "large",
+    summary: "Strong Deno/TypeScript community with docs, Discord, examples, GitHub, and web-standard runtime discussion.",
+    links: [
+      { label: "Docs", url: "https://docs.deno.com/deploy/" },
+      { label: "Discord", url: "https://discord.gg/deno" },
+      { label: "GitHub", url: "https://github.com/denoland" },
+    ],
+  },
+  "aws-amplify": {
+    userCount: "AWS has very large adoption; Amplify-specific active user count is not listed by ShipCheap yet.",
+    strength: "very-large",
+    summary: "Large AWS/frontend ecosystem with docs, Discord, GitHub examples, and many auth/data deployment guides.",
+    links: [
+      { label: "Docs", url: "https://docs.amplify.aws/" },
+      { label: "Discord", url: "https://discord.gg/amplify" },
+      { label: "GitHub", url: "https://github.com/aws-amplify" },
+    ],
+  },
+  "scaleway-serverless-containers": {
+    userCount: "Public Serverless Containers user count not listed by ShipCheap yet.",
+    strength: "medium",
+    summary: "European cloud community with official docs, Slack/community links, examples, and support resources.",
+    links: [
+      { label: "Docs", url: "https://www.scaleway.com/en/docs/serverless/containers/" },
+      { label: "Community", url: "https://www.scaleway.com/en/community/" },
+      { label: "Status", url: "https://status.scaleway.com/" },
+    ],
+  },
+  "replit-deployments": {
+    userCount: "Replit has a large creator/developer base; deployment-specific count should be verified from current Replit claims.",
+    strength: "very-large",
+    summary: "Large beginner and education-heavy community with templates, docs, Ask/forum content, and browser-IDE examples.",
+    links: [
+      { label: "Docs", url: "https://docs.replit.com/" },
+      { label: "Community", url: "https://replit.com/community" },
+      { label: "Templates", url: "https://replit.com/templates" },
+    ],
+  },
+  coolify: {
+    userCount: "Open-source usage is visible through GitHub/community activity; exact production user count is not public.",
+    strength: "large",
+    summary: "Active open-source self-hosting community with Discord, GitHub, docs, and many VPS deployment discussions.",
+    links: [
+      { label: "Docs", url: "https://coolify.io/docs" },
+      { label: "Discord", url: "https://coolify.io/discord" },
+      { label: "GitHub", url: "https://github.com/coollabsio/coolify" },
+    ],
+  },
+  dokku: {
+    userCount: "Open-source usage is visible through GitHub/community activity; exact production user count is not public.",
+    strength: "medium",
+    summary: "Mature self-hosted PaaS community with docs, GitHub issues, plugins, and long-running deployment examples.",
+    links: [
+      { label: "Docs", url: "https://dokku.com/docs/" },
+      { label: "GitHub", url: "https://github.com/dokku/dokku" },
+      { label: "Community", url: "https://github.com/dokku/dokku/discussions" },
+    ],
+  },
+  caprover: {
+    userCount: "Open-source usage is visible through GitHub/community activity; exact production user count is not public.",
+    strength: "medium",
+    summary: "Self-hosted Docker community with docs, GitHub issues, app templates, and common VPS deployment walkthroughs.",
+    links: [
+      { label: "Docs", url: "https://caprover.com/docs/get-started.html" },
+      { label: "GitHub", url: "https://github.com/caprover/caprover" },
+      { label: "Apps", url: "https://github.com/caprover/one-click-apps" },
+    ],
+  },
+  "hetzner-cloud": {
+    userCount: "Hetzner has a large infrastructure customer base; Cloud user count should be verified from current Hetzner claims.",
+    strength: "large",
+    summary: "Strong infrastructure community with docs, status, community tutorials, and many self-hosting examples.",
+    links: [
+      { label: "Docs", url: "https://docs.hetzner.com/cloud/" },
+      { label: "Community", url: "https://community.hetzner.com/" },
+      { label: "Status", url: "https://status.hetzner.com/" },
+    ],
+  },
+  "akamai-linode": {
+    userCount: "Akamai/Linode has a large cloud customer base; exact active user count is not listed by ShipCheap yet.",
+    strength: "large",
+    summary: "Established cloud/VPS community with docs, guides, Q&A, and broad Linux server deployment examples.",
+    links: [
+      { label: "Docs", url: "https://www.linode.com/docs/" },
+      { label: "Community", url: "https://www.linode.com/community/" },
+      { label: "Q&A", url: "https://www.linode.com/community/questions/" },
+    ],
+  },
+  "platform-sh": {
+    userCount: "Public active user count not listed by ShipCheap yet.",
+    strength: "medium",
+    summary: "Professional/enterprise PaaS community with docs, support, examples, and framework-specific deployment guides.",
+    links: [
+      { label: "Docs", url: "https://docs.platform.sh/" },
+      { label: "Community", url: "https://community.platform.sh/" },
+      { label: "Support", url: "https://support.platform.sh/" },
+    ],
+  },
+};
+
 export function getPlatformBySlug(slug: string) {
   return platforms.find((platform) => platform.slug === slug);
 }
@@ -689,4 +982,8 @@ export function getPlatformCategory(slug: string) {
 
 export function getPlatformSourceLinks(slug: string) {
   return platformSourceLinks[slug] ?? [];
+}
+
+export function getPlatformCommunityInfo(slug: string) {
+  return platformCommunityInfo[slug];
 }

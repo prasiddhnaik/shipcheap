@@ -55,6 +55,13 @@ export type SourceLink = {
   url: string;
 };
 
+export type CommunityInfo = {
+  userCount: string;
+  strength: "small" | "medium" | "large" | "very-large";
+  summary: string;
+  links: SourceLink[];
+};
+
 export type RankedPlatform = {
   platform: Platform;
   score: number;

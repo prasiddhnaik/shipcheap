@@ -4,10 +4,10 @@ import { AppChrome } from "@/components/AppChrome";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
 import { ProviderLogo } from "@/components/ProviderLogo";
-import { getPlatformBySlug, getPlatformCategory, getPlatformSourceLinks, platforms, pricingDisclaimer } from "@/data/platforms";
-import type { Platform, PlatformCategory } from "@/lib/types";
+import { getPlatformBySlug, getPlatformCategory, getPlatformCommunityInfo, getPlatformSourceLinks, platforms, pricingDisclaimer } from "@/data/platforms";
+import type { CommunityInfo, Platform, PlatformCategory } from "@/lib/types";
 import { appTypeLabels, budgetLabels, categoryLabels, databaseLabels, regionLabels } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, Check, CreditCard, Database, ExternalLink, Server, ShieldAlert, Sparkles, Tags, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CreditCard, Database, ExternalLink, MessageCircle, Server, ShieldAlert, Sparkles, Tags, Users, X } from "lucide-react";
 
 export function generateStaticParams() {
   return platforms.map((platform) => ({ slug: platform.slug }));
@@ -22,6 +22,7 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
   }
   const category = getPlatformCategory(platform.slug);
   const sourceLinks = getPlatformSourceLinks(platform.slug);
+  const communityInfo = getPlatformCommunityInfo(platform.slug);
   const fitInsights = getFitInsights(platform, category);
 
   const stats = [
@@ -118,6 +119,7 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
             title="Database fit"
             value={platform.databases.map((database) => databaseLabels[database]).join(", ") || "No bundled database support"}
           />
+          {communityInfo && <CommunityPanel communityInfo={communityInfo} />}
         </section>
 
         <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
@@ -195,6 +197,52 @@ function Detail({ label, value }: { label: string; value: string }) {
     <div className="rounded-lg border border-white/10 bg-[#080d14] p-3">
       <p className="text-xs font-medium text-slate-500">{label}</p>
       <p className="mt-2 text-sm leading-6 text-slate-200">{value}</p>
+    </div>
+  );
+}
+
+function CommunityPanel({ communityInfo }: { communityInfo: CommunityInfo }) {
+  const strengthLabel: Record<CommunityInfo["strength"], string> = {
+    small: "Small",
+    medium: "Medium",
+    large: "Large",
+    "very-large": "Very large",
+  };
+
+  return (
+    <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-white">
+          <Users size={17} className="text-violet-300" />
+          Users & community
+        </div>
+        <span className="rounded-md border border-cyan-300/25 bg-cyan-300/10 px-2.5 py-1 text-xs font-semibold text-cyan-100">
+          {strengthLabel[communityInfo.strength]}
+        </span>
+      </div>
+
+      <div className="mt-3 rounded-lg border border-white/10 bg-[#080d14] p-3">
+        <p className="text-xs font-medium text-slate-500">How many users?</p>
+        <p className="mt-2 text-sm leading-6 text-slate-200">{communityInfo.userCount}</p>
+      </div>
+
+      <p className="mt-3 text-sm leading-6 text-slate-400">{communityInfo.summary}</p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {communityInfo.links.map((link) => (
+          <a
+            key={link.url}
+            href={link.url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.07] hover:text-white"
+          >
+            <MessageCircle size={12} />
+            {link.label}
+            <ExternalLink size={12} />
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
