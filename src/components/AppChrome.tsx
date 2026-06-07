@@ -12,6 +12,7 @@ import {
   Package,
   Settings2,
   Shield,
+  ShieldAlert,
   ShieldCheck,
   Star,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const navItems = [
   { label: "Dashboard", href: "/", icon: Grid2X2, key: "dashboard" },
   { label: "Recommendations", href: "/#recommendations", icon: Settings2, key: "recommendations" },
   { label: "Compare", href: "/compare", icon: BadgeDollarSign, key: "compare" },
+  { label: "Risk Simulator", href: "/billing-risk", icon: ShieldAlert, key: "billing-risk" },
   { label: "Providers", href: "/compare", icon: Package, key: "providers" },
   { label: "Saved Filters", href: "/saved", icon: Boxes, key: "saved" },
   { label: "Favorites", href: "/favorites", icon: Star, key: "favorites" },
@@ -35,7 +37,7 @@ export function AppChrome({
   compactSidebar = false,
   children,
 }: {
-  active?: "dashboard" | "recommendations" | "compare" | "providers" | "saved" | "favorites";
+  active?: "dashboard" | "recommendations" | "compare" | "billing-risk" | "providers" | "saved" | "favorites";
   compactSidebar?: boolean;
   children: React.ReactNode;
 }) {

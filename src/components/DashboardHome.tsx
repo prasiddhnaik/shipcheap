@@ -26,6 +26,7 @@ import {
   Server,
   Settings2,
   Shield,
+  ShieldAlert,
   ShieldCheck,
   Star,
 } from "lucide-react";
@@ -49,6 +50,7 @@ const navItems = [
   { label: "Dashboard", href: "/", icon: Grid2X2, active: true },
   { label: "Recommendations", href: "#recommendations", icon: Settings2 },
   { label: "Compare", href: "/compare", icon: BadgeDollarSign },
+  { label: "Risk Simulator", href: "/billing-risk", icon: ShieldAlert },
   { label: "Providers", href: "/compare", icon: Package },
   { label: "Saved Filters", href: "/saved", icon: Boxes },
   { label: "Favorites", href: "/favorites", icon: Star },
