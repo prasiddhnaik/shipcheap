@@ -10,7 +10,7 @@ export default function NoCardHostingGuidePage() {
   return (
     <AppChrome active="dashboard">
       <main className="mx-auto max-w-[960px] px-4 py-5 sm:px-6 lg:px-10">
-        <section className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+        <section className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
         <h1 className="text-[28px] font-semibold leading-tight text-white sm:text-[34px]">Best backend hosting without a credit card</h1>
         <p className="mt-5 text-lg leading-8 text-slate-300">
           No-card hosting is useful for students, first-time builders, and anyone who wants to avoid accidental billing while
@@ -25,7 +25,7 @@ export default function NoCardHostingGuidePage() {
           </p>
           <div className="grid gap-4">
             {noCardPlatforms.map((platform) => (
-              <Link key={platform.slug} href={`/platforms/${platform.slug}`} className="flex gap-3 rounded-lg border border-white/10 bg-[#111821]/85 p-5 hover:bg-[#131d28]">
+              <Link key={platform.slug} href={`/platforms/${platform.slug}`} className="flex gap-3 rounded-lg border border-white/10 bg-[#252525] p-5 hover:bg-[#2b2b2b]">
                 <ProviderLogo name={platform.name} large />
                 <div>
                   <h2 className="text-xl font-semibold text-white">{platform.name}</h2>
@@ -35,7 +35,7 @@ export default function NoCardHostingGuidePage() {
             ))}
           </div>
         </section>
-        <Link className="mt-8 inline-flex items-center gap-2 rounded-md bg-violet-500 px-4 py-3 text-sm font-bold text-white hover:bg-violet-400" href="/compare">
+        <Link className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#2442ed] px-4 py-3 text-sm font-bold text-white hover:bg-[#3b57ff]" href="/compare">
           Compare all platforms
           <ArrowRight size={15} />
         </Link>

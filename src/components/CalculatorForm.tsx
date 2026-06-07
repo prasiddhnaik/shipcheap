@@ -48,13 +48,13 @@ export function CalculatorForm() {
           <Select label="Billing risk tolerance" value={input.riskLevel} onChange={(value) => update("riskLevel", value as RiskLevel)} options={risks} />
         </div>
 
-        <button className="mt-6 w-full rounded-md bg-cyan-300 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-200">
+        <button className="mt-6 w-full rounded-md bg-[#2442ed] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3b57ff]">
           Rank hosting platforms
         </button>
       </form>
 
       <div className="space-y-4">
-        <div className="rounded-lg border border-white/10 bg-slate-950/70 p-5">
+        <div className="rounded-lg border border-white/10 bg-[#252525]/70 p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-white">
@@ -93,7 +93,7 @@ function Select({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-md border border-white/10 bg-slate-950 px-3 py-3 text-sm text-white outline-none transition focus:border-cyan-300/60"
+        className="mt-2 w-full rounded-md border border-white/10 bg-[#252525] px-3 py-3 text-sm text-white outline-none transition focus:border-[#2442ed]/70"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>
@@ -125,8 +125,8 @@ function Toggle({
             onClick={() => onChange(option)}
             className={`rounded-md border px-3 py-3 text-sm font-semibold transition ${
               value === option
-                ? "border-cyan-300/60 bg-cyan-300/15 text-cyan-100"
-                : "border-white/10 bg-slate-950 text-slate-300 hover:bg-white/[0.04]"
+                ? "border-[#2442ed]/70 bg-[#2442ed]/15 text-[#e6eaff]"
+                : "border-white/10 bg-[#252525] text-slate-300 hover:bg-white/[0.04]"
             }`}
           >
             {option ? "Yes" : "No"}

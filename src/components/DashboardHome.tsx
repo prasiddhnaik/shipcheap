@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import type { ComponentType } from "react";
 import { useMemo, useState } from "react";
 import { AuthControls } from "@/components/AuthControls";
-import { ProviderLogo } from "@/components/ProviderLogo";
+import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
 import { SaveComparisonButton } from "@/components/SaveComparisonButton";
+import { ShipCheapLogo } from "@/components/ShipCheapLogo";
 import { getPlatformCategory, platforms } from "@/data/platforms";
 import { defaultCalculatorInput, recommendPlatforms } from "@/lib/recommend-platform";
 import type { AppType, Budget, CalculatorInput, DatabaseNeed, Region, RiskLevel } from "@/lib/types";
@@ -151,7 +153,7 @@ export function DashboardHome() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070b10] text-slate-100">
+    <div className="min-h-screen bg-[#252525] text-slate-100">
       <div className="flex">
         <Sidebar />
         <main className="min-w-0 flex-1">
@@ -159,7 +161,7 @@ export function DashboardHome() {
 
           <div className="mx-auto max-w-[1260px] px-4 py-4 sm:px-6 lg:px-10">
             <section className="grid gap-4 pb-4 xl:grid-cols-[1fr_390px]">
-              <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+              <div className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <h1 className="max-w-3xl text-[26px] font-semibold leading-tight tracking-normal text-white sm:text-[32px]">
@@ -172,7 +174,7 @@ export function DashboardHome() {
                   {selectedResult && (
                     <Link
                       href={`/platforms/${selectedResult.platform.slug}`}
-                      className="inline-flex items-center gap-2 rounded-md border border-violet-300/25 bg-violet-500/10 px-3 py-2 text-sm font-semibold text-violet-100 transition hover:bg-violet-500/20"
+                      className="inline-flex items-center gap-2 rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-3 py-2 text-sm font-semibold text-[#e6eaff] transition hover:bg-[#2442ed]/20"
                     >
                       Current pick: {selectedResult.platform.name}
                       <ArrowRight size={14} />
@@ -195,7 +197,7 @@ export function DashboardHome() {
                   event.preventDefault();
                   applyPreferences();
                 }}
-                className="relative rounded-lg border border-white/10 bg-[#111821]/85 p-4 shadow-2xl shadow-black/20"
+                className="relative rounded-lg border border-white/10 bg-[#252525] p-4 shadow-2xl shadow-black/20"
               >
                 <h2 className="text-base font-semibold text-white">Your Preferences</h2>
                 <div className="mt-3 grid gap-x-8 gap-y-3 lg:grid-cols-3">
@@ -220,7 +222,7 @@ export function DashboardHome() {
                   </div>
                 </div>
                 <div className="mt-2 flex justify-end lg:absolute lg:bottom-4 lg:right-4 lg:mt-0">
-                  <button className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-violet-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-950/40 transition hover:bg-violet-400 sm:w-auto">
+                  <button className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#2442ed] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2442ed]/30 transition hover:bg-[#3b57ff] sm:w-auto">
                     <Search size={15} />
                     Show Best Options
                   </button>
@@ -272,7 +274,7 @@ export function DashboardHome() {
                   <ArrowRight size={15} />
                 </Link>
               </div>
-              <div className="overflow-hidden rounded-lg border border-white/10 bg-[#111821]/85">
+              <div className="overflow-hidden rounded-lg border border-white/10 bg-[#252525]">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[980px] border-collapse text-left text-sm">
                     <thead className="bg-white/[0.04] text-xs font-semibold text-slate-300">
@@ -291,7 +293,7 @@ export function DashboardHome() {
                       {previewRows.map((platform) => (
                         <tr key={platform.slug} className="text-slate-300">
                           <Td>
-                            <Link href={`/platforms/${platform.slug}`} className="flex items-center gap-3 font-medium text-white hover:text-violet-200">
+                            <Link href={`/platforms/${platform.slug}`} className="flex items-center gap-3 font-medium text-white hover:text-[#aeb9ff]">
                               <ProviderLogo name={platform.name} />
                               {platform.name}
                             </Link>
@@ -333,10 +335,9 @@ export function DashboardHome() {
 
 function Sidebar() {
   return (
-    <aside className="hidden min-h-screen w-60 shrink-0 border-r border-white/10 bg-[#080d14] lg:sticky lg:top-0 lg:flex lg:flex-col">
+    <aside className="hidden min-h-screen w-60 shrink-0 border-r border-white/10 bg-[#252525] lg:sticky lg:top-0 lg:flex lg:flex-col">
       <Link href="/" className="flex h-13 items-center gap-3 px-5 py-3">
-        <Boxes className="text-violet-400" size={28} />
-        <span className="text-lg font-semibold text-white">ShipCheap</span>
+        <ShipCheapLogo />
       </Link>
 
       <nav className="space-y-1 px-3 py-2">
@@ -346,7 +347,7 @@ function Sidebar() {
             href={item.href}
             className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition ${
               item.active
-                ? "border border-violet-400/25 bg-violet-500/15 text-violet-200"
+                ? "border border-[#2442ed]/35 bg-[#2442ed]/15 text-[#aeb9ff]"
                 : "text-slate-300 hover:bg-white/[0.04] hover:text-white"
             }`}
           >
@@ -373,14 +374,14 @@ function Sidebar() {
 
       <div className="mt-auto p-3">
         <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-500/20 text-violet-200">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2442ed]/20 text-[#aeb9ff]">
             <ShieldCheck size={18} />
           </div>
           <h2 className="mt-4 text-sm font-semibold text-white">Why ShipCheap?</h2>
           <p className="mt-3 text-sm leading-6 text-slate-400">
             We analyze pricing, limits, and upgrade paths so you can deploy without surprise bills.
           </p>
-          <Link href="/guides/no-card-hosting" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-violet-300 hover:text-violet-200">
+          <Link href="/guides/no-card-hosting" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] hover:text-[#aeb9ff]">
             Learn more <ArrowRight size={14} />
           </Link>
         </div>
@@ -399,10 +400,9 @@ function Sidebar() {
 
 function Topbar() {
   return (
-    <header className="flex min-h-13 items-center justify-between border-b border-white/10 bg-[#080d14]/90 px-4 py-2 backdrop-blur sm:px-8">
+    <header className="flex min-h-13 items-center justify-between border-b border-white/10 bg-[#252525]/90 px-4 py-2 backdrop-blur sm:px-8">
       <Link href="/" className="flex items-center gap-3 lg:hidden">
-        <span className="flex h-9 w-9 items-center justify-center rounded-md bg-cyan-300 text-sm font-black text-slate-950">SC</span>
-        <span className="font-semibold text-white">ShipCheap</span>
+        <ShipCheapLogo compact />
       </Link>
       <div className="hidden text-sm text-slate-500 lg:block"> </div>
       <div className="flex items-center gap-3">
@@ -422,9 +422,9 @@ function HeroStat({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#080d14] p-3">
+    <div className="rounded-lg border border-white/10 bg-[#252525] p-3">
       <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-        <Icon size={14} className="text-violet-300" />
+        <Icon size={14} className="text-[#7f91ff]" />
         {label}
       </div>
       <p className="mt-2 truncate text-sm font-semibold text-white">{value}</p>
@@ -434,10 +434,10 @@ function HeroStat({
 
 function HeroSummary({ selectedResult }: { selectedResult?: RecommendedResult }) {
   return (
-    <aside className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+    <aside className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-500/10 text-violet-200">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#2442ed]/35 bg-[#2442ed]/10 text-[#aeb9ff]">
             <ShieldCheck size={19} />
           </div>
           <div>
@@ -450,7 +450,7 @@ function HeroSummary({ selectedResult }: { selectedResult?: RecommendedResult })
         </span>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-[#080d14] p-4">
+      <div className="mt-4 rounded-lg border border-white/10 bg-[#252525] p-4">
         <p className="text-xs font-medium text-slate-500">Top match</p>
         <div className="mt-3 flex items-start justify-between gap-3">
           <div>
@@ -470,7 +470,7 @@ function HeroSummary({ selectedResult }: { selectedResult?: RecommendedResult })
         <Link href="#calculator" className="inline-flex items-center justify-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.05]">
           Edit filters
         </Link>
-        <Link href={selectedResult ? `/compare?platform=${selectedResult.platform.slug}` : "/compare"} className="inline-flex items-center justify-center gap-2 rounded-md bg-violet-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-400">
+        <Link href={selectedResult ? `/compare?platform=${selectedResult.platform.slug}` : "/compare"} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2442ed] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#3b57ff]">
           Compare
           <ArrowRight size={14} />
         </Link>
@@ -496,7 +496,7 @@ function Select({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1.5 h-8 w-full rounded-md border border-white/10 bg-[#080d14] px-3 text-sm text-white outline-none transition focus:border-violet-300/60"
+        className="mt-1.5 h-8 w-full rounded-md border border-white/10 bg-[#252525] px-3 text-sm text-white outline-none transition focus:border-[#2442ed]/70"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>
@@ -533,7 +533,7 @@ function Toggle({
   return (
     <div>
       <p className="text-xs font-medium text-slate-300">{label}</p>
-      <div className="mt-1.5 inline-grid grid-cols-2 overflow-hidden rounded-md border border-white/10 bg-[#080d14]">
+      <div className="mt-1.5 inline-grid grid-cols-2 overflow-hidden rounded-md border border-white/10 bg-[#252525]">
         {[false, true].map((option) => (
           <button
             key={String(option)}
@@ -541,7 +541,7 @@ function Toggle({
             onClick={() => onChange(option)}
             className={`h-7 min-w-16 px-4 text-sm font-medium transition ${
               value === option
-                ? "bg-violet-500 text-white shadow-inner shadow-white/10"
+                ? "bg-[#2442ed] text-white shadow-inner shadow-white/10"
                 : "text-slate-300 hover:bg-white/[0.04]"
             }`}
           >
@@ -557,7 +557,7 @@ function RiskControl({ value, onChange }: { value: RiskLevel; onChange: (value: 
   return (
     <div>
       <p className="text-xs font-medium text-slate-300">Billing risk tolerance</p>
-      <div className="mt-1.5 grid overflow-hidden rounded-md border border-white/10 bg-[#080d14] sm:grid-cols-3">
+      <div className="mt-1.5 grid overflow-hidden rounded-md border border-white/10 bg-[#252525] sm:grid-cols-3">
         {risks.map(([risk, label]) => (
           <button
             key={risk}
@@ -567,7 +567,7 @@ function RiskControl({ value, onChange }: { value: RiskLevel; onChange: (value: 
               value === risk
                 ? risk === "low"
                   ? "bg-emerald-500/20 text-emerald-100 ring-1 ring-inset ring-emerald-400/70"
-                  : "bg-violet-500/25 text-white ring-1 ring-inset ring-violet-300/60"
+                  : "bg-[#2442ed]/25 text-white ring-1 ring-inset ring-[#2442ed]/70"
                 : "text-slate-300 hover:bg-white/[0.04]"
             }`}
           >
@@ -596,11 +596,11 @@ function NeedPill({
       onClick={onClick}
       className={`inline-flex h-7 items-center gap-2 rounded-md border px-3 text-sm transition ${
         checked
-          ? "border-violet-300/45 bg-violet-500/20 text-white"
-          : "border-white/10 bg-[#080d14] text-slate-300 hover:bg-white/[0.04] hover:text-white"
+          ? "border-[#2442ed]/55 bg-[#2442ed]/20 text-white"
+          : "border-white/10 bg-[#252525] text-slate-300 hover:bg-white/[0.04] hover:text-white"
       }`}
     >
-      <span className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${checked ? "border-violet-300 bg-violet-500" : "border-white/15"}`}>
+      <span className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${checked ? "border-[#2442ed] bg-[#2442ed]" : "border-white/15"}`}>
         {checked && <Check size={10} />}
       </span>
       {children}
@@ -621,27 +621,23 @@ function RecommendationCard({
 }) {
   const accents = [
     {
-      border: "border-emerald-400/70",
-      rank: "bg-emerald-400 text-slate-950",
-      link: "text-emerald-300 hover:text-emerald-200",
       tag: "Best Overall",
     },
     {
-      border: "border-violet-400/70",
-      rank: "bg-violet-400 text-slate-950",
-      link: "text-violet-300 hover:text-violet-200",
       tag: "Developer Friendly",
     },
     {
-      border: "border-orange-500/70",
-      rank: "bg-orange-500 text-slate-950",
-      link: "text-orange-400 hover:text-orange-300",
       tag: "Great for Scale",
     },
   ];
   const accent = accents[index] ?? accents[0];
   const platform = result.platform;
   const category = getPlatformCategory(platform.slug);
+  const providerTheme = getProviderTheme(platform.name);
+  const cardStyle = {
+    borderColor: selected ? providerTheme.accent : providerTheme.border,
+    background: `linear-gradient(135deg, ${providerTheme.softBackground}, #252525 42%)`,
+  } as CSSProperties;
 
   return (
     <article
@@ -655,22 +651,28 @@ function RecommendationCard({
           onSelect();
         }
       }}
-      className={`cursor-pointer rounded-lg border ${accent.border} bg-[#111821]/90 p-3.5 shadow-2xl shadow-black/20 outline-none transition hover:-translate-y-0.5 hover:bg-[#131d28] focus-visible:ring-2 focus-visible:ring-violet-300/70 ${
-        selected ? "ring-2 ring-violet-300/70 ring-offset-2 ring-offset-[#070b10]" : ""
+      className={`cursor-pointer rounded-lg border p-3.5 shadow-2xl shadow-black/20 outline-none transition hover:-translate-y-0.5 hover:bg-[#2b2b2b] focus-visible:ring-2 focus-visible:ring-[#2442ed]/70 ${
+        selected ? "ring-2 ring-[#2442ed]/70 ring-offset-2 ring-offset-[#252525]" : ""
       }`}
+      style={cardStyle}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${accent.rank}`}>
+          <span
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+            style={{ backgroundColor: providerTheme.accent, color: providerTheme.onAccent }}
+          >
             {result.rank}
           </span>
           <ProviderLogo name={platform.name} large />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
               <h3 className="truncate text-base font-semibold text-white">{platform.name}</h3>
-              <span className="whitespace-nowrap rounded-full bg-violet-500/20 px-1.5 py-0.5 text-[11px] font-medium text-violet-200">{accent.tag}</span>
+              <span className="whitespace-nowrap rounded-full px-1.5 py-0.5 text-[11px] font-medium text-white" style={{ backgroundColor: providerTheme.background }}>
+                {accent.tag}
+              </span>
             </div>
-            <p className="mt-0.5 text-xs font-medium text-cyan-200">{categoryLabels[category]}</p>
+            <p className="mt-0.5 text-xs font-medium" style={{ color: providerTheme.text }}>{categoryLabels[category]}</p>
             <div className="mt-1.5 flex flex-wrap gap-1">
               {platform.hasFreeTier && <MiniBadge>Free tier</MiniBadge>}
               {!platform.creditCardRequired && <MiniBadge>No card</MiniBadge>}
@@ -681,7 +683,7 @@ function RecommendationCard({
         </div>
         <div className="shrink-0 text-right">
           {selected && (
-            <span className="mb-1 inline-flex items-center gap-1 rounded-full border border-violet-300/30 bg-violet-500/20 px-2 py-0.5 text-[11px] font-semibold text-violet-100">
+            <span className="mb-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold text-[#e6eaff]" style={{ borderColor: providerTheme.border, backgroundColor: providerTheme.background }}>
               <Check size={11} />
               Selected
             </span>
@@ -695,7 +697,8 @@ function RecommendationCard({
         <Link
           href={`/platforms/${platform.slug}`}
           onClick={(event) => event.stopPropagation()}
-          className={`inline-flex items-center gap-2 text-sm font-semibold ${accent.link}`}
+          className="inline-flex items-center gap-2 text-sm font-semibold"
+          style={{ color: providerTheme.text }}
         >
           View details <ArrowRight size={14} />
         </Link>

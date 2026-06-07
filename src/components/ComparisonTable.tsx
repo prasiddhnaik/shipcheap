@@ -49,7 +49,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-4">
+      <div className="rounded-lg border border-white/10 bg-[#252525] p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold text-white">Comparison matrix</h2>
@@ -66,7 +66,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
         <select
           value={activeCategory}
           onChange={(event) => setActiveCategory(event.target.value as PlatformCategory | "all")}
-          className="rounded-md border border-white/10 bg-[#080d14] px-3 py-2 text-sm font-semibold text-slate-200 outline-none transition focus:border-violet-300/60"
+          className="rounded-md border border-white/10 bg-[#252525] px-3 py-2 text-sm font-semibold text-slate-200 outline-none transition focus:border-[#2442ed]/70"
         >
           <option value="all">All categories</option>
           {(Object.entries(categoryLabels) as [PlatformCategory, string][]).map(([category, label]) => (
@@ -87,7 +87,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
             }
             className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
               activeFilters[filter.key]
-                ? "border-violet-300/60 bg-violet-500/20 text-violet-100"
+                ? "border-[#2442ed]/70 bg-[#2442ed]/20 text-[#e6eaff]"
                 : "border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.07]"
             }`}
           >
@@ -97,7 +97,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-[#111821]/85">
+      <div className="overflow-hidden rounded-lg border border-white/10 bg-[#252525]">
         <div className="overflow-x-auto">
           <table className="min-w-[1080px] w-full table-fixed border-collapse text-left text-sm">
             <thead className="bg-white/[0.04] text-xs font-semibold text-slate-300">
@@ -120,17 +120,17 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                 <tr
                   key={platform.slug}
                   className={`align-top text-slate-300 transition ${
-                    platform.slug === selectedPlatformSlug ? "bg-violet-500/10 ring-1 ring-inset ring-violet-300/35" : "hover:bg-white/[0.025]"
+                    platform.slug === selectedPlatformSlug ? "bg-[#2442ed]/10 ring-1 ring-inset ring-[#2442ed]/45" : "hover:bg-white/[0.025]"
                   }`}
                 >
                   <Td>
                     <div className="flex items-center gap-3">
                       <ProviderLogo name={platform.name} />
                       <div>
-                        <Link className="font-semibold text-white hover:text-violet-200" href={`/platforms/${platform.slug}`}>
+                        <Link className="font-semibold text-white hover:text-[#aeb9ff]" href={`/platforms/${platform.slug}`}>
                           {platform.name}
                         </Link>
-                        {platform.slug === selectedPlatformSlug && <p className="mt-1 text-xs font-medium text-violet-200">Selected from recommendations</p>}
+                        {platform.slug === selectedPlatformSlug && <p className="mt-1 text-xs font-medium text-[#aeb9ff]">Selected from recommendations</p>}
                       </div>
                     </div>
                   </Td>

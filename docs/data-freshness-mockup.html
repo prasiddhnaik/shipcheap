@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ShipCheap Data Freshness Mockup</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #252525;
+        --panel: #2b2b2b;
+        --panel-soft: #303030;
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --blue: #2442ed;
+        --blue-soft: rgba(36, 66, 237, 0.16);
+        --green: #34d399;
+        --green-soft: rgba(52, 211, 153, 0.13);
+        --amber: #fbbf24;
+        --amber-soft: rgba(251, 191, 36, 0.13);
+        --red: #fb7185;
+        --red-soft: rgba(251, 113, 133, 0.13);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(28px, 4vw, 42px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      h3 {
+        font-size: 14px;
+        line-height: 1.2;
+      }
+
+      p {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      a {
+        color: #aeb9ff;
+        text-decoration: none;
+      }
+
+      .eyebrow {
+        margin-bottom: 10px;
+        color: #aeb9ff;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .metric {
+        min-height: 88px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-soft);
+      }
+
+      .metric span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 10px;
+        color: var(--text);
+        font-size: 20px;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 30px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+      }
+
+      .status::before {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        content: "";
+      }
+
+      .current {
+        background: var(--green-soft);
+        color: #bbf7d0;
+        border-color: rgba(52, 211, 153, 0.34);
+      }
+
+      .current::before {
+        background: var(--green);
+      }
+
+      .partial {
+        background: var(--amber-soft);
+        color: #fde68a;
+        border-color: rgba(251, 191, 36, 0.34);
+      }
+
+      .partial::before {
+        background: var(--amber);
+      }
+
+      .unknown {
+        background: var(--red-soft);
+        color: #fecdd3;
+        border-color: rgba(251, 113, 133, 0.34);
+      }
+
+      .unknown::before {
+        background: var(--red);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        overflow: hidden;
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .panel-body {
+        padding: 18px;
+      }
+
+      .field-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .field-row {
+        display: grid;
+        grid-template-columns: 190px 128px minmax(0, 1fr) 132px;
+        gap: 12px;
+        align-items: center;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-soft);
+      }
+
+      .field-name {
+        color: var(--text);
+        font-weight: 750;
+      }
+
+      .field-date {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .field-note {
+        color: #cbd5e1;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 8px 12px;
+        border: 1px solid rgba(36, 66, 237, 0.55);
+        border-radius: 6px;
+        background: var(--blue-soft);
+        color: #e6eaff;
+        font-size: 13px;
+        font-weight: 750;
+      }
+
+      .source-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .source {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-soft);
+      }
+
+      .source strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .source span {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .table-wrap {
+        margin-top: 16px;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      table {
+        width: 100%;
+        min-width: 820px;
+        border-collapse: collapse;
+        background: var(--panel);
+        text-align: left;
+      }
+
+      th,
+      td {
+        padding: 14px;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+      }
+
+      th {
+        color: #cbd5e1;
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 12px;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .plain-note {
+        margin-top: 16px;
+        padding: 14px;
+        border: 1px solid rgba(251, 191, 36, 0.28);
+        border-radius: 8px;
+        background: var(--amber-soft);
+      }
+
+      .plain-note strong {
+        color: #fde68a;
+      }
+
+      .plain-note p {
+        margin-top: 4px;
+        color: #fef3c7;
+        font-size: 14px;
+      }
+
+      @media (max-width: 940px) {
+        header,
+        .panel-head {
+          display: block;
+        }
+
+        header .status,
+        .panel-head .status {
+          margin-top: 14px;
+        }
+
+        .summary-grid,
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .field-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <div class="eyebrow">ShipCheap planning mockup</div>
+          <h1>Data freshness view</h1>
+          <p>
+            A plain account of what was checked, when it was checked, and which provider claims still
+            need review.
+          </p>
+        </div>
+        <span class="status partial">Partially current</span>
+      </header>
+
+      <section class="summary-grid" aria-label="Freshness summary">
+        <div class="metric">
+          <span>Provider</span>
+          <strong>Render</strong>
+        </div>
+        <div class="metric">
+          <span>Last full review</span>
+          <strong>Jun 2026</strong>
+        </div>
+        <div class="metric">
+          <span>Fields current</span>
+          <strong>4 of 6</strong>
+        </div>
+        <div class="metric">
+          <span>Needs attention</span>
+          <strong>Sleep rules</strong>
+        </div>
+      </section>
+
+      <div class="layout">
+        <section class="panel" aria-label="Provider freshness detail">
+          <div class="panel-head">
+            <div>
+              <h2>Provider detail panel</h2>
+              <p>Shown near the existing official sources block on each provider page.</p>
+            </div>
+            <span class="status partial">Mixed freshness</span>
+          </div>
+          <div class="panel-body">
+            <div class="field-list">
+              <div class="field-row">
+                <div class="field-name">Pricing</div>
+                <span class="status current">Current</span>
+                <div class="field-note">Starter plan language checked against the official pricing page.</div>
+                <a class="button" href="#">Open source</a>
+              </div>
+              <div class="field-row">
+                <div class="field-name">Free tier</div>
+                <span class="status current">Current</span>
+                <div class="field-note">Free static site path and starter limits confirmed.</div>
+                <div class="field-date">Checked Jun 2026</div>
+              </div>
+              <div class="field-row">
+                <div class="field-name">Credit card</div>
+                <span class="status current">Current</span>
+                <div class="field-note">No-card claim reviewed for beginner account path.</div>
+                <div class="field-date">Checked Jun 2026</div>
+              </div>
+              <div class="field-row">
+                <div class="field-name">Sleep behavior</div>
+                <span class="status unknown">Needs review</span>
+                <div class="field-note">Backend sleep behavior changes often and should be rechecked before relying on it.</div>
+                <a class="button" href="#">Review</a>
+              </div>
+              <div class="field-row">
+                <div class="field-name">Regions</div>
+                <span class="status partial">Stale soon</span>
+                <div class="field-note">US and Europe listed, but region availability should be refreshed monthly.</div>
+                <div class="field-date">Checked May 2026</div>
+              </div>
+            </div>
+
+            <div class="plain-note">
+              <strong>User-facing warning</strong>
+              <p>
+                This provider has mostly current data, but sleep behavior needs review. Verify before
+                deploying an always-on backend.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel" aria-label="Sources">
+          <div class="panel-head">
+            <div>
+              <h2>Official sources</h2>
+              <p>Source links stay simple and inspectable.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="source-list">
+              <div class="source">
+                <div>
+                  <strong>Pricing</strong>
+                  <span>render.com/pricing</span>
+                </div>
+                <a href="#">Open</a>
+              </div>
+              <div class="source">
+                <div>
+                  <strong>Docs</strong>
+                  <span>render.com/docs</span>
+                </div>
+                <a href="#">Open</a>
+              </div>
+              <div class="source">
+                <div>
+                  <strong>Free tier guide</strong>
+                  <span>render.com/docs/free</span>
+                </div>
+                <a href="#">Open</a>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <section class="panel" style="margin-top: 16px" aria-label="Comparison table mockup">
+        <div class="panel-head">
+          <div>
+            <h2>Comparison table treatment</h2>
+            <p>A small freshness column lets users sort out stale providers before comparing cost.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Free tier</th>
+                <th>Credit card</th>
+                <th>Billing risk</th>
+                <th>Data freshness</th>
+                <th>Last checked</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Render</td>
+                <td>Yes</td>
+                <td>No card path</td>
+                <td>Medium</td>
+                <td><span class="status partial">Mixed</span></td>
+                <td>Jun 2026</td>
+              </tr>
+              <tr>
+                <td>Koyeb</td>
+                <td>Yes</td>
+                <td>No card path</td>
+                <td>Low</td>
+                <td><span class="status current">Current</span></td>
+                <td>Jun 2026</td>
+              </tr>
+              <tr>
+                <td>Railway</td>
+                <td>No durable free tier</td>
+                <td>Required</td>
+                <td>High</td>
+                <td><span class="status unknown">Needs review</span></td>
+                <td>Unknown</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

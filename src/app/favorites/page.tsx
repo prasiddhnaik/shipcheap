@@ -10,9 +10,9 @@ export default function FavoritesPage() {
   return (
     <AppChrome active="favorites">
       <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
-        <section className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+        <section className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-500/10 text-violet-200">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#2442ed]/35 bg-[#2442ed]/10 text-[#aeb9ff]">
               <Star size={20} />
             </span>
             <div>
@@ -27,7 +27,7 @@ export default function FavoritesPage() {
             <Link
               key={platform.slug}
               href={`/platforms/${platform.slug}`}
-              className="rounded-lg border border-white/10 bg-[#111821]/85 p-4 transition hover:border-violet-300/40 hover:bg-[#131d28]"
+              className="rounded-lg border border-white/10 bg-[#252525] p-4 transition hover:border-[#2442ed]/50 hover:bg-[#2b2b2b]"
             >
               <div className="flex items-start gap-3">
                 <ProviderLogo name={platform.name} large />
@@ -36,7 +36,7 @@ export default function FavoritesPage() {
                   <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-400">{platform.description}</p>
                 </div>
               </div>
-              <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-violet-300">
+              <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#7f91ff]">
                 View details
                 <ArrowRight size={14} />
               </div>

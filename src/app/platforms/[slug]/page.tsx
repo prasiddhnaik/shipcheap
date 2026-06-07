@@ -1,11 +1,12 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import { AppChrome } from "@/components/AppChrome";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
-import { ProviderLogo } from "@/components/ProviderLogo";
+import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
 import { getPlatformBySlug, getPlatformCategory, getPlatformCommunityInfo, getPlatformSourceLinks, platforms, pricingDisclaimer } from "@/data/platforms";
-import type { CommunityInfo, Platform, PlatformCategory } from "@/lib/types";
+import type { CommunityInfo, DatabaseNeed, Platform, PlatformCategory } from "@/lib/types";
 import { appTypeLabels, budgetLabels, categoryLabels, databaseLabels, regionLabels } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, Check, CreditCard, Database, ExternalLink, MessageCircle, Server, ShieldAlert, Sparkles, Tags, Users, X } from "lucide-react";
 
@@ -24,6 +25,11 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
   const sourceLinks = getPlatformSourceLinks(platform.slug);
   const communityInfo = getPlatformCommunityInfo(platform.slug);
   const fitInsights = getFitInsights(platform, category);
+  const providerTheme = getProviderTheme(platform.name);
+  const providerPanelStyle = {
+    borderColor: providerTheme.border,
+    background: `linear-gradient(135deg, ${providerTheme.softBackground}, #252525 38%)`,
+  } as CSSProperties;
 
   const stats = [
     { label: "Starter cost", value: platform.hasFreeTier ? "$0 entry" : "Paid entry", tone: platform.hasFreeTier ? "good" : "warn" },
@@ -35,20 +41,20 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
   return (
     <AppChrome active="providers">
       <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
-        <Link href="/compare" className="inline-flex items-center gap-2 text-sm font-medium text-violet-300 transition hover:text-violet-200">
+        <Link href="/compare" className="inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] transition hover:text-[#aeb9ff]">
           <ArrowLeft size={15} />
           Back to comparison
         </Link>
 
         <section className="mt-4 grid gap-4 xl:grid-cols-[1fr_360px]">
-          <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+          <div className="rounded-lg border bg-[#252525] p-5 shadow-2xl shadow-black/20" style={providerPanelStyle}>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <div className="mb-4 flex items-center gap-3">
                   <ProviderLogo name={platform.name} large />
                   <div>
                     <h1 className="text-[30px] font-semibold leading-tight text-white sm:text-[38px]">{platform.name}</h1>
-                    <p className="mt-1 text-sm text-slate-500">{categoryLabels[category]}</p>
+                    <p className="mt-1 text-sm font-medium" style={{ color: providerTheme.text }}>{categoryLabels[category]}</p>
                   </div>
                 </div>
                 <p className="max-w-3xl text-sm leading-6 text-slate-400">{platform.description}</p>
@@ -58,7 +64,7 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat) => (
-                <div key={stat.label} className="rounded-lg border border-white/10 bg-[#080d14] p-3">
+                <div key={stat.label} className="rounded-lg border border-white/10 bg-[#252525] p-3">
                   <p className="text-xs font-medium text-slate-500">{stat.label}</p>
                   <p
                     className={`mt-2 text-sm font-semibold capitalize ${
@@ -72,22 +78,23 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
             </div>
           </div>
 
-          <aside className="rounded-lg border border-violet-300/20 bg-violet-500/10 p-5">
-            <div className="flex items-center gap-2 text-sm font-semibold text-violet-100">
+          <aside className="rounded-lg border p-5" style={{ borderColor: providerTheme.border, backgroundColor: providerTheme.background }}>
+            <div className="flex items-center gap-2 text-sm font-semibold text-[#e6eaff]">
               <ShieldAlert size={18} />
               Billing note
             </div>
-            <p className="mt-3 text-sm leading-6 text-violet-100/75">{pricingDisclaimer}</p>
+            <p className="mt-3 text-sm leading-6 text-[#e6eaff]/75">{pricingDisclaimer}</p>
             <Link
               href={`/compare?platform=${platform.slug}`}
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-violet-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-400"
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition brightness-100 hover:brightness-110"
+              style={{ backgroundColor: providerTheme.accent, color: providerTheme.onAccent }}
             >
               Compare this provider
               <ArrowRight size={15} />
             </Link>
             {sourceLinks.length > 0 && (
-              <div className="mt-4 border-t border-violet-300/15 pt-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-100/55">Official sources</p>
+              <div className="mt-4 border-t pt-4" style={{ borderColor: providerTheme.border }}>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#e6eaff]/55">Official sources</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {sourceLinks.map((link) => (
                     <a
@@ -95,7 +102,8 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
                       href={link.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-md border border-violet-300/20 px-2.5 py-1.5 text-xs font-semibold text-violet-100 transition hover:bg-violet-400/10"
+                      className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold text-[#e6eaff] transition hover:bg-white/[0.05]"
+                      style={{ borderColor: providerTheme.border }}
                     >
                       {link.label}
                       <ExternalLink size={12} />
@@ -114,25 +122,21 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
         </section>
 
         <section className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
-          <InfoPanel
-            icon={Database}
-            title="Database fit"
-            value={platform.databases.map((database) => databaseLabels[database]).join(", ") || "No bundled database support"}
-          />
+          <DatabaseFitPanel platform={platform} category={category} />
           {communityInfo && <CommunityPanel communityInfo={communityInfo} />}
         </section>
 
         <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-5">
+          <div className="rounded-lg border border-white/10 bg-[#252525] p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <Sparkles size={18} className="text-violet-300" />
+                  <Sparkles size={18} className="text-[#7f91ff]" />
                   <h2 className="text-lg font-semibold text-white">Fit summary</h2>
                 </div>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">{fitInsights.summary}</p>
               </div>
-              <span className="rounded-md border border-cyan-300/25 bg-cyan-300/10 px-2.5 py-1 text-xs font-semibold text-cyan-100">
+              <span className="rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-2.5 py-1 text-xs font-semibold text-[#e6eaff]">
                 {categoryLabels[category]}
               </span>
             </div>
@@ -182,9 +186,9 @@ function InfoPanel({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-4">
+    <div className="rounded-lg border border-white/10 bg-[#252525] p-4">
       <div className="flex items-center gap-2 text-sm font-semibold text-white">
-        <Icon size={17} className="text-violet-300" />
+        <Icon size={17} className="text-[#7f91ff]" />
         {title}
       </div>
       <p className="mt-3 text-sm leading-6 text-slate-400">{value}</p>
@@ -192,9 +196,86 @@ function InfoPanel({
   );
 }
 
+function DatabaseFitPanel({ platform, category }: { platform: Platform; category: PlatformCategory }) {
+  const details = getDatabaseFitDetails(platform, category);
+
+  return (
+    <div className="rounded-lg border border-white/10 bg-[#252525] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-white">
+          <Database size={17} className="text-[#7f91ff]" />
+          Database fit
+        </div>
+        <span className="rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-2.5 py-1 text-xs font-semibold text-[#e6eaff]">
+          {details.role}
+        </span>
+      </div>
+
+      <p className="mt-3 text-sm leading-6 text-slate-400">{details.summary}</p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {details.databases.map((database) => (
+          <span key={database} className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs font-semibold text-slate-200">
+            {databaseLabels[database]}
+          </span>
+        ))}
+      </div>
+
+      <dl className="mt-4 space-y-3 border-t border-white/10 pt-4">
+        <div>
+          <dt className="text-xs font-medium text-slate-500">Best database use</dt>
+          <dd className="mt-1 text-sm leading-6 text-slate-200">{details.bestUse}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium text-slate-500">Check before launch</dt>
+          <dd className="mt-1 text-sm leading-6 text-slate-300">{details.launchCheck}</dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+function getDatabaseFitDetails(platform: Platform, category: PlatformCategory) {
+  const usableDatabases = platform.databases.filter((database): database is Exclude<DatabaseNeed, "none"> => database !== "none");
+
+  if (usableDatabases.length === 0) {
+    return {
+      role: "External DB",
+      databases: [] as DatabaseNeed[],
+      summary: `${platform.name} is not listed with a bundled database fit in ShipCheap yet. Plan to connect a separate database provider for persistent data.`,
+      bestUse: "Static sites, workers, APIs, or deployments where persistence is handled somewhere else.",
+      launchCheck: "Confirm connection strings, private networking, backups, and billing on the external database provider.",
+    };
+  }
+
+  const databaseList = usableDatabases.map((database) => databaseLabels[database]).join(", ");
+  const role =
+    category === "database"
+      ? "Primary DB"
+      : category === "frontend" || category === "serverless"
+        ? "External DB fit"
+        : "App + DB fit";
+
+  const appHostingSummary =
+    category === "app-hosting"
+      ? `${platform.name} can host the app while supporting ${databaseList} workloads, but database limits and add-on details should be verified separately.`
+      : `${platform.name} fits ${databaseList} workloads, with the exact storage, compute, and quota story depending on the current plan.`;
+
+  return {
+    role,
+    databases: usableDatabases,
+    summary: appHostingSummary,
+    bestUse: platform.bestFor.slice(0, 3).join(", "),
+    launchCheck:
+      platform.cons.find((item) => item.toLowerCase().includes("database")) ||
+      platform.warningNotes.find((item) => item.toLowerCase().includes("database")) ||
+      "Verify backups, storage quotas, connection limits, regions, and whether a separate database provider is needed.",
+  };
+}
+
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#080d14] p-3">
+    <div className="rounded-lg border border-white/10 bg-[#252525] p-3">
       <p className="text-xs font-medium text-slate-500">{label}</p>
       <p className="mt-2 text-sm leading-6 text-slate-200">{value}</p>
     </div>
@@ -210,18 +291,18 @@ function CommunityPanel({ communityInfo }: { communityInfo: CommunityInfo }) {
   };
 
   return (
-    <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-4">
+    <div className="rounded-lg border border-white/10 bg-[#252525] p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Users size={17} className="text-violet-300" />
+          <Users size={17} className="text-[#7f91ff]" />
           Users & community
         </div>
-        <span className="rounded-md border border-cyan-300/25 bg-cyan-300/10 px-2.5 py-1 text-xs font-semibold text-cyan-100">
+        <span className="rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-2.5 py-1 text-xs font-semibold text-[#e6eaff]">
           {strengthLabel[communityInfo.strength]}
         </span>
       </div>
 
-      <div className="mt-3 rounded-lg border border-white/10 bg-[#080d14] p-3">
+      <div className="mt-3 rounded-lg border border-white/10 bg-[#252525] p-3">
         <p className="text-xs font-medium text-slate-500">How many users?</p>
         <p className="mt-2 text-sm leading-6 text-slate-200">{communityInfo.userCount}</p>
       </div>
@@ -249,7 +330,7 @@ function CommunityPanel({ communityInfo }: { communityInfo: CommunityInfo }) {
 
 function Guidance({ title, tone, items }: { title: string; tone: "good" | "warn"; items: string[] }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#080d14] p-3">
+    <div className="rounded-lg border border-white/10 bg-[#252525] p-3">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{title}</p>
       <ul className="mt-3 space-y-2 text-sm leading-5 text-slate-300">
         {items.map((item) => (
@@ -265,7 +346,7 @@ function Guidance({ title, tone, items }: { title: string; tone: "good" | "warn"
 
 function List({ title, tone, items }: { title: string; tone: "good" | "warn"; items: string[] }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-5">
+    <div className="rounded-lg border border-white/10 bg-[#252525] p-5">
       <h2 className="text-base font-semibold text-white">{title}</h2>
       <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
         {items.map((item) => (

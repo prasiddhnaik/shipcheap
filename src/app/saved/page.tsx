@@ -15,9 +15,9 @@ export default async function SavedPage() {
   return (
     <AppChrome active="saved">
       <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
-        <section className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+        <section className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-500/10 text-violet-200">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#2442ed]/35 bg-[#2442ed]/10 text-[#aeb9ff]">
               <Boxes size={20} />
             </span>
             <div>
@@ -29,10 +29,10 @@ export default async function SavedPage() {
 
         <section className="mt-4 grid gap-3">
           {savedComparisons.length === 0 ? (
-            <div className="rounded-lg border border-white/10 bg-[#111821]/85 p-5">
+            <div className="rounded-lg border border-white/10 bg-[#252525] p-5">
               <h2 className="text-lg font-semibold text-white">No saved filters yet</h2>
               <p className="mt-2 text-sm leading-6 text-slate-400">Use “Save share link” from the dashboard recommendations to create one.</p>
-              <Link href="/#recommendations" className="mt-4 inline-flex items-center gap-2 rounded-md bg-violet-500 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-400">
+              <Link href="/#recommendations" className="mt-4 inline-flex items-center gap-2 rounded-md bg-[#2442ed] px-4 py-2 text-sm font-semibold text-white hover:bg-[#3b57ff]">
                 Go to recommendations
                 <ArrowRight size={15} />
               </Link>
@@ -42,7 +42,7 @@ export default async function SavedPage() {
               <Link
                 key={saved.id}
                 href={`/saved/${saved.id}`}
-                className="rounded-lg border border-white/10 bg-[#111821]/85 p-4 transition hover:border-violet-300/40 hover:bg-[#131d28]"
+                className="rounded-lg border border-white/10 bg-[#252525] p-4 transition hover:border-[#2442ed]/50 hover:bg-[#2b2b2b]"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>

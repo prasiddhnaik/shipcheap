@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AuthControls } from "@/components/AuthControls";
+import { ShipCheapLogo } from "@/components/ShipCheapLogo";
 import {
   ArrowRight,
   BadgeDollarSign,
@@ -39,7 +40,7 @@ export function AppChrome({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#070b10] text-slate-100">
+    <div className="min-h-screen bg-[#252525] text-slate-100">
       <div className="flex">
         <Sidebar active={active} compact={compactSidebar} />
         <main className="min-w-0 flex-1">
@@ -53,10 +54,9 @@ export function AppChrome({
 
 function Sidebar({ active, compact }: { active: string; compact: boolean }) {
   return (
-    <aside className={`hidden min-h-screen shrink-0 border-r border-white/10 bg-[#080d14] lg:sticky lg:top-0 lg:flex lg:flex-col ${compact ? "w-48" : "w-60"}`}>
+    <aside className={`hidden min-h-screen shrink-0 border-r border-white/10 bg-[#252525] lg:sticky lg:top-0 lg:flex lg:flex-col ${compact ? "w-48" : "w-60"}`}>
       <Link href="/" className={`flex h-13 items-center gap-3 py-3 ${compact ? "px-4" : "px-5"}`}>
-        <Boxes className="text-violet-400" size={compact ? 24 : 28} />
-        <span className={`${compact ? "text-base" : "text-lg"} font-semibold text-white`}>ShipCheap</span>
+        <ShipCheapLogo compact={compact} />
       </Link>
 
       <nav className={`space-y-1 py-2 ${compact ? "px-2" : "px-3"}`}>
@@ -66,7 +66,7 @@ function Sidebar({ active, compact }: { active: string; compact: boolean }) {
             href={item.href}
             className={`flex items-center rounded-md py-2.5 text-sm font-medium transition ${compact ? "gap-2 px-2.5" : "gap-3 px-3"} ${
               item.key === active
-                ? "border border-violet-400/25 bg-violet-500/15 text-violet-200"
+                ? "border border-[#2442ed]/35 bg-[#2442ed]/15 text-[#aeb9ff]"
                 : "text-slate-300 hover:bg-white/[0.04] hover:text-white"
             }`}
           >
@@ -93,14 +93,14 @@ function Sidebar({ active, compact }: { active: string; compact: boolean }) {
 
       <div className={`mt-auto ${compact ? "p-2" : "p-3"}`}>
         <div className={`rounded-lg border border-white/10 bg-white/[0.03] ${compact ? "p-3" : "p-4"}`}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-500/20 text-violet-200">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2442ed]/20 text-[#aeb9ff]">
             <ShieldCheck size={18} />
           </div>
           <h2 className="mt-4 text-sm font-semibold text-white">Why ShipCheap?</h2>
           <p className={`${compact ? "mt-2 text-xs leading-5" : "mt-3 text-sm leading-6"} text-slate-400`}>
             We analyze pricing, limits, and upgrade paths so you can deploy without surprise bills.
           </p>
-          <Link href="/guides/no-card-hosting" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-violet-300 hover:text-violet-200">
+          <Link href="/guides/no-card-hosting" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] hover:text-[#aeb9ff]">
             Learn more <ArrowRight size={14} />
           </Link>
         </div>
@@ -119,10 +119,9 @@ function Sidebar({ active, compact }: { active: string; compact: boolean }) {
 
 function Topbar() {
   return (
-    <header className="flex min-h-13 items-center justify-between border-b border-white/10 bg-[#080d14]/90 px-4 py-2 backdrop-blur sm:px-8">
+    <header className="flex min-h-13 items-center justify-between border-b border-white/10 bg-[#252525]/90 px-4 py-2 backdrop-blur sm:px-8">
       <Link href="/" className="flex items-center gap-3 lg:hidden">
-        <span className="flex h-9 w-9 items-center justify-center rounded-md bg-cyan-300 text-sm font-black text-slate-950">SC</span>
-        <span className="font-semibold text-white">ShipCheap</span>
+        <ShipCheapLogo compact />
       </Link>
       <div className="hidden text-sm text-slate-500 lg:block"> </div>
       <div className="flex items-center gap-3">

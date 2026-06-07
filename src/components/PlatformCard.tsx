@@ -1,7 +1,8 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
-import { ProviderLogo } from "@/components/ProviderLogo";
+import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
 import { getPlatformCategory } from "@/data/platforms";
 import type { RankedPlatform } from "@/lib/types";
 import { categoryLabels } from "@/lib/utils";
@@ -10,16 +11,21 @@ import { ArrowRight } from "lucide-react";
 export function PlatformCard({ result }: { result: RankedPlatform }) {
   const { platform } = result;
   const category = getPlatformCategory(platform.slug);
+  const theme = getProviderTheme(platform.name);
+  const providerStyle = {
+    borderColor: theme.border,
+    background: `linear-gradient(135deg, ${theme.softBackground}, #252525 34%)`,
+  } as CSSProperties;
 
   return (
-    <article className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+    <article className="rounded-lg border bg-[#252525] p-5 shadow-2xl shadow-black/20" style={providerStyle}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex gap-3">
           <ProviderLogo name={platform.name} large />
           <div>
-            <p className="text-xs font-medium text-violet-200">Rank #{result.rank} · Score {result.score}</p>
+            <p className="text-xs font-medium" style={{ color: theme.text }}>Rank #{result.rank} · Score {result.score}</p>
             <h3 className="mt-1 text-xl font-semibold text-white">{platform.name}</h3>
-            <p className="mt-1 text-xs font-medium text-cyan-200">{categoryLabels[category]}</p>
+            <p className="mt-1 text-xs font-medium" style={{ color: theme.text }}>{categoryLabels[category]}</p>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{platform.description}</p>
           </div>
         </div>
@@ -52,7 +58,8 @@ export function PlatformCard({ result }: { result: RankedPlatform }) {
 
       <Link
         href={`/platforms/${platform.slug}`}
-        className="mt-5 inline-flex items-center gap-2 rounded-md bg-violet-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-400"
+        className="mt-5 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition brightness-100 hover:brightness-110"
+        style={{ backgroundColor: theme.accent, color: theme.onAccent }}
       >
         View platform details
         <ArrowRight size={14} />

@@ -10,7 +10,7 @@ export function AuthControls() {
           </button>
         </SignInButton>
         <SignUpButton mode="modal">
-          <button className="rounded-md bg-cyan-300 px-3 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200">
+          <button className="rounded-md bg-[#2442ed] px-3 py-2 text-sm font-bold text-white transition hover:bg-[#3b57ff]">
             Sign up
           </button>
         </SignUpButton>

@@ -11,15 +11,15 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   return (
     <AppChrome active="compare" compactSidebar>
       <main className="mx-auto max-w-[1360px] px-4 py-5 sm:px-5 lg:px-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-violet-300 transition hover:text-violet-200">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] transition hover:text-[#aeb9ff]">
           <ArrowLeft size={15} />
           Dashboard
         </Link>
 
-        <section className="mt-4 rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+        <section className="mt-4 rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
           <div className="grid items-start gap-5 xl:grid-cols-[1fr_360px]">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-300/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-200">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#2442ed]/35 bg-[#2442ed]/10 px-3 py-1 text-xs font-medium text-[#aeb9ff]">
                 <Filter size={13} />
                 Full comparison
               </div>

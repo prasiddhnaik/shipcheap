@@ -27,13 +27,13 @@ export default function NodeBackendGuidePage() {
 function GuideShell({ title, intro, children }: { title: string; intro: string; children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-[960px] px-4 py-5 sm:px-6 lg:px-10">
-      <section className="rounded-lg border border-white/10 bg-[#111821]/85 p-5 shadow-2xl shadow-black/20">
+      <section className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
         <h1 className="text-[28px] font-semibold leading-tight text-white sm:text-[34px]">{title}</h1>
         <p className="mt-5 text-lg leading-8 text-slate-300">{intro}</p>
         <p className="mt-4 text-sm text-amber-100/80">{pricingDisclaimer}</p>
       </section>
       <article className="prose prose-invert prose-slate mt-8 max-w-none text-slate-300">{children}</article>
-      <Link className="mt-8 inline-flex items-center gap-2 rounded-md bg-violet-500 px-4 py-3 text-sm font-bold text-white hover:bg-violet-400" href="/compare">
+      <Link className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#2442ed] px-4 py-3 text-sm font-bold text-white hover:bg-[#3b57ff]" href="/compare">
         Compare all platforms
         <ArrowRight size={15} />
       </Link>
@@ -45,7 +45,7 @@ function PlatformList({ platforms: guidePlatforms }: { platforms: typeof platfor
   return (
     <div className="not-prose mt-6 grid gap-4">
       {guidePlatforms.map((platform) => (
-        <Link key={platform.slug} href={`/platforms/${platform.slug}`} className="flex gap-3 rounded-lg border border-white/10 bg-[#111821]/85 p-5 no-underline hover:bg-[#131d28]">
+        <Link key={platform.slug} href={`/platforms/${platform.slug}`} className="flex gap-3 rounded-lg border border-white/10 bg-[#252525] p-5 no-underline hover:bg-[#2b2b2b]">
           <ProviderLogo name={platform.name} large />
           <div>
             <h2 className="text-xl font-semibold text-white">{platform.name}</h2>

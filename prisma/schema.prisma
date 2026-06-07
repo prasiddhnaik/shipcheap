@@ -21,3 +21,42 @@ model SavedComparison {
 
   resultJson Json
 }
+
+model PlatformSourceCheck {
+  id                  String   @id @default(cuid())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  platformSlug        String
+  sourceLabel         String
+  sourceUrl           String
+
+  lastCheckedAt       DateTime
+  lastChangedAt       DateTime?
+  status              String
+  httpStatus          Int?
+  contentHash         String?
+  title               String?
+  excerpt             String?
+  changedSinceLastRun Boolean  @default(false)
+  error               String?
+  consecutiveFailures Int      @default(0)
+
+  @@unique([platformSlug, sourceUrl])
+  @@index([platformSlug])
+  @@index([lastCheckedAt])
+  @@index([status])
+}
+
+model FreshnessCheckRun {
+  id             String    @id @default(cuid())
+  createdAt      DateTime  @default(now())
+  finishedAt     DateTime?
+  status         String
+  checkedSources Int       @default(0)
+  failedSources  Int       @default(0)
+  blockedSources Int       @default(0)
+  changedSources Int       @default(0)
+  resultJson     Json?
+  error          String?
+}

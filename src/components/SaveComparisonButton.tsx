@@ -39,12 +39,12 @@ export function SaveComparisonButton({
         type="button"
         onClick={save}
         disabled={isPending}
-        className="rounded-md border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/15 disabled:cursor-not-allowed disabled:opacity-60"
+        className="rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-3 py-2 text-sm font-semibold text-[#e6eaff] transition hover:bg-[#2442ed]/15 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "Saving..." : "Save share link"}
       </button>
       {savedUrl && (
-        <a className="text-sm font-medium text-cyan-200 underline-offset-4 hover:underline" href={savedUrl}>
+        <a className="text-sm font-medium text-[#aeb9ff] underline-offset-4 hover:underline" href={savedUrl}>
           {savedUrl}
         </a>
       )}

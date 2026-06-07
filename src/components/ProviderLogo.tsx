@@ -22,6 +22,7 @@ import {
   siSupabase,
   siVercel,
 } from "simple-icons";
+import type { CSSProperties } from "react";
 
 const logoByName = {
   "Akamai/Linode": siAkamai,
@@ -49,40 +50,64 @@ const logoByName = {
 };
 
 const colorByName: Record<string, string> = {
-  "Akamai/Linode": "text-[#009CDE]",
-  Appwrite: "text-[#FD366E]",
-  CapRover: "text-[#2DD4BF]",
-  "Cloudflare Workers": "text-[#F38020]",
-  Coolify: "text-[#8B5CF6]",
-  Convex: "text-[#EE342F]",
-  "Deno Deploy": "text-white",
-  "DigitalOcean App Platform": "text-[#0080FF]",
-  "Firebase App Hosting": "text-[#FFCA28]",
-  "Fly.io": "text-white",
-  "Google Cloud Run": "text-[#4285F4]",
-  "Hetzner Cloud": "text-[#D50C2D]",
-  Koyeb: "text-white",
-  Neon: "text-[#00E599]",
-  Netlify: "text-[#00C7B7]",
-  "Platform.sh": "text-white",
-  Railway: "text-[#B066FF]",
-  Render: "text-white",
-  "Replit Deployments": "text-[#F26207]",
-  "Scaleway Serverless Containers": "text-[#4F0599]",
-  Supabase: "text-[#3ECF8E]",
-  Vercel: "text-white",
+  "Akamai/Linode": "#009CDE",
+  Appwrite: "#FD366E",
+  "AWS Amplify": "#FF9900",
+  "AWS App Runner": "#FF9900",
+  "Azure App Service": "#0078D4",
+  CapRover: "#2DD4BF",
+  "Cloudflare Workers": "#F38020",
+  Coolify: "#8B5CF6",
+  Convex: "#EE342F",
+  "Deno Deploy": "#FFFFFF",
+  "DigitalOcean App Platform": "#0080FF",
+  Dokku: "#3B82F6",
+  "Firebase App Hosting": "#FFCA28",
+  "Fly.io": "#8B5CF6",
+  "Google Cloud Run": "#4285F4",
+  Heroku: "#79589F",
+  "Hetzner Cloud": "#D50C2D",
+  Koyeb: "#00B4FF",
+  Neon: "#00E599",
+  Netlify: "#00C7B7",
+  Northflank: "#00E0FF",
+  "Oracle Cloud": "#C74634",
+  "Platform.sh": "#F7C948",
+  Railway: "#B066FF",
+  Render: "#46E3B7",
+  "Replit Deployments": "#F26207",
+  "Scaleway Serverless Containers": "#A855F7",
+  Supabase: "#3ECF8E",
+  Vercel: "#FFFFFF",
 };
+
+export function getProviderTheme(name: string) {
+  const accent = colorByName[name] ?? "#2442ed";
+
+  return {
+    accent,
+    border: rgbaFromHex(accent, 0.5),
+    background: rgbaFromHex(accent, 0.12),
+    softBackground: rgbaFromHex(accent, 0.08),
+    text: accent === "#FFFFFF" ? "#f8fafc" : accent,
+    onAccent: shouldUseDarkText(accent) ? "#111827" : "#ffffff",
+  };
+}
 
 export function ProviderLogo({ name, large = false }: { name: string; large?: boolean }) {
   const logo = logoByName[name as keyof typeof logoByName];
   const size = large ? "h-11 w-11" : "h-7 w-7";
   const iconSize = large ? "h-6 w-6" : "h-4 w-4";
-  const color = colorByName[name] ?? "text-white";
+  const theme = getProviderTheme(name);
+  const style = {
+    borderColor: theme.border,
+    backgroundColor: theme.softBackground,
+  } as CSSProperties;
 
   return (
-    <span className={`inline-flex shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] ${size}`}>
+    <span className={`inline-flex shrink-0 items-center justify-center rounded-lg border ${size}`} style={style}>
       {logo ? (
-        <svg className={`${iconSize} ${color}`} role="img" aria-label={`${name} logo`} viewBox="0 0 24 24">
+        <svg className={iconSize} role="img" aria-label={`${name} logo`} viewBox="0 0 24 24" style={{ color: theme.text }}>
           <path fill="currentColor" d={logo.path} />
         </svg>
       ) : (
@@ -90,4 +115,45 @@ export function ProviderLogo({ name, large = false }: { name: string; large?: bo
       )}
     </span>
   );
+}
+
+function rgbaFromHex(hex: string, alpha: number) {
+  const normalized = hex.replace("#", "");
+  const value = normalized.length === 3 ? normalized.split("").map((character) => `${character}${character}`).join("") : normalized;
+  const red = parseInt(value.slice(0, 2), 16);
+  const green = parseInt(value.slice(2, 4), 16);
+  const blue = parseInt(value.slice(4, 6), 16);
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+function shouldUseDarkText(hex: string) {
+  const accentLuminance = relativeLuminance(hex);
+  const whiteContrast = contrastRatio(accentLuminance, relativeLuminance("#ffffff"));
+  const darkContrast = contrastRatio(accentLuminance, relativeLuminance("#111827"));
+
+  return darkContrast > whiteContrast;
+}
+
+function relativeLuminance(hex: string) {
+  const normalized = hex.replace("#", "");
+  const value = normalized.length === 3 ? normalized.split("").map((character) => `${character}${character}`).join("") : normalized;
+  const red = toLinearRgb(parseInt(value.slice(0, 2), 16));
+  const green = toLinearRgb(parseInt(value.slice(2, 4), 16));
+  const blue = toLinearRgb(parseInt(value.slice(4, 6), 16));
+
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+}
+
+function toLinearRgb(value: number) {
+  const channel = value / 255;
+
+  return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+}
+
+function contrastRatio(firstLuminance: number, secondLuminance: number) {
+  const lighter = Math.max(firstLuminance, secondLuminance);
+  const darker = Math.min(firstLuminance, secondLuminance);
+
+  return (lighter + 0.05) / (darker + 0.05);
 }
