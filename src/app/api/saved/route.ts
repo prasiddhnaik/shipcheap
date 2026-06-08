@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { getPlatformBySlug } from "@/data/platforms";
 import { prisma } from "@/lib/prisma";
 import type { AppType, Budget, CalculatorInput, DatabaseNeed, RankedPlatform, Region, RiskLevel } from "@/lib/types";
 
 const MAX_SAVE_BODY_BYTES = 20_000;
 const MAX_SAVED_RESULTS = 10;
+const SAVE_RATE_LIMIT_ROUTE = "api:saved";
+const SAVE_RATE_LIMIT_WINDOW_MS = 60_000;
+const SAVE_RATE_LIMIT_MAX_REQUESTS = 10;
+const RATE_LIMIT_CLEANUP_AFTER_MS = 24 * 60 * 60 * 1000;
 
 const appTypes = new Set<AppType>(["node", "fastapi", "docker", "static", "worker", "database"]);
 const budgets = new Set<Budget>(["free", "under-5", "under-10", "under-25", "custom"]);
@@ -17,15 +22,36 @@ type SaveRequest = {
   results?: unknown;
 };
 
+class RequestBodyTooLargeError extends Error {}
+
 export async function POST(request: Request) {
-  const contentLength = Number(request.headers.get("content-length") ?? "0");
-  if (contentLength > MAX_SAVE_BODY_BYTES) {
-    return NextResponse.json({ error: "Saved comparison payload is too large." }, { status: 413 });
+  const { userId } = await auth();
+  const rateLimit = await checkSaveRateLimit(userId ? `user:${userId}` : `ip:${getClientIp(request)}`);
+  if (rateLimit.limited) {
+    return NextResponse.json(
+      { error: "Too many save attempts. Try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+    );
   }
 
+  if (!userId) {
+    return NextResponse.json({ error: "Sign in to save comparisons." }, { status: 401 });
+  }
+
+  let rawBody: string;
   let body: SaveRequest;
   try {
-    body = (await request.json()) as SaveRequest;
+    rawBody = await readLimitedBody(request, MAX_SAVE_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: "Saved comparison payload is too large." }, { status: 413 });
+    }
+
+    return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+  }
+
+  try {
+    body = JSON.parse(rawBody) as SaveRequest;
   } catch {
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
@@ -38,6 +64,7 @@ export async function POST(request: Request) {
 
   const saved = await prisma.savedComparison.create({
     data: {
+      userId,
       appType: input.appType,
       budget: input.budget,
       database: input.database,
@@ -50,6 +77,78 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({ id: saved.id });
+}
+
+async function checkSaveRateLimit(identifier: string) {
+  const now = new Date();
+  const windowStart = new Date(Math.floor(now.getTime() / SAVE_RATE_LIMIT_WINDOW_MS) * SAVE_RATE_LIMIT_WINDOW_MS);
+  const bucket = await prisma.apiRateLimitBucket.upsert({
+    where: {
+      route_identifier_windowStart: {
+        route: SAVE_RATE_LIMIT_ROUTE,
+        identifier,
+        windowStart,
+      },
+    },
+    create: {
+      route: SAVE_RATE_LIMIT_ROUTE,
+      identifier,
+      windowStart,
+      count: 1,
+    },
+    update: {
+      count: { increment: 1 },
+    },
+  });
+
+  if (bucket.count === 1) {
+    await prisma.apiRateLimitBucket.deleteMany({
+      where: {
+        route: SAVE_RATE_LIMIT_ROUTE,
+        updatedAt: { lt: new Date(now.getTime() - RATE_LIMIT_CLEANUP_AFTER_MS) },
+      },
+    });
+  }
+
+  const retryAfterSeconds = Math.max(1, Math.ceil((windowStart.getTime() + SAVE_RATE_LIMIT_WINDOW_MS - now.getTime()) / 1000));
+  return {
+    limited: bucket.count > SAVE_RATE_LIMIT_MAX_REQUESTS,
+    retryAfterSeconds,
+  };
+}
+
+async function readLimitedBody(request: Request, maxBytes: number) {
+  if (!request.body) return "";
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (!value) continue;
+
+    totalBytes += value.byteLength;
+    if (totalBytes > maxBytes) {
+      throw new RequestBodyTooLargeError();
+    }
+    chunks.push(value);
+  }
+
+  const bodyBytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bodyBytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return new TextDecoder().decode(bodyBytes);
+}
+
+function getClientIp(request: Request) {
+  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return forwardedFor || request.headers.get("x-real-ip") || "unknown";
 }
 
 function parseCalculatorInput(input: SaveRequest["input"]): CalculatorInput | null {

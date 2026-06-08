@@ -4,6 +4,22 @@ import Link from "next/link";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { ProviderLogo } from "@/components/ProviderLogo";
 import { platforms } from "@/data/platforms";
+import {
+  dataLoadLabels,
+  defaultSimulatorInput,
+  formatCurrency,
+  formatProbability,
+  jobLoadLabels,
+  simulateMonthlyBill,
+  spendControlLabels,
+  trafficLabels,
+  type BillSimulationResult,
+  type DataLoad,
+  type JobLoad,
+  type SimulatorInput,
+  type SpendControl,
+  type TrafficLevel,
+} from "@/lib/billing-risk-simulation";
 import type { Platform, RiskLevel } from "@/lib/types";
 import { cn, riskLabels } from "@/lib/utils";
 import {
@@ -23,22 +39,6 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-type TrafficLevel = "small" | "steady" | "spike";
-type SpendControl = "none" | "alerts" | "hard-cap";
-type DataLoad = "none" | "small" | "growing" | "heavy";
-type JobLoad = "none" | "scheduled" | "always-on";
-
-type SimulatorInput = {
-  hasCard: boolean;
-  providerSlug: string;
-  trafficLevel: TrafficLevel;
-  spendControl: SpendControl;
-  dataLoad: DataLoad;
-  bandwidthHeavy: boolean;
-  keepsLogs: boolean;
-  jobLoad: JobLoad;
-};
-
 type RiskResult = {
   score: number;
   level: RiskLevel;
@@ -54,23 +54,6 @@ type BillShockExample = {
   cause: string;
   source: string;
   href: string;
-};
-
-const defaultInput: SimulatorInput = {
-  hasCard: false,
-  providerSlug: "koyeb",
-  trafficLevel: "small",
-  spendControl: "alerts",
-  dataLoad: "small",
-  bandwidthHeavy: false,
-  keepsLogs: false,
-  jobLoad: "none",
-};
-
-const trafficLabels: Record<TrafficLevel, string> = {
-  small: "Small prototype",
-  steady: "Steady users",
-  spike: "User or bot spike possible",
 };
 
 const billShockExamples: BillShockExample[] = [
@@ -104,29 +87,11 @@ const billShockExamples: BillShockExample[] = [
   },
 ];
 
-const spendControlLabels: Record<SpendControl, string> = {
-  none: "No alerts or cap",
-  alerts: "Budget alerts",
-  "hard-cap": "Hard cap or no-card path",
-};
-
-const dataLoadLabels: Record<DataLoad, string> = {
-  none: "No persistent data",
-  small: "Small database",
-  growing: "Growing database",
-  heavy: "Heavy storage/data",
-};
-
-const jobLoadLabels: Record<JobLoad, string> = {
-  none: "No jobs",
-  scheduled: "Cron or queues",
-  "always-on": "Always-on workers",
-};
-
-export function BillingRiskSimulator() {
-  const [input, setInput] = useState<SimulatorInput>(defaultInput);
+export function BillingRiskSimulator({ initialInput = defaultSimulatorInput }: { initialInput?: SimulatorInput } = {}) {
+  const [input, setInput] = useState<SimulatorInput>(initialInput);
   const selectedProvider = platforms.find((platform) => platform.slug === input.providerSlug) ?? platforms[0];
-  const result = useMemo(() => calculateBillingRisk(input, selectedProvider), [input, selectedProvider]);
+  const riskChecklist = useMemo(() => calculateBillingRisk(input, selectedProvider), [input, selectedProvider]);
+  const simulation = useMemo(() => simulateMonthlyBill(input, selectedProvider), [input, selectedProvider]);
   const saferProviders = useMemo(() => {
     return platforms
       .filter((platform) => platform.slug !== selectedProvider.slug)
@@ -155,7 +120,7 @@ export function BillingRiskSimulator() {
               and storage can turn a cheap deploy into real spend.
             </p>
           </div>
-          <RiskSummary result={result} />
+          <SimulationSummary simulation={simulation} />
         </div>
       </section>
 
@@ -207,6 +172,17 @@ export function BillingRiskSimulator() {
               <ToggleField label="Bandwidth-heavy app" value={input.bandwidthHeavy} onChange={(value) => update("bandwidthHeavy", value)} icon={Gauge} />
               <ToggleField label="Retain logs/metrics" value={input.keepsLogs} onChange={(value) => update("keepsLogs", value)} icon={HardDrive} />
             </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+              <h3 className="text-sm font-semibold text-white">Usage numbers</h3>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+                <NumberField label="Monthly users" value={input.monthlyUsers} min={0} onChange={(value) => update("monthlyUsers", value)} />
+                <NumberField label="Requests/user" value={input.requestsPerUser} min={1} onChange={(value) => update("requestsPerUser", value)} />
+                <NumberField label="Response KB" value={input.avgResponseKb} min={1} onChange={(value) => update("avgResponseKb", value)} />
+                <NumberField label="Storage GB" value={input.storageGb} min={0} onChange={(value) => update("storageGb", value)} />
+                <NumberField label="Job hours" value={input.jobHours} min={0} onChange={(value) => update("jobHours", value)} />
+                <NumberField label="Budget $" value={input.budgetLimit} min={1} onChange={(value) => update("budgetLimit", value)} />
+              </div>
+            </div>
           </div>
         </form>
 
@@ -224,15 +200,17 @@ export function BillingRiskSimulator() {
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-3">
-              <Metric icon={Banknote} label="Risk score" value={`${result.score}/100`} />
+              <Metric icon={Banknote} label="P90 simulated bill" value={formatCurrency(simulation.p90)} />
               <Metric icon={CreditCard} label="Card path" value={selectedProvider.creditCardRequired ? "Card likely" : "No-card path"} />
               <Metric icon={ServerCog} label="Always-on" value={selectedProvider.alwaysOn ? "Supported" : "Limited"} />
             </div>
           </section>
 
+          <SimulationResults simulation={simulation} />
+
           <section className="grid gap-4 lg:grid-cols-2">
-            <ResultPanel title="Main risk drivers" icon={TrendingUp} items={result.drivers} tone="warn" />
-            <ResultPanel title="Controls to set first" icon={ListChecks} items={result.mitigations} tone="good" />
+            <ResultPanel title="Main risk drivers" icon={TrendingUp} items={riskChecklist.drivers} tone="warn" />
+            <ResultPanel title="Controls to set first" icon={ListChecks} items={riskChecklist.mitigations} tone="good" />
           </section>
 
           <BillShockExamples />
@@ -381,7 +359,7 @@ function BillShockExamples() {
   );
 }
 
-function RiskSummary({ result }: { result: RiskResult }) {
+function SimulationSummary({ simulation }: { simulation: BillSimulationResult }) {
   const styles: Record<RiskLevel, string> = {
     low: "border-emerald-400/25 bg-emerald-400/10 text-emerald-100",
     medium: "border-amber-400/25 bg-amber-400/10 text-amber-100",
@@ -389,15 +367,101 @@ function RiskSummary({ result }: { result: RiskResult }) {
   };
 
   return (
-    <div className={cn("rounded-lg border p-4", styles[result.level])}>
+    <div className={cn("rounded-lg border p-4", styles[simulation.level])}>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 font-semibold">
-          {result.level === "low" ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
-          {result.label}
+          {simulation.level === "low" ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
+          {riskLabels[simulation.level]} simulated bill risk
         </div>
-        <span className="rounded-full bg-black/20 px-3 py-1 text-sm font-semibold">{result.score}/100</span>
+        <span className="rounded-full bg-black/20 px-3 py-1 text-sm font-semibold">{simulation.runs.toLocaleString("en-US")} runs</span>
       </div>
-      <p className="mt-3 text-sm leading-6 opacity-80">{result.summary}</p>
+      <p className="mt-3 text-sm leading-6 opacity-80">{simulation.headline}</p>
+    </div>
+  );
+}
+
+function SimulationResults({ simulation }: { simulation: BillSimulationResult }) {
+  const barMax = Math.max(simulation.worst, simulation.p90, 1);
+  const bars = [
+    { label: "Typical month", value: simulation.p50, tone: "bg-emerald-300" },
+    { label: "Bad month", value: simulation.p90, tone: "bg-amber-300" },
+    { label: "Worst sampled", value: simulation.worst, tone: "bg-rose-300" },
+  ];
+
+  return (
+    <section className="rounded-lg border border-white/10 bg-[#252525] p-4 shadow-2xl shadow-black/20">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-white">Simulated monthly bill</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">
+            ShipCheap sampled {simulation.runs.toLocaleString("en-US")} possible months from this scenario. The values are rough estimates for risk shape, not official pricing.
+          </p>
+        </div>
+        {simulation.uncappedP90 > simulation.p90 + 1 && (
+          <span className="rounded-md border border-[#2442ed]/30 bg-[#2442ed]/10 px-2.5 py-1 text-xs font-semibold text-[#e6eaff]">
+            uncapped P90 {formatCurrency(simulation.uncappedP90)}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {bars.map((bar) => (
+          <div key={bar.label}>
+            <div className="mb-1 flex items-center justify-between gap-3 text-sm">
+              <span className="text-slate-300">{bar.label}</span>
+              <span className="font-semibold text-white">{formatCurrency(bar.value)}</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-white/10">
+              <div className={`h-full rounded-full ${bar.tone}`} style={{ width: `${Math.max(4, Math.min(100, bar.value / barMax * 100))}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <ProbabilityCard label={`Chance over your budget (${inputBudgetLabel(simulation)})`} value={formatProbability(simulation.overBudgetProbability)} />
+        <ProbabilityCard label="Chance over $25" value={formatProbability(simulation.over25Probability)} />
+        <ProbabilityCard label="Chance over $100" value={formatProbability(simulation.over100Probability)} />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_1fr]">
+        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+          <h3 className="text-sm font-semibold text-white">Modeled high-usage month</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-400">
+            Around {Math.round(simulation.sampleUsersP90).toLocaleString("en-US")} users and{" "}
+            {Math.round(simulation.sampleRequestsP90).toLocaleString("en-US")} requests in the rough P90 usage sample.
+          </p>
+        </div>
+        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+          <h3 className="text-sm font-semibold text-white">Largest cost centers</h3>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {simulation.costCenters.length > 0 ? (
+              simulation.costCenters.map((center) => (
+                <span key={center.label} className="rounded-md border border-white/10 bg-[#1f1f1f] px-2.5 py-1.5 text-xs font-medium text-slate-200">
+                  {center.label}: {formatCurrency(center.p90)}
+                </span>
+              ))
+            ) : (
+              <span className="text-sm text-slate-400">No major overage center in this scenario.</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-3 text-xs leading-5 text-slate-500">{simulation.caveat}</p>
+    </section>
+  );
+}
+
+function inputBudgetLabel(simulation: BillSimulationResult) {
+  return formatCurrency(simulation.budgetLimit);
+}
+
+function ProbabilityCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+      <p className="text-xs font-medium text-slate-500">{label}</p>
+      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }
@@ -499,6 +563,31 @@ function ToggleField({
         ))}
       </div>
     </div>
+  );
+}
+
+function NumberField({
+  label,
+  value,
+  min,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-slate-300">{label}</span>
+      <input
+        type="number"
+        min={min}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="mt-1.5 h-9 w-full rounded-md border border-white/10 bg-[#1f1f1f] px-3 text-sm text-white outline-none transition focus:border-[#2442ed]/70"
+      />
+    </label>
   );
 }
 
