@@ -26,16 +26,16 @@ class RequestBodyTooLargeError extends Error {}
 
 export async function POST(request: Request) {
   const { userId } = await auth();
-  const rateLimit = await checkSaveRateLimit(userId ? `user:${userId}` : `ip:${getClientIp(request)}`);
+  if (!userId) {
+    return NextResponse.json({ error: "Sign in to save comparisons." }, { status: 401 });
+  }
+
+  const rateLimit = await checkSaveRateLimit(`user:${userId}`);
   if (rateLimit.limited) {
     return NextResponse.json(
       { error: "Too many save attempts. Try again shortly." },
       { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
     );
-  }
-
-  if (!userId) {
-    return NextResponse.json({ error: "Sign in to save comparisons." }, { status: 401 });
   }
 
   let rawBody: string;
@@ -144,11 +144,6 @@ async function readLimitedBody(request: Request, maxBytes: number) {
   }
 
   return new TextDecoder().decode(bodyBytes);
-}
-
-function getClientIp(request: Request) {
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwardedFor || request.headers.get("x-real-ip") || "unknown";
 }
 
 function parseCalculatorInput(input: SaveRequest["input"]): CalculatorInput | null {

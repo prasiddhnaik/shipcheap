@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShipCheap Codebase And Pipeline Report</title>
+  <style>
+    :root { color-scheme: dark; --bg: #111; --panel: #1f1f1f; --ink: #f5f7fb; --muted: #a8b1c3; --line: rgba(255,255,255,.12); --accent: #8ba4ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 56px; }
+    h1, h2, h3, h4 { line-height: 1.25; margin: 28px 0 10px; letter-spacing: 0; }
+    h1 { font-size: clamp(30px, 4vw, 46px); margin-top: 0; }
+    h2 { font-size: 24px; border-top: 1px solid var(--line); padding-top: 24px; }
+    h3 { font-size: 18px; color: #dce4ff; }
+    h4 { font-size: 15px; color: var(--accent); text-transform: uppercase; }
+    p, li { color: var(--muted); }
+    a { color: var(--accent); }
+    code { border: 1px solid var(--line); border-radius: 5px; background: rgba(255,255,255,.06); padding: 1px 5px; color: #e9edff; }
+    pre { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 16px; color: #e9edff; }
+    pre code { border: 0; background: transparent; padding: 0; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; margin: 14px 0 22px; }
+    table { width: 100%; border-collapse: collapse; min-width: 620px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: #dce4ff; background: rgba(255,255,255,.04); }
+    tr:last-child td { border-bottom: 0; }
+    ul, ol { padding-left: 22px; }
+    .report-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 18px 0 28px; }
+    .report-meta div { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 12px; color: var(--muted); }
+    .report-meta strong { display: block; color: var(--ink); }
+    @media (max-width: 640px) { main { width: min(100% - 20px, 1120px); padding-top: 20px; } table { min-width: 520px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>ShipCheap Codebase And Pipeline Report</h1>
+<div class="report-meta"><div><strong>Generated</strong>2026-06-08</div><div><strong>Branch inspected</strong><code>codex/billing-risk-simulator</code></div><div><strong>Workspace</strong><code>/Users/prasiddhnaik/Documents/shipcheap</code></div></div>
+<h2>1. Executive Summary</h2>
+<p>ShipCheap is a Next.js App Router application for comparing beginner-friendly hosting platforms by cost, runtime fit, database fit, credit-card requirements, and billing risk.</p>
+<p>The codebase currently has four major product flows:</p>
+<ol>
+<li>Recommendation flow: user inputs hosting needs, ShipCheap scores providers from canonical local data, and shows ranked results.</li>
+<li>Provider comparison and detail flow: provider data powers comparison tables, provider pages, official source links, community notes, and provider-specific simulation entry points.</li>
+<li>Saved comparison flow: client sends a recommendation snapshot to <code>/api/saved</code>; the server validates inputs and reconstructs saved platform data from canonical provider records before persisting to Prisma.</li>
+<li>Freshness automation flow: Vercel Cron calls <code>/api/freshness/check</code>; the server checks official source URLs, hashes normalized content, persists status, and separates blocked provider pages from real failures.</li>
+</ol>
+<p>The current branch also adds a billing-risk simulator:</p>
+<ul>
+<li><code>/billing-risk</code></li>
+<li><code>/platforms/[slug]/simulation</code></li>
+<li><code>src/lib/billing-risk-simulation.ts</code></li>
+<li><code>src/components/BillingRiskSimulator.tsx</code></li>
+<li><code>src/components/ProviderSimulationForm.tsx</code></li>
+</ul>
+<p>The simulator is deterministic for the same provider and input. It runs 1,000 sampled months using ShipCheap provider traits plus generic usage assumptions. It is useful for showing risk shape, but it is not yet an official provider-pricing calculator.</p>
+<h2>2. Technology Stack</h2>
+<div class="table-wrap"><table><thead><tr><th>Area</th><th>Current implementation</th></tr></thead><tbody><tr><td>Framework</td><td>Next.js <code>16.2.6</code> with App Router</td></tr><tr><td>React</td><td>React <code>19.2.4</code></td></tr><tr><td>Language</td><td>TypeScript</td></tr><tr><td>Styling</td><td>Tailwind CSS 4 via global CSS and utility classes</td></tr><tr><td>Auth shell</td><td>Clerk via <code>@clerk/nextjs</code></td></tr><tr><td>Database</td><td>Prisma <code>6.19.3</code> with SQLite in local development</td></tr><tr><td>Icons</td><td><code>lucide-react</code>, <code>simple-icons</code></td></tr><tr><td>Package manager</td><td><code>pnpm</code></td></tr><tr><td>Deployment automation</td><td>Vercel Cron configured in <code>vercel.json</code></td></tr><tr><td>Security override</td><td><code>pnpm.overrides.postcss = 8.5.15</code></td></tr></tbody></table></div>
+<p>Relevant files:</p>
+<ul>
+<li><code>package.json</code></li>
+<li><code>src/app/layout.tsx</code></li>
+<li><code>src/proxy.ts</code></li>
+<li><code>prisma/schema.prisma</code></li>
+<li><code>vercel.json</code></li>
+<li><code>.env.example</code></li>
+</ul>
+<h2>3. High-Level Architecture</h2>
+<pre class="mermaid">flowchart TB
+  User[&quot;User in browser&quot;]
+  Clerk[&quot;ClerkProvider and clerkMiddleware&quot;]
+  App[&quot;Next.js App Router&quot;]
+  UI[&quot;React client components&quot;]
+  Data[&quot;Canonical provider data&lt;br/&gt;src/data/platforms.ts&quot;]
+  Scoring[&quot;Recommendation engine&lt;br/&gt;src/lib/recommend-platform.ts&quot;]
+  Simulator[&quot;Billing simulation engine&lt;br/&gt;src/lib/billing-risk-simulation.ts&quot;]
+  API_Saved[&quot;POST /api/saved&quot;]
+  API_Fresh[&quot;GET /api/freshness/check&quot;]
+  Prisma[&quot;Prisma client&lt;br/&gt;src/lib/prisma.ts&quot;]
+  SQLite[&quot;SQLite database&lt;br/&gt;DATABASE_URL=file:./dev.db&quot;]
+  VercelCron[&quot;Vercel Cron&lt;br/&gt;0 5 * * *&quot;]
+  Sources[&quot;Official provider source URLs&quot;]
+
+  User --&gt; Clerk
+  Clerk --&gt; App
+  App --&gt; UI
+  UI --&gt; Data
+  UI --&gt; Scoring
+  UI --&gt; Simulator
+  UI --&gt; API_Saved
+  API_Saved --&gt; Data
+  API_Saved --&gt; Prisma
+  Prisma --&gt; SQLite
+  VercelCron --&gt; API_Fresh
+  API_Fresh --&gt; Sources
+  API_Fresh --&gt; Prisma</pre>
+<h2>4. Route Map</h2>
+<pre class="mermaid">flowchart LR
+  Home[&quot;/&quot;]
+  Compare[&quot;/compare&quot;]
+  Provider[&quot;/platforms/[slug]&quot;]
+  ProviderSim[&quot;/platforms/[slug]/simulation&quot;]
+  BillingRisk[&quot;/billing-risk&quot;]
+  SavedList[&quot;/saved&quot;]
+  SavedDetail[&quot;/saved/[id]&quot;]
+  Favorites[&quot;/favorites&quot;]
+  Feedback[&quot;/feedback&quot;]
+  Guides[&quot;/guides/*&quot;]
+  SignIn[&quot;/sign-in/[[...sign-in]]&quot;]
+  SignUp[&quot;/sign-up/[[...sign-up]]&quot;]
+  FreshApi[&quot;/api/freshness/check&quot;]
+  SaveApi[&quot;/api/saved&quot;]
+
+  Home --&gt; Compare
+  Home --&gt; Provider
+  Home --&gt; SaveApi
+  Compare --&gt; Provider
+  Provider --&gt; ProviderSim
+  ProviderSim --&gt; BillingRisk
+  BillingRisk --&gt; Provider
+  SaveApi --&gt; SavedDetail
+  SavedList --&gt; SavedDetail
+  Guides --&gt; Compare
+  SignIn --&gt; Home
+  SignUp --&gt; Home
+  FreshApi --&gt; SavedList</pre>
+<p>Route files:</p>
+<div class="table-wrap"><table><thead><tr><th>Route</th><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td><code>/</code></td><td><code>src/app/page.tsx</code></td><td>Renders <code>DashboardHome</code></td></tr><tr><td><code>/compare</code></td><td><code>src/app/compare/page.tsx</code></td><td>Full provider comparison table</td></tr><tr><td><code>/platforms/[slug]</code></td><td><code>src/app/platforms/[slug]/page.tsx</code></td><td>Provider detail page</td></tr><tr><td><code>/platforms/[slug]/simulation</code></td><td><code>src/app/platforms/[slug]/simulation/page.tsx</code></td><td>Provider-specific simulator setup form</td></tr><tr><td><code>/billing-risk</code></td><td><code>src/app/billing-risk/page.tsx</code></td><td>Full billing risk simulator</td></tr><tr><td><code>/saved</code></td><td><code>src/app/saved/page.tsx</code></td><td>Lists recent saved comparisons</td></tr><tr><td><code>/saved/[id]</code></td><td><code>src/app/saved/[id]/page.tsx</code></td><td>Opens a saved comparison snapshot</td></tr><tr><td><code>/favorites</code></td><td><code>src/app/favorites/page.tsx</code></td><td>Shows lower-friction providers</td></tr><tr><td><code>/feedback</code></td><td><code>src/app/feedback/page.tsx</code></td><td>Session-only feedback form</td></tr><tr><td><code>/guides/no-card-hosting</code></td><td><code>src/app/guides/no-card-hosting/page.tsx</code></td><td>No-card hosting guide</td></tr><tr><td><code>/sign-in</code></td><td><code>src/app/sign-in/[[...sign-in]]/page.tsx</code></td><td>Clerk sign-in</td></tr><tr><td><code>/sign-up</code></td><td><code>src/app/sign-up/[[...sign-up]]/page.tsx</code></td><td>Clerk sign-up</td></tr><tr><td><code>/api/saved</code></td><td><code>src/app/api/saved/route.ts</code></td><td>Save comparison endpoint</td></tr><tr><td><code>/api/freshness/check</code></td><td><code>src/app/api/freshness/check/route.ts</code></td><td>Scheduled source checker endpoint</td></tr></tbody></table></div>
+<h2>5. Data Ownership</h2>
+<p>The canonical provider registry lives in <code>src/data/platforms.ts</code>.</p>
+<p>It owns:</p>
+<ul>
+<li><code>platforms</code>: core provider facts used by ranking, comparison, detail pages, favorites, and simulator provider selection.</li>
+<li><code>platformCategories</code>: provider category mapping.</li>
+<li><code>platformSourceLinks</code>: official pricing/docs/source URLs used by detail pages and freshness checks.</li>
+<li><code>platformCommunityInfo</code>: community links and adoption notes.</li>
+<li>Lookup helpers:</li>
+<li><code>getPlatformBySlug</code></li>
+<li><code>getPlatformCategory</code></li>
+<li><code>getPlatformSourceLinks</code></li>
+<li><code>getPlatformCommunityInfo</code></li>
+</ul>
+<p>Important rule: provider slugs are the trust anchor. User-supplied platform data should not be trusted when saving or restoring comparisons.</p>
+<h2>6. Prisma Data Model</h2>
+<pre class="mermaid">erDiagram
+  SavedComparison {
+    string id PK
+    datetime createdAt
+    string userId
+    string appType
+    string budget
+    string database
+    boolean alwaysOn
+    boolean hasCard
+    string region
+    string riskLevel
+    json resultJson
+  }
+
+  PlatformSourceCheck {
+    string id PK
+    datetime createdAt
+    datetime updatedAt
+    string platformSlug
+    string sourceLabel
+    string sourceUrl
+    datetime lastCheckedAt
+    datetime lastChangedAt
+    string status
+    int httpStatus
+    string contentHash
+    string title
+    string excerpt
+    boolean changedSinceLastRun
+    string error
+    int consecutiveFailures
+  }
+
+  FreshnessCheckRun {
+    string id PK
+    datetime createdAt
+    datetime finishedAt
+    string status
+    int checkedSources
+    int failedSources
+    int blockedSources
+    int changedSources
+    json resultJson
+    string error
+  }</pre>
+<p>Tables:</p>
+<div class="table-wrap"><table><thead><tr><th>Model</th><th>Purpose</th></tr></thead><tbody><tr><td><code>SavedComparison</code></td><td>Stores shareable comparison snapshots</td></tr><tr><td><code>PlatformSourceCheck</code></td><td>Stores latest source-check state per provider/source URL</td></tr><tr><td><code>FreshnessCheckRun</code></td><td>Stores each scheduled/manual freshness run summary</td></tr></tbody></table></div>
+<p>Notes:</p>
+<ul>
+<li>Local development uses SQLite via <code>DATABASE_URL=&quot;file:./dev.db&quot;</code>.</li>
+<li><code>SavedComparison</code> is scoped by Clerk <code>userId</code>; legacy local rows created before this change use a sentinel owner and are hidden from real users.</li>
+<li><code>PlatformSourceCheck</code> has a unique compound key on <code>platformSlug + sourceUrl</code>.</li>
+<li>Freshness status distinguishes <code>blocked</code> from <code>failed</code>.</li>
+</ul>
+<h2>7. Recommendation Pipeline</h2>
+<p>Main files:</p>
+<ul>
+<li><code>src/components/DashboardHome.tsx</code></li>
+<li><code>src/components/CalculatorForm.tsx</code></li>
+<li><code>src/lib/recommend-platform.ts</code></li>
+<li><code>src/lib/types.ts</code></li>
+<li><code>src/lib/utils.ts</code></li>
+<li><code>src/data/platforms.ts</code></li>
+</ul>
+<pre class="mermaid">sequenceDiagram
+  participant User
+  participant Dashboard as DashboardHome
+  participant Engine as recommendPlatforms
+  participant Data as platforms.ts
+  participant UI as Recommendation UI
+
+  User-&gt;&gt;Dashboard: Select app type, budget, DB, card, region, risk
+  Dashboard-&gt;&gt;Engine: recommendPlatforms(input)
+  Engine-&gt;&gt;Data: Read provider facts
+  Data--&gt;&gt;Engine: Platform[]
+  Engine-&gt;&gt;Engine: Score app support, budget, free tier, card, DB, always-on, region, risk
+  Engine--&gt;&gt;Dashboard: RankedPlatform[]
+  Dashboard-&gt;&gt;UI: Render top cards and comparison preview</pre>
+<p>Scoring logic:</p>
+<div class="table-wrap"><table><thead><tr><th>Factor</th><th>Effect</th></tr></thead><tbody><tr><td>App type support</td><td>Major positive if supported, major penalty if not</td></tr><tr><td>Budget fit</td><td>Positive when provider budget range matches</td></tr><tr><td>Free tier</td><td>Extra positive for free-budget users</td></tr><tr><td>Credit card</td><td>Major penalty if user has no card and provider requires one</td></tr><tr><td>Database</td><td>Positive when selected database is supported</td></tr><tr><td>Always-on</td><td>Positive when always-on is supported or not required</td></tr><tr><td>Region</td><td>Positive when provider covers selected region</td></tr><tr><td>Billing risk</td><td>Positive when provider risk is inside user tolerance</td></tr></tbody></table></div>
+<p>The dashboard also applies extra client-side preference adjustments for Docker, serverless, custom domains, and daily backups.</p>
+<h2>8. Saved Comparison Pipeline</h2>
+<p>Main files:</p>
+<ul>
+<li><code>src/components/SaveComparisonButton.tsx</code></li>
+<li><code>src/app/api/saved/route.ts</code></li>
+<li><code>src/app/saved/page.tsx</code></li>
+<li><code>src/app/saved/[id]/page.tsx</code></li>
+<li><code>src/lib/prisma.ts</code></li>
+<li><code>prisma/schema.prisma</code></li>
+</ul>
+<pre class="mermaid">sequenceDiagram
+  participant Client as SaveComparisonButton
+  participant API as POST /api/saved
+  participant Data as platforms.ts
+  participant Prisma
+  participant DB as SQLite
+
+  Client-&gt;&gt;API: JSON { input, results }
+  API-&gt;&gt;API: Check content-length &lt;= 20000 bytes
+  API-&gt;&gt;API: Parse JSON
+  API-&gt;&gt;API: Validate calculator enums and booleans
+  API-&gt;&gt;API: Limit saved results to 10
+  API-&gt;&gt;Data: Resolve each result platform by slug
+  Data--&gt;&gt;API: Canonical Platform records
+  API-&gt;&gt;Prisma: savedComparison.create(... userId)
+  Prisma-&gt;&gt;DB: Insert SavedComparison
+  DB--&gt;&gt;API: Saved id
+  API--&gt;&gt;Client: { id }
+  Client--&gt;&gt;Client: Show /saved/[id] link</pre>
+<p>Security behavior:</p>
+<ul>
+<li>Rejects oversized request bodies with <code>413</code>.</li>
+<li>Rejects invalid JSON with <code>400</code>.</li>
+<li>Rejects malformed calculator input with <code>400</code>.</li>
+<li>Rebuilds saved result platform objects from server-owned <code>src/data/platforms.ts</code>.</li>
+<li>Caps stored result count at 10.</li>
+<li>Truncates saved reason/warning strings.</li>
+<li>Requires a signed-in Clerk user and stores the Clerk <code>userId</code>.</li>
+</ul>
+<p>Current limitation:</p>
+<ul>
+<li>Saved comparison links are private to the owning Clerk user. A future sharing feature would need a separate explicit public-share token instead of reusing the private saved ID.</li>
+</ul>
+<h2>9. Freshness Automation Pipeline</h2>
+<p>Main files:</p>
+<ul>
+<li><code>vercel.json</code></li>
+<li><code>src/app/api/freshness/check/route.ts</code></li>
+<li><code>src/lib/platform-source-checker.ts</code></li>
+<li><code>src/data/platforms.ts</code></li>
+<li><code>prisma/schema.prisma</code></li>
+</ul>
+<p>Vercel Cron:</p>
+<pre><code>{
+  &quot;path&quot;: &quot;/api/freshness/check&quot;,
+  &quot;schedule&quot;: &quot;0 5 * * *&quot;
+}</code></pre>
+<pre class="mermaid">flowchart TD
+  Cron[&quot;Vercel Cron or manual GET&quot;]
+  Route[&quot;/api/freshness/check&quot;]
+  Auth{&quot;Authorized?&quot;}
+  Run[&quot;Create FreshnessCheckRun(status=running)&quot;]
+  Targets[&quot;Build targets from platformSourceLinks&quot;]
+  Workers[&quot;Fetch URLs with concurrency=4 and 12s timeout&quot;]
+  Normalize[&quot;Normalize HTML/text and hash content&quot;]
+  Status{&quot;Response status&quot;}
+  Current[&quot;current or changed&quot;]
+  Blocked[&quot;blocked for HTTP 401/403&quot;]
+  Failed[&quot;failed for other HTTP errors or fetch errors&quot;]
+  Persist[&quot;Upsert PlatformSourceCheck&quot;]
+  Summary[&quot;Update FreshnessCheckRun with counts&quot;]
+  Response[&quot;Return run summary JSON&quot;]
+
+  Cron --&gt; Route
+  Route --&gt; Auth
+  Auth -- No --&gt; Response
+  Auth -- Yes --&gt; Run
+  Run --&gt; Targets
+  Targets --&gt; Workers
+  Workers --&gt; Normalize
+  Normalize --&gt; Status
+  Status -- 2xx --&gt; Current
+  Status -- 401/403 --&gt; Blocked
+  Status -- Other/fetch error --&gt; Failed
+  Current --&gt; Persist
+  Blocked --&gt; Persist
+  Failed --&gt; Persist
+  Persist --&gt; Summary
+  Summary --&gt; Response</pre>
+<p>Authorization:</p>
+<ul>
+<li>If <code>CRON_SECRET</code> is set, the route expects <code>Authorization: Bearer &lt;CRON_SECRET&gt;</code>.</li>
+<li>If <code>CRON_SECRET</code> is not set, the route is allowed only outside production.</li>
+</ul>
+<p>Freshness status semantics:</p>
+<div class="table-wrap"><table><thead><tr><th>Status</th><th>Meaning</th></tr></thead><tbody><tr><td><code>current</code></td><td>Source fetched and content hash matches last known hash</td></tr><tr><td><code>changed</code></td><td>Source fetched and content hash changed since last run</td></tr><tr><td><code>blocked</code></td><td>Provider returned HTTP <code>401</code> or <code>403</code> to automation</td></tr><tr><td><code>failed</code></td><td>Fetch failed or provider returned another non-OK status</td></tr></tbody></table></div>
+<p>Why <code>blocked</code> matters:</p>
+<p>Some provider-owned pricing pages block server-side automation. Treating those as separate from internal failures prevents false alarms and points the app toward official API/docs fallbacks.</p>
+<h2>10. Billing-Risk Simulator Pipeline</h2>
+<p>Main files:</p>
+<ul>
+<li><code>src/app/platforms/[slug]/page.tsx</code></li>
+<li><code>src/app/platforms/[slug]/simulation/page.tsx</code></li>
+<li><code>src/components/ProviderSimulationForm.tsx</code></li>
+<li><code>src/app/billing-risk/page.tsx</code></li>
+<li><code>src/components/BillingRiskSimulator.tsx</code></li>
+<li><code>src/lib/billing-risk-simulation.ts</code></li>
+</ul>
+<pre class="mermaid">sequenceDiagram
+  participant User
+  participant ProviderPage as /platforms/[slug]
+  participant Form as /platforms/[slug]/simulation
+  participant Router as next/navigation router
+  participant BillingPage as /billing-risk
+  participant Simulator as simulateMonthlyBill
+  participant UI as Results UI
+
+  User-&gt;&gt;ProviderPage: Click &quot;Simulate this provider&quot;
+  ProviderPage--&gt;&gt;Form: Navigate to provider setup page
+  User-&gt;&gt;Form: Enter traffic, usage, budget, jobs, storage
+  Form-&gt;&gt;Router: Push /billing-risk?provider=...&amp;users=...&amp;rpu=...
+  Router--&gt;&gt;BillingPage: Load with query params
+  BillingPage-&gt;&gt;BillingPage: Parse and clamp query values
+  BillingPage-&gt;&gt;Simulator: simulateMonthlyBill(input, provider)
+  Simulator-&gt;&gt;Simulator: Run 1000 sampled months with seeded RNG
+  Simulator--&gt;&gt;BillingPage: P50, P90, worst, probabilities, cost centers
+  BillingPage--&gt;&gt;UI: Render summary, drivers, controls, examples</pre>
+<p>Query parameters:</p>
+<div class="table-wrap"><table><thead><tr><th>Param</th><th>Meaning</th><th>Clamp in <code>/billing-risk</code></th></tr></thead><tbody><tr><td><code>provider</code></td><td>Provider slug</td><td>Must exist in <code>platforms</code></td></tr><tr><td><code>hasCard</code></td><td>Whether a payment card is attached</td><td><code>true</code> or <code>false</code></td></tr><tr><td><code>traffic</code></td><td>Traffic profile</td><td><code>small</code>, <code>steady</code>, <code>spike</code></td></tr><tr><td><code>spend</code></td><td>Spend control</td><td><code>none</code>, <code>alerts</code>, <code>hard-cap</code></td></tr><tr><td><code>data</code></td><td>Data/storage load</td><td><code>none</code>, <code>small</code>, <code>growing</code>, <code>heavy</code></td></tr><tr><td><code>bandwidth</code></td><td>Bandwidth-heavy app</td><td><code>true</code> or <code>false</code></td></tr><tr><td><code>logs</code></td><td>Retain logs/metrics</td><td><code>true</code> or <code>false</code></td></tr><tr><td><code>jobs</code></td><td>Job load</td><td><code>none</code>, <code>scheduled</code>, <code>always-on</code></td></tr><tr><td><code>users</code></td><td>Monthly users</td><td><code>0</code> to <code>10,000,000</code></td></tr><tr><td><code>rpu</code></td><td>Requests per user</td><td><code>1</code> to <code>10,000</code></td></tr><tr><td><code>responseKb</code></td><td>Average response size</td><td><code>1</code> to <code>100,000</code></td></tr><tr><td><code>storageGb</code></td><td>Storage size</td><td><code>0</code> to <code>1,000,000</code></td></tr><tr><td><code>jobHours</code></td><td>Job/worker hours</td><td><code>0</code> to <code>100,000</code></td></tr><tr><td><code>budget</code></td><td>Budget limit</td><td><code>1</code> to <code>1,000,000</code></td></tr></tbody></table></div>
+<p>Simulation model:</p>
+<pre class="mermaid">flowchart TD
+  Input[&quot;SimulatorInput&quot;]
+  Provider[&quot;Platform traits&quot;]
+  Seed[&quot;Seeded random generator&lt;br/&gt;provider slug + input JSON&quot;]
+  MonthLoop[&quot;1000 simulated months&quot;]
+  Usage[&quot;Sample users, requests, response size, bot multiplier&quot;]
+  CostModel[&quot;Generic provider cost model&lt;br/&gt;risk/free-tier/card adjusted&quot;]
+  Costs[&quot;Compute, requests, bandwidth, DB, jobs, logs, platform&quot;]
+  SpendControl[&quot;Apply hard cap or no-card cap&quot;]
+  Stats[&quot;P50, P90, worst, over-budget probability, shock probability&quot;]
+  UI[&quot;Result cards and risk guidance&quot;]
+
+  Input --&gt; Seed
+  Provider --&gt; CostModel
+  Seed --&gt; MonthLoop
+  MonthLoop --&gt; Usage
+  Usage --&gt; Costs
+  CostModel --&gt; Costs
+  Costs --&gt; SpendControl
+  SpendControl --&gt; Stats
+  Stats --&gt; UI</pre>
+<p>Important caveat:</p>
+<p>The model is currently generic. It estimates risk shape from provider traits, not exact official pricing. To make it pricing-grade, the next step is a source-backed provider pricing layer with explicit assumptions per provider.</p>
+<h2>11. Auth And Session Boundary</h2>
+<p>Auth-related files:</p>
+<ul>
+<li><code>src/app/layout.tsx</code></li>
+<li><code>src/proxy.ts</code></li>
+<li><code>src/app/sign-in/[[...sign-in]]/page.tsx</code></li>
+<li><code>src/app/sign-up/[[...sign-up]]/page.tsx</code></li>
+<li><code>src/components/AuthControls.tsx</code></li>
+</ul>
+<p>Current behavior:</p>
+<ul>
+<li>The app is wrapped in <code>ClerkProvider</code>.</li>
+<li><code>src/proxy.ts</code> installs <code>clerkMiddleware()</code> across app and API route matchers.</li>
+<li>Sign-in and sign-up pages use Clerk's hosted UI components.</li>
+<li>The saved-comparison API enforces user ownership with Clerk <code>userId</code>.</li>
+</ul>
+<p>Interpretation:</p>
+<p>Clerk is integrated at the shell/routing layer, and saved filters now use server-side <code>userId</code> ownership. Any future user-owned data should follow the same pattern: authenticate on the server, persist <code>userId</code>, and include <code>userId</code> in all Prisma reads and writes.</p>
+<h2>12. Deployment And Operations</h2>
+<pre class="mermaid">flowchart LR
+  Dev[&quot;Local dev&lt;br/&gt;pnpm dev&quot;]
+  Build[&quot;Build&lt;br/&gt;pnpm build&quot;]
+  PrismaGen[&quot;Prisma client&lt;br/&gt;pnpm prisma:generate&quot;]
+  Vercel[&quot;Vercel deployment&quot;]
+  Cron[&quot;Vercel Cron&quot;]
+  Env[&quot;Environment variables&quot;]
+  DB[&quot;DATABASE_URL&quot;]
+
+  Dev --&gt; Build
+  PrismaGen --&gt; Build
+  Build --&gt; Vercel
+  Vercel --&gt; Cron
+  Env --&gt; Vercel
+  DB --&gt; Vercel</pre>
+<p>Required environment variables:</p>
+<div class="table-wrap"><table><thead><tr><th>Variable</th><th>Purpose</th></tr></thead><tbody><tr><td><code>DATABASE_URL</code></td><td>Prisma database connection; local example is SQLite</td></tr><tr><td><code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code></td><td>Clerk browser key</td></tr><tr><td><code>CLERK_SECRET_KEY</code></td><td>Clerk server key</td></tr><tr><td><code>NEXT_PUBLIC_CLERK_SIGN_IN_URL</code></td><td>Clerk sign-in route</td></tr><tr><td><code>NEXT_PUBLIC_CLERK_SIGN_UP_URL</code></td><td>Clerk sign-up route</td></tr><tr><td><code>CRON_SECRET</code></td><td>Optional production secret for freshness route</td></tr></tbody></table></div>
+<p>Useful commands:</p>
+<pre><code>pnpm install
+pnpm dev
+pnpm lint
+pnpm build
+pnpm exec tsc --noEmit
+pnpm prisma:generate
+pnpm prisma:migrate
+pnpm audit --audit-level moderate</code></pre>
+<h2>13. Validation Gates</h2>
+<p>Use the narrowest check that matches the change.</p>
+<div class="table-wrap"><table><thead><tr><th>Change type</th><th>Recommended validation</th></tr></thead><tbody><tr><td>General code changes</td><td><code>pnpm lint</code>, <code>pnpm build</code></td></tr><tr><td>Next.js route or type uncertainty</td><td><code>pnpm exec tsc --noEmit</code>, plus relevant local Next docs</td></tr><tr><td>Prisma schema/model changes</td><td><code>pnpm prisma:generate</code>, then <code>pnpm build</code></td></tr><tr><td>Prisma migration changes</td><td><code>pnpm prisma:migrate</code> when applying a local dev migration is intended</td></tr><tr><td>Security or dependency changes</td><td><code>pnpm audit --audit-level moderate</code></td></tr><tr><td>Frontend UI changes</td><td><code>pnpm dev</code>, browser inspection on desktop and mobile widths</td></tr><tr><td>Freshness automation changes</td><td>Local GET <code>/api/freshness/check</code> with safe env and review persisted rows</td></tr><tr><td>Billing simulator changes</td><td>Browser test provider page -&gt; simulation form -&gt; <code>/billing-risk</code> query result</td></tr></tbody></table></div>
+<h2>14. Current Worktree Note</h2>
+<p>At report generation time, these simulator-related files were locally modified or untracked:</p>
+<pre><code> M src/app/billing-risk/page.tsx
+ M src/app/platforms/[slug]/page.tsx
+ M src/components/BillingRiskSimulator.tsx
+?? src/app/platforms/[slug]/simulation/
+?? src/components/ProviderSimulationForm.tsx
+?? src/lib/billing-risk-simulation.ts</code></pre>
+<p>This report was added separately under <code>docs/</code> and should not require changing the simulator implementation.</p>
+<h2>15. Main Engineering Risks</h2>
+<ol>
+<li>Explicit sharing</li>
+</ol>
+<p>Saved comparisons are now private to the owning Clerk user. If the product needs public sharing later, add a separate explicit share token so private saved IDs do not become public access keys.</p>
+<ol>
+<li>Pricing accuracy</li>
+</ol>
+<p>The provider registry and simulator are useful for product discovery, but pricing data changes often. Source freshness helps detect upstream changes, but exact pricing-grade simulation requires provider-specific pricing assumptions.</p>
+<ol>
+<li>Freshness fetch reliability</li>
+</ol>
+<p>Some providers block automated fetches. The current system correctly models <code>blocked</code>, but the product should surface that state clearly instead of implying the data is always verified live.</p>
+<ol>
+<li>Prisma migration consistency</li>
+</ol>
+<p>Prisma schema changes should be followed by <code>pnpm prisma:generate</code>. Build/type failures after schema edits are often caused by a stale generated client.</p>
+<ol>
+<li>Client-side scoring transparency</li>
+</ol>
+<p>Recommendation scoring is deterministic and local, but users may not understand how each score was reached unless the UI continues exposing matched reasons and warnings.</p>
+<h2>16. Good Next Additions</h2>
+<ol>
+<li>Add an assumptions panel to the billing simulator showing the exact generic cost rates and free allowances used.</li>
+<li>Replace generic simulator cost rates with source-backed provider-specific pricing records.</li>
+<li>Add an explicit public-share token flow for saved comparisons if users should share private results with others.</li>
+<li>Add a freshness status dashboard or admin page using <code>PlatformSourceCheck</code> and <code>FreshnessCheckRun</code>.</li>
+<li>Add automated tests for:</li>
+</ol>
+<ul>
+<li>recommendation scoring</li>
+<li><code>/api/saved</code> validation</li>
+<li>simulator query parsing and clamping</li>
+<li>freshness result classification</li>
+</ul>
+<ol>
+<li>Add a public &quot;last verified&quot; timestamp on provider pages using persisted freshness results.</li>
+</ol>
+<h2>17. Mental Model</h2>
+<p>ShipCheap is best understood as a provider-risk decision engine:</p>
+<pre class="mermaid">flowchart TB
+  Facts[&quot;Provider facts&lt;br/&gt;platforms.ts&quot;]
+  UserNeeds[&quot;User needs&lt;br/&gt;calculator or simulator form&quot;]
+  Recommender[&quot;Recommendation scoring&quot;]
+  Detail[&quot;Provider detail pages&quot;]
+  Simulator[&quot;Bill risk simulation&quot;]
+  Freshness[&quot;Source freshness checks&quot;]
+  Trust[&quot;User trust layer&quot;]
+
+  Facts --&gt; Recommender
+  Facts --&gt; Detail
+  Facts --&gt; Simulator
+  Facts --&gt; Freshness
+  UserNeeds --&gt; Recommender
+  UserNeeds --&gt; Simulator
+  Freshness --&gt; Trust
+  Recommender --&gt; Trust
+  Detail --&gt; Trust
+  Simulator --&gt; Trust</pre>
+<p>The strongest product direction is not just &quot;compare cheap hosts.&quot; It is &quot;show the cheapest safe path, explain where the billing traps are, and keep the underlying claims fresh enough to trust.&quot;</p>
+  </main>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict' });
+  </script>
+</body>
+</html>

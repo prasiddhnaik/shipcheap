@@ -50,7 +50,7 @@ type RiskResult = {
 
 type BillShockExample = {
   service: string;
-  amount: string;
+  headline: string;
   cause: string;
   source: string;
   href: string;
@@ -59,31 +59,33 @@ type BillShockExample = {
 const billShockExamples: BillShockExample[] = [
   {
     service: "Vercel",
-    amount: "$96k reported",
-    cause: "A viral user surge reportedly drove huge function usage for Cara.",
-    source: "Deshittify",
-    href: "https://deshittify.io/products/vercel",
+    headline: "Spend controls need explicit actions",
+    cause:
+      "Vercel's docs say spend amounts can trigger notifications, webhooks, or pausing, but project pausing must be enabled as an action.",
+    source: "Vercel docs",
+    href: "https://vercel.com/docs/spend-management",
   },
   {
     service: "Firebase/Gemini",
-    amount: "€54k reported",
-    cause: "An unrestricted browser key was reportedly abused for API calls.",
-    source: "Agent Wars",
-    href: "https://agent-wars.com/news/2026-04-16-54k-firebase-browser-key-gemini-api-exploit",
+    headline: "Client keys can expose AI usage",
+    cause:
+      "Firebase docs warn against adding Gemini API access to app-exposed keys and recommend App Check for serious apps.",
+    source: "Firebase docs",
+    href: "https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting",
   },
   {
-    service: "Firebase",
-    amount: "£13k reported",
-    cause: "A user reported a large past-due bill and budget alerts that did not stop usage.",
-    source: "Reddit",
-    href: "https://www.reddit.com/r/Firebase/comments/1b3s81w",
+    service: "Google/Gemini",
+    headline: "$15.4k reported",
+    cause: "TechRadar reported a case where an exposed Google API key was abused for Gemini requests before the owner could stop the spend.",
+    source: "TechRadar",
+    href: "https://www.techradar.com/pro/security/usd15k-bill-destroyed-a-solo-developers-startup-how-hackers-are-using-leaked-google-api-keys-to-go-wild-with-gemini-ai-for-free",
   },
   {
     service: "AWS",
-    amount: "$45k reported",
-    cause: "Compromised keys were reportedly used for crypto-mining workloads.",
-    source: "Reddit",
-    href: "https://www.reddit.com/r/CryptoCurrency/comments/rhh81f",
+    headline: "$45k reported",
+    cause: "Tom's Hardware reported a compromised AWS account used for crypto-mining workloads that generated a large cloud bill.",
+    source: "Tom's Hardware",
+    href: "https://www.tomshardware.com/news/aws-45000-usd-bill-for-crypto-mining-hack",
   },
 ];
 
@@ -318,11 +320,11 @@ function BillShockExamples() {
             <span className="flex h-8 w-8 items-center justify-center rounded-md bg-rose-400/10 text-rose-300">
               <ShieldAlert size={17} />
             </span>
-            <h2 className="text-base font-semibold text-white">It has happened before</h2>
+            <h2 className="text-base font-semibold text-white">Billing incidents worth modeling</h2>
           </div>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-            Reported cloud bill shocks usually come from the same pattern: sudden users, bots, exposed keys, or metered
-            bandwidth/API usage growing faster than the owner notices.
+            Public docs and major reporting show the risk pattern: spend controls, exposed keys, compromised credentials,
+            bots, or metered usage growing faster than the owner notices.
           </p>
         </div>
       </div>
@@ -330,7 +332,7 @@ function BillShockExamples() {
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {billShockExamples.map((example) => (
           <a
-            key={`${example.service}-${example.amount}`}
+            key={`${example.service}-${example.headline}`}
             href={example.href}
             target="_blank"
             rel="noreferrer"
@@ -339,7 +341,7 @@ function BillShockExamples() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-medium uppercase tracking-normal text-rose-200/70">{example.service}</p>
-                <h3 className="mt-1 text-lg font-semibold text-white">{example.amount}</h3>
+                <h3 className="mt-1 text-lg font-semibold text-white">{example.headline}</h3>
               </div>
               <span className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-xs font-medium text-slate-300">
                 {example.source}
@@ -352,8 +354,8 @@ function BillShockExamples() {
       </div>
 
       <p className="mt-3 text-xs leading-5 text-slate-500">
-        These are external reports, not ShipCheap claims about your exact bill. Use them as warning signs for what to
-        simulate and guard against.
+        These examples are cautionary references from official docs or major reporting, not predictions or
+        provider-specific price promises.
       </p>
     </section>
   );
