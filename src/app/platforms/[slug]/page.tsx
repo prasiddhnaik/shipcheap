@@ -8,7 +8,7 @@ import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
 import { getPlatformBySlug, getPlatformCategory, getPlatformCommunityInfo, getPlatformSourceLinks, platforms, pricingDisclaimer } from "@/data/platforms";
 import type { CommunityInfo, DatabaseNeed, Platform, PlatformCategory } from "@/lib/types";
 import { appTypeLabels, budgetLabels, categoryLabels, databaseLabels, regionLabels } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, Check, CreditCard, Database, ExternalLink, MessageCircle, Server, ShieldAlert, Sparkles, Tags, Users, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ClipboardCheck, CreditCard, Database, ExternalLink, MessageCircle, Server, ShieldAlert, Sparkles, Tags, Users, X } from "lucide-react";
 
 export function generateStaticParams() {
   return platforms.map((platform) => ({ slug: platform.slug }));
@@ -126,6 +126,29 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
           {communityInfo && <CommunityPanel communityInfo={communityInfo} />}
         </section>
 
+        <section className="mt-4 rounded-lg border border-[#2442ed]/30 bg-[#2442ed]/10 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#2442ed]/20 text-[#aeb9ff]">
+                <ShieldAlert size={18} />
+              </span>
+              <div>
+                <h2 className="text-base font-semibold text-white">Stress-test {platform.name} before you pick it</h2>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-[#e6eaff]/75">
+                  Answer a short provider-specific form, then run the full bill-risk simulator with your scenario prefilled.
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/platforms/${platform.slug}/simulation`}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#2442ed] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3b57ff] sm:w-auto"
+            >
+              Simulate this provider
+              <ArrowRight size={15} />
+            </Link>
+          </div>
+        </section>
+
         <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-lg border border-white/10 bg-[#252525] p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -166,9 +189,20 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-            <List title="Pros" tone="good" items={platform.pros} />
-            <List title="Watch outs" tone="warn" items={[...platform.cons, ...platform.warningNotes]} />
+          <div className="rounded-lg border border-white/10 bg-[#252525] p-5">
+            <div className="flex items-center gap-2">
+              <ClipboardCheck size={18} className="text-[#7f91ff]" />
+              <h2 className="text-lg font-semibold text-white">Decision checks</h2>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              Use these notes as a launch checklist, not a final pricing promise. Verify live provider limits before moving real users.
+            </p>
+
+            <div className="mt-4 grid gap-3">
+              <DecisionList title="Strengths" tone="good" items={platform.pros} />
+              <DecisionList title="Watch outs" tone="warn" items={[...platform.cons, ...platform.warningNotes]} />
+              <DecisionList title="Before launch" tone="neutral" items={getLaunchChecks(platform, category)} />
+            </div>
           </div>
         </section>
       </main>
@@ -344,20 +378,68 @@ function Guidance({ title, tone, items }: { title: string; tone: "good" | "warn"
   );
 }
 
-function List({ title, tone, items }: { title: string; tone: "good" | "warn"; items: string[] }) {
+function DecisionList({ title, tone, items }: { title: string; tone: "good" | "warn" | "neutral"; items: string[] }) {
+  const styles = {
+    good: {
+      border: "border-emerald-400/20",
+      marker: "text-emerald-300",
+      title: "text-emerald-100",
+      icon: Check,
+    },
+    warn: {
+      border: "border-amber-400/20",
+      marker: "text-amber-300",
+      title: "text-amber-100",
+      icon: X,
+    },
+    neutral: {
+      border: "border-[#2442ed]/25",
+      marker: "text-[#aeb9ff]",
+      title: "text-[#e6eaff]",
+      icon: ClipboardCheck,
+    },
+  }[tone];
+  const Icon = styles.icon;
+
   return (
-    <div className="rounded-lg border border-white/10 bg-[#252525] p-5">
-      <h2 className="text-base font-semibold text-white">{title}</h2>
+    <div className={`rounded-lg border bg-white/[0.02] p-4 ${styles.border}`}>
+      <h3 className={`text-sm font-semibold ${styles.title}`}>{title}</h3>
       <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
         {items.map((item) => (
           <li key={item} className="flex gap-2">
-            {tone === "good" ? <Check className="mt-1 shrink-0 text-emerald-300" size={14} /> : <X className="mt-1 shrink-0 text-amber-300" size={14} />}
+            <Icon className={`mt-1 shrink-0 ${styles.marker}`} size={14} />
             <span>{item}</span>
           </li>
         ))}
       </ul>
     </div>
   );
+}
+
+function getLaunchChecks(platform: Platform, category: PlatformCategory) {
+  const checks = [
+    platform.creditCardRequired
+      ? "Set budget alerts and spend notifications before attaching production traffic."
+      : "Confirm the no-card starter path still exists before relying on it.",
+    platform.hasFreeTier
+      ? "Check the current free-tier quotas, sleep behavior, and upgrade trigger."
+      : "Confirm the minimum paid plan covers your expected app, database, and bandwidth usage.",
+    platform.databases.length > 0
+      ? "Verify database storage, backups, connection limits, and whether the database is bundled or external."
+      : "Pick and price the external database separately before launch.",
+  ];
+
+  if (platform.alwaysOn) {
+    checks.push("Confirm always-on services, workers, and cron jobs are included in the plan you choose.");
+  } else {
+    checks.push("Test cold starts, sleep behavior, and any serverless duration limits with your real app shape.");
+  }
+
+  if (category === "serverless" || category === "frontend") {
+    checks.push("Review function invocation, bandwidth, image optimization, and edge/runtime limits.");
+  }
+
+  return checks.slice(0, 4);
 }
 
 function getFitInsights(platform: Platform, category: PlatformCategory) {

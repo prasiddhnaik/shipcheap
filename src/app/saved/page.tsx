@@ -1,13 +1,41 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { AppChrome } from "@/components/AppChrome";
 import { prisma } from "@/lib/prisma";
 import { appTypeLabels, budgetLabels, databaseLabels, regionLabels, riskLabels } from "@/lib/utils";
-import { ArrowRight, Boxes } from "lucide-react";
+import { ArrowRight, Boxes, LockKeyhole } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function SavedPage() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return (
+      <AppChrome active="saved">
+        <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
+          <section className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#2442ed]/35 bg-[#2442ed]/10 text-[#aeb9ff]">
+                <LockKeyhole size={20} />
+              </span>
+              <div>
+                <h1 className="text-[28px] font-semibold leading-tight text-white sm:text-[34px]">Saved filters</h1>
+                <p className="mt-1 text-sm text-slate-400">Sign in to view your saved comparison snapshots.</p>
+              </div>
+            </div>
+            <Link href="/sign-in" className="mt-5 inline-flex items-center gap-2 rounded-md bg-[#2442ed] px-4 py-2 text-sm font-semibold text-white hover:bg-[#3b57ff]">
+              Sign in
+              <ArrowRight size={15} />
+            </Link>
+          </section>
+        </main>
+      </AppChrome>
+    );
+  }
+
   const savedComparisons = await prisma.savedComparison.findMany({
+    where: { userId },
     orderBy: { createdAt: "desc" },
     take: 20,
   });

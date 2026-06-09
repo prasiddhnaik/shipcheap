@@ -10,6 +10,7 @@ datasource db {
 model SavedComparison {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
+  userId    String
 
   appType   String
   budget    String
@@ -20,6 +21,24 @@ model SavedComparison {
   riskLevel String
 
   resultJson Json
+
+  @@index([userId])
+  @@index([userId, createdAt])
+}
+
+model ApiRateLimitBucket {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  route       String
+  identifier  String
+  windowStart DateTime
+  count       Int      @default(0)
+
+  @@unique([route, identifier, windowStart])
+  @@index([route, identifier])
+  @@index([updatedAt])
 }
 
 model PlatformSourceCheck {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { AppChrome } from "@/components/AppChrome";
 import { PlatformCard } from "@/components/PlatformCard";
 import { prisma } from "@/lib/prisma";
@@ -8,8 +9,13 @@ import { appTypeLabels, budgetLabels, databaseLabels, regionLabels, riskLabels }
 import { ArrowRight } from "lucide-react";
 
 export default async function SavedComparisonPage({ params }: { params: Promise<{ id: string }> }) {
+  const { userId } = await auth();
+  if (!userId) {
+    notFound();
+  }
+
   const { id } = await params;
-  const saved = await prisma.savedComparison.findUnique({ where: { id } });
+  const saved = await prisma.savedComparison.findFirst({ where: { id, userId } });
 
   if (!saved) {
     notFound();
