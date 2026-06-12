@@ -30,6 +30,13 @@ Before changing Next.js code, read the relevant local docs under `node_modules/n
 - Important existing security hygiene: `package.json` pins PostCSS through `pnpm.overrides`.
 - Local Clerk skill files live under `.agents/skills/`; use them when Clerk setup, routing, auth, organizations, custom UI, testing, or webhooks are involved.
 
+## Product Direction
+
+- ShipCheap is focused on backend hosting decisions, not broad cloud management.
+- Prioritize billing-risk modeling, no-card/free-tier safety, backend-specific recommendations, beginner guidance, saved comparisons, freshness checks, and provider-specific simulation.
+- Keep research, copy, and new features anchored to the user job: helping someone choose and safely test where to host a backend.
+- Avoid drifting into generic cloud comparison, DevOps dashboards, frontend hosting catalogs, or enterprise procurement workflows unless the user explicitly asks.
+
 ## Available Agent Capabilities
 
 Use these capabilities when they are available in the current Codex session:
@@ -74,6 +81,7 @@ If a named plugin is unavailable, say that directly and continue with the best l
 - If repo inspection can answer a planning question, inspect first and report the finding.
 - When producing a plan report, create a simple standalone HTML file with inline responsive CSS. Do not use Markdown for plan reports.
 - Keep plan reports plain and account-like: what is known, what decisions remain, what work will happen, what validation will prove it.
+- Treat reports and research artifacts as local handoff files by default. Do not commit them unless the user explicitly asks.
 
 ## Implementation Standards
 
@@ -85,6 +93,7 @@ If a named plugin is unavailable, say that directly and continue with the best l
 - For database work, update Prisma schema and migrations deliberately, then run the relevant Prisma validation/generation commands.
 - For auth-sensitive behavior, make authorization decisions server-side. Client hooks are for UI state, not trust boundaries.
 - For API routes and server actions, validate input shape, ownership, and size limits. Treat saved comparisons, feedback, freshness checks, and any Prisma writes as trust boundaries.
+- Before changing `src/proxy.ts`, Clerk middleware, route protection, rewrites, or other Next.js request-boundary behavior, read the relevant local Next.js 16 docs under `node_modules/next/dist/docs/` and verify protected API behavior after the change.
 
 ## Verification Gates
 
@@ -105,6 +114,7 @@ Run the narrowest useful checks for the change, and report any skipped checks ex
   - start the app with `pnpm dev`
   - use the in-app Browser or Playwright to inspect the changed route
   - check desktop and mobile-sized viewports when layout is affected
+- There is currently no committed `test` script in `package.json`. Do not claim automated test coverage unless a real test command or a specific Playwright/browser check was run and reported.
 
 ## Security Posture
 
