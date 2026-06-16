@@ -13,20 +13,19 @@ export function PlatformCard({ result }: { result: RankedPlatform }) {
   const category = getPlatformCategory(platform.slug);
   const theme = getProviderTheme(platform.name);
   const providerStyle = {
-    borderColor: theme.border,
-    background: `linear-gradient(135deg, ${theme.softBackground}, #252525 34%)`,
+    color: theme.text,
   } as CSSProperties;
 
   return (
-    <article className="rounded-lg border bg-[#252525] p-5 shadow-2xl shadow-black/20" style={providerStyle}>
+    <article className="border-[3px] border-[var(--line)] bg-[var(--panel)] p-5 shadow-[7px_7px_0_var(--line)]" style={providerStyle}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex gap-3">
           <ProviderLogo name={platform.name} large />
           <div>
-            <p className="text-xs font-medium" style={{ color: theme.text }}>Rank #{result.rank} · Score {result.score}</p>
-            <h3 className="mt-1 text-xl font-semibold text-white">{platform.name}</h3>
-            <p className="mt-1 text-xs font-medium" style={{ color: theme.text }}>{categoryLabels[category]}</p>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{platform.description}</p>
+            <p className="text-xs font-black uppercase text-[var(--muted)]">Rank #{result.rank} · Score {result.score}</p>
+            <h3 className="mt-1 text-3xl font-black text-[var(--foreground)]">{platform.name}</h3>
+            <p className="mt-1 text-xs font-black uppercase text-[var(--muted)]">{categoryLabels[category]}</p>
+            <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-[var(--muted)]">{platform.description}</p>
           </div>
         </div>
         <BillingRiskBadge risk={platform.billingRisk} />
@@ -41,12 +40,12 @@ export function PlatformCard({ result }: { result: RankedPlatform }) {
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Estimated cost</p>
-          <p className="mt-2 text-sm text-slate-200">{platform.costRange}</p>
+          <p className="brutal-label">Estimated cost</p>
+          <p className="mt-2 text-sm font-black text-[var(--foreground)]">{platform.costRange}</p>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Best for</p>
-          <p className="mt-2 text-sm text-slate-200">{platform.bestFor.join(", ")}</p>
+          <p className="brutal-label">Best for</p>
+          <p className="mt-2 text-sm font-black text-[var(--foreground)]">{platform.bestFor.join(", ")}</p>
         </div>
       </div>
 
@@ -58,8 +57,7 @@ export function PlatformCard({ result }: { result: RankedPlatform }) {
 
       <Link
         href={`/platforms/${platform.slug}`}
-        className="mt-5 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition brightness-100 hover:brightness-110"
-        style={{ backgroundColor: theme.accent, color: theme.onAccent }}
+        className="brutal-button mt-5 px-3 py-2 text-sm"
       >
         View platform details
         <ArrowRight size={14} />
@@ -71,8 +69,8 @@ export function PlatformCard({ result }: { result: RankedPlatform }) {
 function List({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{title}</p>
-      <ul className="mt-2 space-y-2 text-sm leading-5 text-slate-300">
+      <p className="brutal-label">{title}</p>
+      <ul className="mt-2 space-y-2 text-sm font-medium leading-5 text-[var(--muted)]">
         {items.map((item) => (
           <li key={item}>{item}</li>
         ))}

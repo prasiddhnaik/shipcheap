@@ -49,15 +49,15 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-white/10 bg-[#252525] p-4">
+      <div className="brutal-panel p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-white">Comparison matrix</h2>
-            <p className="mt-1 text-sm text-slate-400">
+            <h2 className="text-2xl font-black text-[var(--foreground)]">Comparison matrix</h2>
+            <p className="mt-1 text-sm font-medium text-[var(--muted)]">
               {selectedPlatformSlug ? "Selected provider is highlighted below." : "Use filters to narrow providers by billing and runtime fit."}
             </p>
           </div>
-          <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-slate-400">
+          <span className="brutal-badge bg-[var(--paper)] px-3 py-1 text-xs">
             {filteredPlatforms.length} providers
           </span>
         </div>
@@ -66,7 +66,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
         <select
           value={activeCategory}
           onChange={(event) => setActiveCategory(event.target.value as PlatformCategory | "all")}
-          className="rounded-md border border-white/10 bg-[#252525] px-3 py-2 text-sm font-semibold text-slate-200 outline-none transition focus:border-[#2442ed]/70"
+          className="brutal-input px-3 py-2 text-sm"
         >
           <option value="all">All categories</option>
           {(Object.entries(categoryLabels) as [PlatformCategory, string][]).map(([category, label]) => (
@@ -85,10 +85,10 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                 [filter.key]: !current[filter.key],
               }))
             }
-            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
+            className={`border-2 border-[var(--line)] px-3 py-2 text-sm font-black transition ${
               activeFilters[filter.key]
-                ? "border-[#2442ed]/70 bg-[#2442ed]/20 text-[#e6eaff]"
-                : "border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.07]"
+                ? "bg-[var(--accent)] text-white"
+                : "bg-[var(--panel)] text-[var(--foreground)] hover:bg-[var(--paper)]"
             }`}
           >
             {filter.label}
@@ -97,10 +97,10 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-[#252525]">
+      <div className="brutal-panel overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-[1080px] w-full table-fixed border-collapse text-left text-sm">
-            <thead className="bg-white/[0.04] text-xs font-semibold text-slate-300">
+            <thead className="bg-[var(--yellow)] text-xs font-black uppercase text-[var(--foreground)]">
               <tr>
                 <Th>Platform</Th>
                 <Th>Category</Th>
@@ -115,22 +115,22 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                 <Th>Billing risk</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
+            <tbody className="divide-y-2 divide-[var(--line)]">
               {filteredPlatforms.map((platform) => (
                 <tr
                   key={platform.slug}
-                  className={`align-top text-slate-300 transition ${
-                    platform.slug === selectedPlatformSlug ? "bg-[#2442ed]/10 ring-1 ring-inset ring-[#2442ed]/45" : "hover:bg-white/[0.025]"
+                  className={`align-top text-[var(--foreground)] transition ${
+                    platform.slug === selectedPlatformSlug ? "bg-[var(--yellow)]" : "hover:bg-white"
                   }`}
                 >
                   <Td>
                     <div className="flex items-center gap-3">
                       <ProviderLogo name={platform.name} />
                       <div>
-                        <Link className="font-semibold text-white hover:text-[#aeb9ff]" href={`/platforms/${platform.slug}`}>
+                        <Link className="font-black text-[var(--foreground)] hover:text-[var(--accent)]" href={`/platforms/${platform.slug}`}>
                           {platform.name}
                         </Link>
-                        {platform.slug === selectedPlatformSlug && <p className="mt-1 text-xs font-medium text-[#aeb9ff]">Selected from recommendations</p>}
+                        {platform.slug === selectedPlatformSlug && <p className="mt-1 text-xs font-black text-[var(--accent)]">Selected from recommendations</p>}
                       </div>
                     </div>
                   </Td>
@@ -158,12 +158,12 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
 
 function support(platform: Platform, appType: Platform["supports"][number]) {
   return platform.supports.includes(appType) ? (
-    <span className="inline-flex items-center gap-1 text-emerald-300">
+    <span className="inline-flex items-center gap-1 font-black text-[var(--foreground)]">
       <Check size={13} />
       {appTypeLabels[appType]}
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-slate-500">
+    <span className="inline-flex items-center gap-1 font-bold text-[var(--muted)]">
       <X size={13} />
       No
     </span>

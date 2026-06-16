@@ -24,7 +24,6 @@ import {
   Package,
   Search,
   Server,
-  Settings2,
   Shield,
   ShieldAlert,
   ShieldCheck,
@@ -48,7 +47,6 @@ const additionalNeedLabels: Record<AdditionalNeed, string> = {
 
 const navItems = [
   { label: "Dashboard", href: "/", icon: Grid2X2, active: true },
-  { label: "Recommendations", href: "#recommendations", icon: Settings2 },
   { label: "Compare", href: "/compare", icon: BadgeDollarSign },
   { label: "Risk Simulator", href: "/billing-risk", icon: ShieldAlert },
   { label: "Providers", href: "/compare", icon: Package },
@@ -58,7 +56,7 @@ const navItems = [
 
 const supportItems = [
   { label: "Billing Risk Guide", href: "/guides/no-card-hosting", icon: Shield },
-  { label: "How It Works", href: "#calculator", icon: CircleHelp },
+  { label: "How It Works", href: "/how-it-works", icon: CircleHelp },
 ];
 
 function applyAdditionalNeeds(results: RecommendedResult[], additionalNeeds: Record<AdditionalNeed, boolean>) {
@@ -155,28 +153,29 @@ export function DashboardHome() {
   }
 
   return (
-    <div className="min-h-screen bg-[#252525] text-slate-100">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="flex">
         <Sidebar />
         <main className="min-w-0 flex-1">
           <Topbar />
 
-          <div className="mx-auto max-w-[1260px] px-4 py-4 sm:px-6 lg:px-10">
-            <section className="grid gap-4 pb-4 xl:grid-cols-[1fr_390px]">
-              <div className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
+          <div className="mx-auto max-w-[1260px] px-4 py-6 sm:px-6 lg:px-10">
+            <section className="grid gap-5 pb-5 xl:grid-cols-[1fr_390px]">
+              <div className="brutal-panel p-5 sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <h1 className="max-w-3xl text-[26px] font-semibold leading-tight tracking-normal text-white sm:text-[32px]">
-                      Backend hosting without billing jumpscares.
+                    <span className="brutal-badge bg-[var(--yellow)] px-3 py-1 text-xs uppercase">Backend hosting decision board</span>
+                    <h1 className="mt-4 max-w-3xl text-[44px] font-black leading-[0.92] tracking-normal text-[var(--foreground)] sm:text-[64px]">
+                      Pick a backend host before the bill picks you.
                     </h1>
-                    <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+                    <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)]">
                       Rank backend platforms by cost, card requirements, database fit, and billing risk before you deploy.
                     </p>
                   </div>
                   {selectedResult && (
                     <Link
                       href={`/platforms/${selectedResult.platform.slug}`}
-                      className="inline-flex items-center gap-2 rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-3 py-2 text-sm font-semibold text-[#e6eaff] transition hover:bg-[#2442ed]/20"
+                      className="brutal-button brutal-button-yellow px-3 py-2 text-sm"
                     >
                       Current pick: {selectedResult.platform.name}
                       <ArrowRight size={14} />
@@ -184,7 +183,7 @@ export function DashboardHome() {
                   )}
                 </div>
 
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <HeroStat icon={ShieldCheck} label="Low-risk options" value={`${lowRiskCount} providers`} />
                   <HeroStat icon={CreditCard} label="No-card paths" value={`${noCardCount} providers`} />
                   <HeroStat icon={Server} label="Active filter" value={appTypeLabels[input.appType]} />
@@ -199,9 +198,9 @@ export function DashboardHome() {
                   event.preventDefault();
                   applyPreferences();
                 }}
-                className="relative rounded-lg border border-white/10 bg-[#252525] p-4 shadow-2xl shadow-black/20"
+                className="brutal-panel relative p-4"
               >
-                <h2 className="text-base font-semibold text-white">Your Preferences</h2>
+                <h2 className="text-2xl font-black text-[var(--foreground)]">Your Preferences</h2>
                 <div className="mt-3 grid gap-x-8 gap-y-3 lg:grid-cols-3">
                   <Select label="App type" value={input.appType} onChange={(value) => update("appType", value as AppType)} options={appTypes} />
                   <BudgetInput value={input.budget} onChange={(value) => update("budget", value)} />
@@ -213,7 +212,7 @@ export function DashboardHome() {
                     <RiskControl value={input.riskLevel} onChange={(value) => update("riskLevel", value)} />
                   </div>
                   <div className="lg:col-span-2 lg:pr-48">
-                    <p className="text-xs font-medium text-slate-300">Additional needs (optional)</p>
+                    <p className="brutal-label">Additional needs (optional)</p>
                     <div className="mt-1.5 flex flex-wrap gap-3">
                       {(Object.keys(additionalNeedLabels) as AdditionalNeed[]).map((need) => (
                         <NeedPill key={need} checked={additionalNeeds[need]} onClick={() => toggleAdditionalNeed(need)}>
@@ -224,7 +223,7 @@ export function DashboardHome() {
                   </div>
                 </div>
                 <div className="mt-2 flex justify-end lg:absolute lg:bottom-4 lg:right-4 lg:mt-0">
-                  <button className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#2442ed] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2442ed]/30 transition hover:bg-[#3b57ff] sm:w-auto">
+                  <button className="brutal-button brutal-button-primary w-full px-5 py-2.5 text-sm sm:w-auto">
                     <Search size={15} />
                     Show Best Options
                   </button>
@@ -236,10 +235,10 @@ export function DashboardHome() {
               <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold text-white">Top Recommendations</h2>
-                    <Info size={15} className="text-slate-500" />
+                    <h2 className="text-2xl font-black text-[var(--foreground)]">Top Recommendations</h2>
+                    <Info size={15} className="text-[var(--muted)]" />
                   </div>
-                  <p className="mt-1 text-sm text-slate-400">
+                  <p className="mt-1 text-sm font-medium text-[var(--muted)]">
                     {selectedResult
                         ? `${selectedResult.platform.name} selected. Choose another card to update the preview.`
                         : submitted
@@ -265,21 +264,21 @@ export function DashboardHome() {
             <section className="pt-3">
               <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">Comparison Preview</h2>
-                  <p className="mt-1 text-sm text-slate-400">Side-by-side snapshot of key platform details. See full comparison for more.</p>
+                  <h2 className="text-2xl font-black text-[var(--foreground)]">Comparison Preview</h2>
+                  <p className="mt-1 text-sm font-medium text-[var(--muted)]">Side-by-side snapshot of key platform details. See full comparison for more.</p>
                 </div>
                 <Link
                   href={activePlatformSlug ? `/compare?platform=${activePlatformSlug}` : "/compare"}
-                  className="inline-flex items-center gap-2 rounded-md border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
+                  className="brutal-button px-4 py-2 text-sm"
                 >
                   View full comparison
                   <ArrowRight size={15} />
                 </Link>
               </div>
-              <div className="overflow-hidden rounded-lg border border-white/10 bg-[#252525]">
+              <div className="brutal-panel overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[980px] border-collapse text-left text-sm">
-                    <thead className="bg-white/[0.04] text-xs font-semibold text-slate-300">
+                    <thead className="bg-[var(--yellow)] text-xs font-black uppercase text-[var(--foreground)]">
                       <tr>
                         <Th>Platform</Th>
                         <Th>Free Tier</Th>
@@ -291,18 +290,18 @@ export function DashboardHome() {
                         <Th>Billing Risk</Th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/10">
+                    <tbody className="divide-y-2 divide-[var(--line)]">
                       {previewRows.map((platform) => (
-                        <tr key={platform.slug} className="text-slate-300">
+                        <tr key={platform.slug} className="text-[var(--foreground)]">
                           <Td>
-                            <Link href={`/platforms/${platform.slug}`} className="flex items-center gap-3 font-medium text-white hover:text-[#aeb9ff]">
+                            <Link href={`/platforms/${platform.slug}`} className="flex items-center gap-3 font-black text-[var(--foreground)] hover:text-[var(--accent)]">
                               <ProviderLogo name={platform.name} />
                               {platform.name}
                             </Link>
                           </Td>
                           <Td>
                             {platform.hasFreeTier ? (
-                              <span>Yes<br /><span className="text-xs text-slate-500">starter limits</span></span>
+                              <span>Yes<br /><span className="text-xs font-bold text-[var(--muted)]">starter limits</span></span>
                             ) : (
                               "No"
                             )}
@@ -312,7 +311,7 @@ export function DashboardHome() {
                           <Td>{platform.databases.includes("postgres") ? "PostgreSQL" : platform.databases.map((database) => databaseLabels[database]).join(", ")}</Td>
                           <Td>
                             {platform.supports.includes("docker") ? (
-                              <span className="inline-flex items-center gap-1 text-emerald-300"><Check size={13} /> Yes</span>
+                              <span className="inline-flex items-center gap-1 font-black text-[var(--foreground)]"><Check size={13} /> Yes</span>
                             ) : (
                               "No"
                             )}
@@ -337,64 +336,66 @@ export function DashboardHome() {
 
 function Sidebar() {
   return (
-    <aside className="hidden min-h-screen w-60 shrink-0 border-r border-white/10 bg-[#252525] lg:sticky lg:top-0 lg:flex lg:flex-col">
-      <Link href="/" className="flex h-13 items-center gap-3 px-5 py-3">
+    <aside className="hidden min-h-screen w-64 shrink-0 border-r-[3px] border-[var(--line)] bg-[var(--yellow)] lg:sticky lg:top-0 lg:flex lg:flex-col">
+      <Link href="/" className="flex items-center gap-3 px-5 py-4">
         <ShipCheapLogo />
       </Link>
 
-      <nav className="space-y-1 px-3 py-2">
+      <nav className="space-y-2 px-4 py-2">
         {navItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition ${
+            className={`flex min-h-11 items-center gap-3 px-3 text-sm font-black transition ${
               item.active
-                ? "border border-[#2442ed]/35 bg-[#2442ed]/15 text-[#aeb9ff]"
-                : "text-slate-300 hover:bg-white/[0.04] hover:text-white"
+                ? "border-[3px] border-[var(--line)] bg-[var(--panel)] shadow-[4px_4px_0_var(--line)]"
+                : "text-[var(--foreground)] hover:bg-[var(--panel)]"
             }`}
           >
-            <item.icon size={17} />
+            <span className={`grid h-8 w-8 place-items-center border-2 border-[var(--line)] ${item.active ? "bg-[var(--accent)] text-white" : "bg-[var(--panel)]"}`}>
+              <item.icon size={18} strokeWidth={2.5} />
+            </span>
             {item.label}
           </Link>
         ))}
       </nav>
 
-      <div className="mx-3 my-5 border-t border-white/10" />
+      <div className="mx-4 my-5 border-t-[3px] border-[var(--line)]" />
 
-      <nav className="space-y-1 px-3">
+      <nav className="space-y-2 px-4">
         {supportItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
+            className="flex min-h-11 items-center gap-3 px-3 text-sm font-black text-[var(--foreground)] transition hover:bg-[var(--panel)]"
           >
-            <item.icon size={17} />
+            <span className="grid h-8 w-8 place-items-center border-2 border-[var(--line)] bg-[var(--panel)]">
+              <item.icon size={18} strokeWidth={2.5} />
+            </span>
             {item.label}
           </Link>
         ))}
       </nav>
 
       <div className="mt-auto p-3">
-        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2442ed]/20 text-[#aeb9ff]">
-            <ShieldCheck size={18} />
+        <div className="brutal-panel p-4">
+          <div className="grid h-10 w-10 place-items-center border-2 border-[var(--line)] bg-[var(--green)]">
+            <ShieldCheck size={20} strokeWidth={2.5} />
           </div>
-          <h2 className="mt-4 text-sm font-semibold text-white">Why ShipCheap?</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-400">
+          <h2 className="mt-4 text-sm font-black text-[var(--foreground)]">Why ShipCheap?</h2>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
             We analyze pricing, limits, and upgrade paths so you can deploy without surprise bills.
           </p>
-          <Link href="/guides/no-card-hosting" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] hover:text-[#aeb9ff]">
+          <Link href="/guides/no-card-hosting" className="mt-4 inline-flex items-center gap-2 text-sm font-black text-[var(--accent)] underline-offset-4 hover:underline">
             Learn more <ArrowRight size={14} />
           </Link>
         </div>
 
-        <p className="mt-8 text-xs leading-5 text-slate-500">
+        <p className="mt-8 text-xs font-bold leading-5 text-[var(--muted)]">
           © 2026 ShipCheap
           <br />
           All rights reserved.
         </p>
-
-        <p className="mt-4 rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-medium text-slate-400">Dark mode active</p>
       </div>
     </aside>
   );
@@ -402,11 +403,11 @@ function Sidebar() {
 
 function Topbar() {
   return (
-    <header className="flex min-h-13 items-center justify-between border-b border-white/10 bg-[#252525]/90 px-4 py-2 backdrop-blur sm:px-8">
+    <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between border-b-[3px] border-[var(--line)] bg-white/95 px-4 py-2 sm:px-8">
       <Link href="/" className="flex items-center gap-3 lg:hidden">
         <ShipCheapLogo compact />
       </Link>
-      <div className="hidden text-sm text-slate-500 lg:block"> </div>
+      <div className="hidden text-sm font-black text-[var(--muted)] lg:block">ShipCheap Decision Board</div>
       <div className="flex items-center gap-3">
         <AuthControls />
       </div>
@@ -424,55 +425,55 @@ function HeroStat({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#252525] p-3">
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-        <Icon size={14} className="text-[#7f91ff]" />
+    <div className="brutal-panel-soft p-3">
+      <div className="flex items-center gap-2 text-xs font-black text-[var(--muted)]">
+        <Icon size={14} className="text-[var(--accent)]" />
         {label}
       </div>
-      <p className="mt-2 truncate text-sm font-semibold text-white">{value}</p>
+      <p className="mt-2 truncate text-xl font-black text-[var(--foreground)]">{value}</p>
     </div>
   );
 }
 
 function HeroSummary({ selectedResult }: { selectedResult?: RecommendedResult }) {
   return (
-    <aside className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
+    <aside className="brutal-panel p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#2442ed]/35 bg-[#2442ed]/10 text-[#aeb9ff]">
-            <ShieldCheck size={19} />
+          <div className="grid h-11 w-11 place-items-center border-[3px] border-[var(--line)] bg-[var(--green)]">
+            <ShieldCheck size={21} strokeWidth={2.5} />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-white">Recommendation ready</h2>
-            <p className="mt-1 text-xs text-slate-500">Updates as preferences change</p>
+            <h2 className="text-base font-black text-[var(--foreground)]">Recommendation ready</h2>
+            <p className="mt-1 text-xs font-bold text-[var(--muted)]">Updates as preferences change</p>
           </div>
         </div>
-        <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-xs font-medium text-emerald-300">
+        <span className="brutal-badge bg-[var(--green)] px-2 py-1 text-xs">
           Live
         </span>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-[#252525] p-4">
-        <p className="text-xs font-medium text-slate-500">Top match</p>
+      <div className="mt-4 border-[3px] border-[var(--line)] bg-[var(--paper)] p-4">
+        <p className="brutal-label">Top match</p>
         <div className="mt-3 flex items-start justify-between gap-3">
           <div>
-            <p className="text-xl font-semibold text-white">{selectedResult?.platform.name ?? "Run preferences"}</p>
-            <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-400">
+            <p className="text-3xl font-black text-[var(--foreground)]">{selectedResult?.platform.name ?? "Run preferences"}</p>
+            <p className="mt-2 line-clamp-2 text-sm font-medium leading-5 text-[var(--muted)]">
               {selectedResult?.matchedReasons[0] ?? "Apply your preferences to generate recommendations."}
             </p>
           </div>
-          <p className="shrink-0 text-right text-lg font-semibold text-white">
+          <p className="shrink-0 text-right text-2xl font-black text-[var(--foreground)]">
             {selectedResult?.platform.hasFreeTier ? "$0" : "$5"}
-            <span className="text-xs font-normal text-slate-500"> /mo</span>
+            <span className="text-xs font-bold text-[var(--muted)]"> /mo</span>
           </p>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <Link href="#calculator" className="inline-flex items-center justify-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.05]">
+        <Link href="#calculator" className="brutal-button px-3 py-2 text-sm">
           Edit filters
         </Link>
-        <Link href={selectedResult ? `/compare?platform=${selectedResult.platform.slug}` : "/compare"} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2442ed] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#3b57ff]">
+        <Link href={selectedResult ? `/compare?platform=${selectedResult.platform.slug}` : "/compare"} className="brutal-button brutal-button-primary px-3 py-2 text-sm">
           Compare
           <ArrowRight size={14} />
         </Link>
@@ -494,11 +495,11 @@ function Select({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-medium text-slate-300">{label}</span>
+      <span className="brutal-label">{label}</span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1.5 h-8 w-full rounded-md border border-white/10 bg-[#252525] px-3 text-sm text-white outline-none transition focus:border-[#2442ed]/70"
+        className="brutal-input mt-1.5 w-full px-3 text-sm"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>
@@ -514,7 +515,7 @@ function BudgetInput({ value, onChange }: { value: Budget; onChange: (value: Bud
   return (
     <div>
       <Select label="Monthly budget (USD)" value={value} onChange={(next) => onChange(next as Budget)} options={budgets} />
-      <p className="mt-1 text-xs text-slate-500">0 = free only</p>
+      <p className="mt-1 text-xs font-bold text-[var(--muted)]">0 = free only</p>
     </div>
   );
 }
@@ -534,17 +535,17 @@ function Toggle({
 }) {
   return (
     <div>
-      <p className="text-xs font-medium text-slate-300">{label}</p>
-      <div className="mt-1.5 inline-grid grid-cols-2 overflow-hidden rounded-md border border-white/10 bg-[#252525]">
+      <p className="brutal-label">{label}</p>
+      <div className="mt-1.5 inline-grid grid-cols-2 border-2 border-[var(--line)] bg-[var(--panel)]">
         {[false, true].map((option) => (
           <button
             key={String(option)}
             type="button"
             onClick={() => onChange(option)}
-            className={`h-7 min-w-16 px-4 text-sm font-medium transition ${
+            className={`min-h-10 min-w-16 border-r-2 border-[var(--line)] px-4 text-sm font-black transition last:border-r-0 ${
               value === option
-                ? "bg-[#2442ed] text-white shadow-inner shadow-white/10"
-                : "text-slate-300 hover:bg-white/[0.04]"
+                ? "bg-[var(--accent)] text-white"
+                : "text-[var(--foreground)] hover:bg-[var(--paper)]"
             }`}
           >
             {option ? yesLabel : noLabel}
@@ -558,26 +559,26 @@ function Toggle({
 function RiskControl({ value, onChange }: { value: RiskLevel; onChange: (value: RiskLevel) => void }) {
   return (
     <div>
-      <p className="text-xs font-medium text-slate-300">Billing risk tolerance</p>
-      <div className="mt-1.5 grid overflow-hidden rounded-md border border-white/10 bg-[#252525] sm:grid-cols-3">
+      <p className="brutal-label">Billing risk tolerance</p>
+      <div className="mt-1.5 grid border-2 border-[var(--line)] bg-[var(--panel)] sm:grid-cols-3">
         {risks.map(([risk, label]) => (
           <button
             key={risk}
             type="button"
             onClick={() => onChange(risk)}
-            className={`h-7 border-white/10 px-4 text-sm font-medium transition sm:border-r sm:last:border-r-0 ${
+            className={`min-h-10 border-[var(--line)] px-4 text-sm font-black transition sm:border-r-2 sm:last:border-r-0 ${
               value === risk
                 ? risk === "low"
-                  ? "bg-emerald-500/20 text-emerald-100 ring-1 ring-inset ring-emerald-400/70"
-                  : "bg-[#2442ed]/25 text-white ring-1 ring-inset ring-[#2442ed]/70"
-                : "text-slate-300 hover:bg-white/[0.04]"
+                  ? "bg-[var(--green)] text-[var(--foreground)]"
+                  : "bg-[var(--accent)] text-white"
+                : "text-[var(--foreground)] hover:bg-[var(--paper)]"
             }`}
           >
             {label}
           </button>
         ))}
       </div>
-      <p className="mt-1 text-xs text-slate-500">Lower risk = more conservative recommendations</p>
+      <p className="mt-1 text-xs font-bold text-[var(--muted)]">Lower risk = more conservative recommendations</p>
     </div>
   );
 }
@@ -596,13 +597,13 @@ function NeedPill({
       type="button"
       aria-pressed={checked}
       onClick={onClick}
-      className={`inline-flex h-7 items-center gap-2 rounded-md border px-3 text-sm transition ${
+      className={`inline-flex min-h-10 items-center gap-2 border-2 border-[var(--line)] px-3 text-sm font-black transition ${
         checked
-          ? "border-[#2442ed]/55 bg-[#2442ed]/20 text-white"
-          : "border-white/10 bg-[#252525] text-slate-300 hover:bg-white/[0.04] hover:text-white"
+          ? "bg-[var(--accent)] text-white"
+          : "bg-[var(--panel)] text-[var(--foreground)] hover:bg-[var(--paper)]"
       }`}
     >
-      <span className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${checked ? "border-[#2442ed] bg-[#2442ed]" : "border-white/15"}`}>
+      <span className={`flex h-4 w-4 items-center justify-center border-2 ${checked ? "border-white bg-white text-[var(--accent)]" : "border-[var(--line)]"}`}>
         {checked && <Check size={10} />}
       </span>
       {children}
@@ -637,8 +638,7 @@ function RecommendationCard({
   const category = getPlatformCategory(platform.slug);
   const providerTheme = getProviderTheme(platform.name);
   const cardStyle = {
-    borderColor: selected ? providerTheme.accent : providerTheme.border,
-    background: `linear-gradient(135deg, ${providerTheme.softBackground}, #252525 42%)`,
+    color: providerTheme.text,
   } as CSSProperties;
 
   return (
@@ -653,28 +653,28 @@ function RecommendationCard({
           onSelect();
         }
       }}
-      className={`cursor-pointer rounded-lg border p-3.5 shadow-2xl shadow-black/20 outline-none transition hover:-translate-y-0.5 hover:bg-[#2b2b2b] focus-visible:ring-2 focus-visible:ring-[#2442ed]/70 ${
-        selected ? "ring-2 ring-[#2442ed]/70 ring-offset-2 ring-offset-[#252525]" : ""
+      className={`cursor-pointer border-[3px] border-[var(--line)] bg-[var(--panel)] p-4 shadow-[7px_7px_0_var(--line)] outline-none transition hover:-translate-y-0.5 hover:bg-white focus-visible:ring-4 focus-visible:ring-[var(--accent)] ${
+        selected ? "translate-x-[-2px] translate-y-[-2px] shadow-[9px_9px_0_var(--accent)]" : ""
       }`}
       style={cardStyle}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <span
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-            style={{ backgroundColor: providerTheme.accent, color: providerTheme.onAccent }}
+            className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[var(--line)] text-sm font-black"
+            style={{ backgroundColor: index === 0 ? "var(--green)" : index === 1 ? "var(--yellow)" : "var(--paper)", color: "var(--foreground)" }}
           >
             {result.rank}
           </span>
           <ProviderLogo name={platform.name} large />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
-              <h3 className="truncate text-base font-semibold text-white">{platform.name}</h3>
-              <span className="whitespace-nowrap rounded-full px-1.5 py-0.5 text-[11px] font-medium text-white" style={{ backgroundColor: providerTheme.background }}>
+              <h3 className="truncate text-2xl font-black text-[var(--foreground)]">{platform.name}</h3>
+              <span className="whitespace-nowrap border-2 border-[var(--line)] bg-[var(--paper)] px-1.5 py-0.5 text-[11px] font-black text-[var(--foreground)]">
                 {accent.tag}
               </span>
             </div>
-            <p className="mt-0.5 text-xs font-medium" style={{ color: providerTheme.text }}>{categoryLabels[category]}</p>
+            <p className="mt-0.5 text-xs font-black uppercase text-[var(--muted)]">{categoryLabels[category]}</p>
             <div className="mt-1.5 flex flex-wrap gap-1">
               {platform.hasFreeTier && <MiniBadge>Free tier</MiniBadge>}
               {!platform.creditCardRequired && <MiniBadge>No card</MiniBadge>}
@@ -685,29 +685,28 @@ function RecommendationCard({
         </div>
         <div className="shrink-0 text-right">
           {selected && (
-            <span className="mb-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold text-[#e6eaff]" style={{ borderColor: providerTheme.border, backgroundColor: providerTheme.background }}>
+            <span className="mb-1 inline-flex items-center gap-1 border-2 border-[var(--line)] bg-[var(--green)] px-2 py-0.5 text-[11px] font-black text-[var(--foreground)]">
               <Check size={11} />
               Selected
             </span>
           )}
-          <p className="text-lg font-semibold text-white">{platform.hasFreeTier ? "$0" : "$5"}<span className="text-xs font-normal text-slate-400"> /mo</span></p>
-          <p className="text-xs text-slate-500">est. monthly</p>
+          <p className="text-2xl font-black text-[var(--foreground)]">{platform.hasFreeTier ? "$0" : "$5"}<span className="text-xs font-bold text-[var(--muted)]"> /mo</span></p>
+          <p className="text-xs font-bold text-[var(--muted)]">est. monthly</p>
         </div>
       </div>
-      <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-400">{result.matchedReasons[0] ?? platform.description}</p>
-      <div className="mt-2.5 flex items-center justify-between border-t border-white/10 pt-2.5">
+      <p className="mt-3 line-clamp-2 text-sm font-medium leading-5 text-[var(--muted)]">{result.matchedReasons[0] ?? platform.description}</p>
+      <div className="mt-3 flex items-center justify-between border-t-[3px] border-[var(--line)] pt-3">
         <Link
           href={`/platforms/${platform.slug}`}
           onClick={(event) => event.stopPropagation()}
-          className="inline-flex items-center gap-2 text-sm font-semibold"
-          style={{ color: providerTheme.text }}
+          className="inline-flex items-center gap-2 text-sm font-black text-[var(--accent)] underline-offset-4 hover:underline"
         >
           View details <ArrowRight size={14} />
         </Link>
         <Link
           href={`/compare?platform=${platform.slug}`}
           onClick={(event) => event.stopPropagation()}
-          className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
+          className="border-2 border-[var(--line)] bg-[var(--paper)] px-3 py-1.5 text-xs font-black text-[var(--foreground)] transition hover:bg-[var(--yellow)]"
         >
           Compare
         </Link>
@@ -717,16 +716,16 @@ function RecommendationCard({
 }
 
 function MiniBadge({ children }: { children: React.ReactNode }) {
-  return <span className="whitespace-nowrap rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] font-medium text-slate-200">{children}</span>;
+  return <span className="whitespace-nowrap border-2 border-[var(--line)] bg-[var(--paper)] px-1.5 py-0.5 text-[11px] font-black text-[var(--foreground)]">{children}</span>;
 }
 
 function RiskBadge({ risk }: { risk: RiskLevel }) {
   const styles: Record<RiskLevel, string> = {
-    low: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
-    medium: "border-amber-400/30 bg-amber-400/10 text-amber-300",
-    high: "border-rose-400/30 bg-rose-400/10 text-rose-300",
+    low: "bg-[var(--green)] text-[var(--foreground)]",
+    medium: "bg-[var(--yellow)] text-[var(--foreground)]",
+    high: "bg-[var(--red)] text-[var(--foreground)]",
   };
-  return <span className={`rounded-full border px-3 py-1 text-xs font-medium ${styles[risk]}`}>{riskLabels[risk]}</span>;
+  return <span className={`border-2 border-[var(--line)] px-3 py-1 text-xs font-black ${styles[risk]}`}>{riskLabels[risk]}</span>;
 }
 
 function Th({ children }: { children: React.ReactNode }) {

@@ -31,7 +31,7 @@ export default async function PlatformSimulationPage({ params }: { params: Promi
   return (
     <AppChrome active="providers" compactSidebar>
       <main className="mx-auto max-w-[1120px] px-4 py-5 sm:px-6 lg:px-10">
-        <Link href={`/platforms/${platform.slug}`} className="inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] transition hover:text-[#aeb9ff]">
+        <Link href={`/platforms/${platform.slug}`} className="inline-flex items-center gap-2 text-sm font-medium text-[#002fa7] transition hover:text-[#002fa7]">
           <ArrowLeft size={15} />
           Back to {platform.name}
         </Link>

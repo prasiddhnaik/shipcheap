@@ -26,9 +26,9 @@ export default async function SavedComparisonPage({ params }: { params: Promise<
   return (
     <AppChrome active="saved">
       <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
-        <div className="rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
-          <p className="text-xs font-medium text-[#aeb9ff]">Saved {saved.createdAt.toLocaleString()}</p>
-          <h1 className="mt-3 text-[28px] font-semibold leading-tight text-white sm:text-[34px]">Saved hosting comparison</h1>
+        <div className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[7px_7px_0_var(--line)]">
+          <p className="text-xs font-medium text-[#002fa7]">Saved {saved.createdAt.toLocaleString()}</p>
+          <h1 className="mt-3 text-[28px] font-semibold leading-tight text-[var(--foreground)] sm:text-[34px]">Saved hosting comparison</h1>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Meta label="App type" value={appTypeLabels[saved.appType as keyof typeof appTypeLabels] ?? saved.appType} />
             <Meta label="Budget" value={budgetLabels[saved.budget as keyof typeof budgetLabels] ?? saved.budget} />
@@ -46,7 +46,7 @@ export default async function SavedComparisonPage({ params }: { params: Promise<
           ))}
         </div>
 
-        <Link className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#2442ed] px-4 py-3 text-sm font-bold text-white hover:bg-[#3b57ff]" href="/">
+        <Link className="mt-8 inline-flex items-center gap-2 bg-[#002fa7] px-4 py-3 text-sm font-bold text-white hover:bg-[#003399]" href="/">
           Run another comparison
           <ArrowRight size={15} />
         </Link>
@@ -57,9 +57,9 @@ export default async function SavedComparisonPage({ params }: { params: Promise<
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-white/10 bg-[#252525] p-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
-      <p className="mt-2 text-sm font-medium text-slate-100">{value}</p>
+    <div className="rounded-md border border-[var(--line)] bg-[var(--panel)] p-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">{label}</p>
+      <p className="mt-2 text-sm font-medium text-[var(--foreground)]">{value}</p>
     </div>
   );
 }

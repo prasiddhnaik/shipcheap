@@ -10,6 +10,14 @@ import type { CommunityInfo, DatabaseNeed, Platform, PlatformCategory } from "@/
 import { appTypeLabels, budgetLabels, categoryLabels, databaseLabels, regionLabels } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, Check, ClipboardCheck, CreditCard, Database, ExternalLink, MessageCircle, Server, ShieldAlert, Sparkles, Tags, Users, X } from "lucide-react";
 
+type Tone = "good" | "warn" | "bad";
+
+const toneBoxClasses: Record<Tone, string> = {
+  bad: "bg-[var(--red)]",
+  good: "bg-[var(--green)]",
+  warn: "bg-[var(--yellow)]",
+};
+
 export function generateStaticParams() {
   return platforms.map((platform) => ({ slug: platform.slug }));
 }
@@ -28,7 +36,7 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
   const providerTheme = getProviderTheme(platform.name);
   const providerPanelStyle = {
     borderColor: providerTheme.border,
-    background: `linear-gradient(135deg, ${providerTheme.softBackground}, #252525 38%)`,
+    background: `linear-gradient(135deg, ${providerTheme.softBackground}, var(--panel) 38%)`,
   } as CSSProperties;
 
   const stats = [
@@ -36,82 +44,79 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
     { label: "Card required", value: platform.creditCardRequired ? "Yes" : "No", tone: platform.creditCardRequired ? "warn" : "good" },
     { label: "Always-on", value: platform.alwaysOn ? "Supported" : "Limited", tone: platform.alwaysOn ? "good" : "warn" },
     { label: "Billing risk", value: platform.billingRisk, tone: platform.billingRisk === "low" ? "good" : platform.billingRisk === "medium" ? "warn" : "bad" },
-  ] as const;
+  ] as const satisfies ReadonlyArray<{ label: string; tone: Tone; value: string }>;
 
   return (
     <AppChrome active="providers">
       <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
-        <Link href="/compare" className="inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] transition hover:text-[#aeb9ff]">
+        <Link href="/compare" className="inline-flex items-center gap-2 text-sm font-medium text-[#002fa7] transition hover:text-[#002fa7]">
           <ArrowLeft size={15} />
           Back to comparison
         </Link>
 
         <section className="mt-4 grid gap-4 xl:grid-cols-[1fr_360px]">
-          <div className="rounded-lg border bg-[#252525] p-5 shadow-2xl shadow-black/20" style={providerPanelStyle}>
+          <div className="border-[3px] border-[var(--line)] bg-[var(--panel)] p-5 shadow-[7px_7px_0_var(--line)]" style={providerPanelStyle}>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <div className="mb-4 flex items-center gap-3">
                   <ProviderLogo name={platform.name} large />
                   <div>
-                    <h1 className="text-[30px] font-semibold leading-tight text-white sm:text-[38px]">{platform.name}</h1>
+                    <h1 className="text-[30px] font-semibold leading-tight text-[var(--foreground)] sm:text-[38px]">{platform.name}</h1>
                     <p className="mt-1 text-sm font-medium" style={{ color: providerTheme.text }}>{categoryLabels[category]}</p>
                   </div>
                 </div>
-                <p className="max-w-3xl text-sm leading-6 text-slate-400">{platform.description}</p>
+                <p className="max-w-3xl text-base font-medium leading-7 text-[var(--foreground)]">{platform.description}</p>
               </div>
               <BillingRiskBadge risk={platform.billingRisk} />
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat) => (
-                <div key={stat.label} className="rounded-lg border border-white/10 bg-[#252525] p-3">
-                  <p className="text-xs font-medium text-slate-500">{stat.label}</p>
-                  <p
-                    className={`mt-2 text-sm font-semibold capitalize ${
-                      stat.tone === "good" ? "text-emerald-300" : stat.tone === "warn" ? "text-amber-300" : "text-rose-300"
-                    }`}
-                  >
-                    {stat.value}
-                  </p>
+                <div key={stat.label} className={`border-[3px] border-[var(--line)] p-3 shadow-[3px_3px_0_var(--line)] ${toneBoxClasses[stat.tone]}`}>
+                  <p className="text-[11px] font-black uppercase tracking-[0.12em] text-[var(--foreground)]">{stat.label}</p>
+                  <p className="mt-2 text-base font-black capitalize leading-tight text-[var(--foreground)]">{stat.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <aside className="rounded-lg border p-5" style={{ borderColor: providerTheme.border, backgroundColor: providerTheme.background }}>
-            <div className="flex items-center gap-2 text-sm font-semibold text-[#e6eaff]">
-              <ShieldAlert size={18} />
-              Billing note
-            </div>
-            <p className="mt-3 text-sm leading-6 text-[#e6eaff]/75">{pricingDisclaimer}</p>
-            <Link
-              href={`/compare?platform=${platform.slug}`}
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition brightness-100 hover:brightness-110"
-              style={{ backgroundColor: providerTheme.accent, color: providerTheme.onAccent }}
-            >
-              Compare this provider
-              <ArrowRight size={15} />
-            </Link>
-            {sourceLinks.length > 0 && (
-              <div className="mt-4 border-t pt-4" style={{ borderColor: providerTheme.border }}>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#e6eaff]/55">Official sources</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {sourceLinks.map((link) => (
-                    <a
-                      key={link.url}
-                      href={link.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold text-[#e6eaff] transition hover:bg-white/[0.05]"
-                      style={{ borderColor: providerTheme.border }}
-                    >
-                      {link.label}
-                      <ExternalLink size={12} />
-                    </a>
-                  ))}
-                </div>
+          <aside className="border-[3px] border-[var(--line)] bg-[var(--panel)] shadow-[7px_7px_0_var(--line)]">
+            <div className="border-b-[3px] border-[var(--line)] bg-[var(--yellow)] px-5 py-3">
+              <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[var(--foreground)]">
+                <ShieldAlert size={18} />
+                Billing note
               </div>
-            )}
+            </div>
+            <div className="p-5">
+              <p className="text-sm font-medium leading-6 text-[var(--foreground)]">{pricingDisclaimer}</p>
+              <Link
+                href={`/compare?platform=${platform.slug}`}
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 border-[3px] border-[var(--line)] px-4 py-2.5 text-sm font-black shadow-[4px_4px_0_var(--line)] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_var(--line)]"
+                style={{ backgroundColor: providerTheme.accent, color: providerTheme.onAccent }}
+              >
+                Compare this provider
+                <ArrowRight size={15} />
+              </Link>
+              {sourceLinks.length > 0 && (
+                <div className="mt-5 border-t-[3px] border-[var(--line)] pt-4">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--foreground)]">Official sources</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {sourceLinks.map((link) => (
+                      <a
+                        key={link.url}
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 border-2 border-[var(--line)] bg-[var(--paper)] px-2.5 py-1.5 text-xs font-black text-[var(--foreground)] transition hover:bg-[var(--yellow)]"
+                      >
+                        {link.label}
+                        <ExternalLink size={12} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </aside>
         </section>
 
@@ -126,22 +131,22 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
           {communityInfo && <CommunityPanel communityInfo={communityInfo} />}
         </section>
 
-        <section className="mt-4 rounded-lg border border-[#2442ed]/30 bg-[#2442ed]/10 p-4">
+        <section className="mt-5 border-[3px] border-[var(--line)] bg-[var(--yellow)] p-4 shadow-[6px_6px_0_var(--line)]">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#2442ed]/20 text-[#aeb9ff]">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center border-[3px] border-[var(--line)] bg-[var(--panel)] text-[var(--accent)]">
                 <ShieldAlert size={18} />
               </span>
               <div>
-                <h2 className="text-base font-semibold text-white">Stress-test {platform.name} before you pick it</h2>
-                <p className="mt-1 max-w-3xl text-sm leading-6 text-[#e6eaff]/75">
+                <h2 className="text-base font-black text-[var(--foreground)]">Stress-test {platform.name} before you pick it</h2>
+                <p className="mt-1 max-w-3xl text-sm font-medium leading-6 text-[var(--foreground)]">
                   Answer a short provider-specific form, then run the full bill-risk simulator with your scenario prefilled.
                 </p>
               </div>
             </div>
             <Link
               href={`/platforms/${platform.slug}/simulation`}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#2442ed] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3b57ff] sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 border-[3px] border-[var(--line)] bg-[#002fa7] px-4 py-2.5 text-sm font-black text-white shadow-[4px_4px_0_var(--line)] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_var(--line)] sm:w-auto"
             >
               Simulate this provider
               <ArrowRight size={15} />
@@ -150,16 +155,16 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
         </section>
 
         <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-lg border border-white/10 bg-[#252525] p-5">
+          <div className="border-[3px] border-[var(--line)] bg-[var(--panel)] p-5 shadow-[6px_6px_0_var(--line)]">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <Sparkles size={18} className="text-[#7f91ff]" />
-                  <h2 className="text-lg font-semibold text-white">Fit summary</h2>
+                  <Sparkles size={18} className="text-[#002fa7]" />
+                  <h2 className="text-lg font-black text-[var(--foreground)]">Fit summary</h2>
                 </div>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">{fitInsights.summary}</p>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">{fitInsights.summary}</p>
               </div>
-              <span className="rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-2.5 py-1 text-xs font-semibold text-[#e6eaff]">
+              <span className="border-2 border-[var(--line)] bg-[var(--yellow)] px-2.5 py-1 text-xs font-black text-[var(--foreground)]">
                 {categoryLabels[category]}
               </span>
             </div>
@@ -189,12 +194,12 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
             </div>
           </div>
 
-          <div className="rounded-lg border border-white/10 bg-[#252525] p-5">
+          <div className="border-[3px] border-[var(--line)] bg-[var(--panel)] p-5 shadow-[6px_6px_0_var(--line)]">
             <div className="flex items-center gap-2">
-              <ClipboardCheck size={18} className="text-[#7f91ff]" />
-              <h2 className="text-lg font-semibold text-white">Decision checks</h2>
+              <ClipboardCheck size={18} className="text-[#002fa7]" />
+              <h2 className="text-lg font-black text-[var(--foreground)]">Decision checks</h2>
             </div>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
               Use these notes as a launch checklist, not a final pricing promise. Verify live provider limits before moving real users.
             </p>
 
@@ -220,12 +225,14 @@ function InfoPanel({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#252525] p-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-white">
-        <Icon size={17} className="text-[#7f91ff]" />
-        {title}
+    <div className="border-[3px] border-[var(--line)] bg-[var(--panel)] shadow-[5px_5px_0_var(--line)]">
+      <div className="flex items-center gap-3 border-b-[3px] border-[var(--line)] bg-[var(--yellow)] px-4 py-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[var(--line)] bg-[var(--panel)] text-[#002fa7]">
+          <Icon size={17} />
+        </span>
+        <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--foreground)]">{title}</p>
       </div>
-      <p className="mt-3 text-sm leading-6 text-slate-400">{value}</p>
+      <p className="p-4 text-sm font-medium leading-6 text-[var(--foreground)]">{value}</p>
     </div>
   );
 }
@@ -234,37 +241,41 @@ function DatabaseFitPanel({ platform, category }: { platform: Platform; category
   const details = getDatabaseFitDetails(platform, category);
 
   return (
-    <div className="rounded-lg border border-white/10 bg-[#252525] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Database size={17} className="text-[#7f91ff]" />
-          Database fit
+    <div className="border-[3px] border-[var(--line)] bg-[var(--panel)] shadow-[5px_5px_0_var(--line)]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-[3px] border-[var(--line)] bg-[var(--yellow)] px-4 py-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[var(--line)] bg-[var(--panel)] text-[#002fa7]">
+            <Database size={17} />
+          </span>
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--foreground)]">Database fit</p>
         </div>
-        <span className="rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-2.5 py-1 text-xs font-semibold text-[#e6eaff]">
+        <span className="border-2 border-[var(--line)] bg-[var(--panel)] px-2.5 py-1 text-xs font-black text-[var(--foreground)]">
           {details.role}
         </span>
       </div>
 
-      <p className="mt-3 text-sm leading-6 text-slate-400">{details.summary}</p>
+      <div className="p-4">
+        <p className="text-sm font-medium leading-6 text-[var(--foreground)]">{details.summary}</p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        {details.databases.map((database) => (
-          <span key={database} className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs font-semibold text-slate-200">
-            {databaseLabels[database]}
-          </span>
-        ))}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {details.databases.map((database) => (
+            <span key={database} className="border-2 border-[var(--line)] bg-[var(--paper)] px-2.5 py-1.5 text-xs font-black text-[var(--foreground)]">
+              {databaseLabels[database]}
+            </span>
+          ))}
+        </div>
+
+        <dl className="mt-4 grid gap-3 border-t-[3px] border-[var(--line)] pt-4 sm:grid-cols-2">
+          <div className="bg-[var(--paper)] p-3">
+            <dt className="text-xs font-black uppercase tracking-[0.1em] text-[var(--muted)]">Best database use</dt>
+            <dd className="mt-2 text-sm font-medium leading-6 text-[var(--foreground)]">{details.bestUse}</dd>
+          </div>
+          <div className="bg-[var(--paper)] p-3">
+            <dt className="text-xs font-black uppercase tracking-[0.1em] text-[var(--muted)]">Check before launch</dt>
+            <dd className="mt-2 text-sm font-medium leading-6 text-[var(--foreground)]">{details.launchCheck}</dd>
+          </div>
+        </dl>
       </div>
-
-      <dl className="mt-4 space-y-3 border-t border-white/10 pt-4">
-        <div>
-          <dt className="text-xs font-medium text-slate-500">Best database use</dt>
-          <dd className="mt-1 text-sm leading-6 text-slate-200">{details.bestUse}</dd>
-        </div>
-        <div>
-          <dt className="text-xs font-medium text-slate-500">Check before launch</dt>
-          <dd className="mt-1 text-sm leading-6 text-slate-300">{details.launchCheck}</dd>
-        </div>
-      </dl>
     </div>
   );
 }
@@ -309,9 +320,9 @@ function getDatabaseFitDetails(platform: Platform, category: PlatformCategory) {
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#252525] p-3">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-200">{value}</p>
+    <div className="border-2 border-[var(--line)] bg-[var(--paper)] p-3">
+      <p className="text-xs font-black uppercase tracking-[0.1em] text-[var(--muted)]">{label}</p>
+      <p className="mt-2 text-sm font-medium leading-6 text-[var(--foreground)]">{value}</p>
     </div>
   );
 }
@@ -325,38 +336,42 @@ function CommunityPanel({ communityInfo }: { communityInfo: CommunityInfo }) {
   };
 
   return (
-    <div className="rounded-lg border border-white/10 bg-[#252525] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Users size={17} className="text-[#7f91ff]" />
-          Users & community
+    <div className="border-[3px] border-[var(--line)] bg-[var(--panel)] shadow-[5px_5px_0_var(--line)]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-[3px] border-[var(--line)] bg-[var(--yellow)] px-4 py-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[var(--line)] bg-[var(--panel)] text-[#002fa7]">
+            <Users size={17} />
+          </span>
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--foreground)]">Users & community</p>
         </div>
-        <span className="rounded-md border border-[#2442ed]/35 bg-[#2442ed]/10 px-2.5 py-1 text-xs font-semibold text-[#e6eaff]">
+        <span className="border-2 border-[var(--line)] bg-[var(--panel)] px-2.5 py-1 text-xs font-black text-[var(--foreground)]">
           {strengthLabel[communityInfo.strength]}
         </span>
       </div>
 
-      <div className="mt-3 rounded-lg border border-white/10 bg-[#252525] p-3">
-        <p className="text-xs font-medium text-slate-500">How many users?</p>
-        <p className="mt-2 text-sm leading-6 text-slate-200">{communityInfo.userCount}</p>
-      </div>
+      <div className="p-4">
+        <div className="border-2 border-[var(--line)] bg-[var(--paper)] p-3">
+          <p className="text-xs font-black uppercase tracking-[0.1em] text-[var(--muted)]">How many users?</p>
+          <p className="mt-2 text-sm font-medium leading-6 text-[var(--foreground)]">{communityInfo.userCount}</p>
+        </div>
 
-      <p className="mt-3 text-sm leading-6 text-slate-400">{communityInfo.summary}</p>
+        <p className="mt-3 text-sm font-medium leading-6 text-[var(--foreground)]">{communityInfo.summary}</p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        {communityInfo.links.map((link) => (
-          <a
-            key={link.url}
-            href={link.url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.07] hover:text-white"
-          >
-            <MessageCircle size={12} />
-            {link.label}
-            <ExternalLink size={12} />
-          </a>
-        ))}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {communityInfo.links.map((link) => (
+            <a
+              key={link.url}
+              href={link.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 border-2 border-[var(--line)] bg-[var(--paper)] px-2.5 py-1.5 text-xs font-black text-[var(--foreground)] transition hover:bg-[var(--yellow)]"
+            >
+              <MessageCircle size={12} />
+              {link.label}
+              <ExternalLink size={12} />
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -364,12 +379,12 @@ function CommunityPanel({ communityInfo }: { communityInfo: CommunityInfo }) {
 
 function Guidance({ title, tone, items }: { title: string; tone: "good" | "warn"; items: string[] }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#252525] p-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{title}</p>
-      <ul className="mt-3 space-y-2 text-sm leading-5 text-slate-300">
+    <div className={`border-2 border-[var(--line)] p-3 ${tone === "good" ? "bg-[var(--green)]/20" : "bg-[var(--yellow)]/35"}`}>
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">{title}</p>
+      <ul className="mt-3 space-y-2 text-sm leading-5 text-[var(--foreground)]">
         {items.map((item) => (
           <li key={item} className="flex gap-2">
-            {tone === "good" ? <Check className="mt-0.5 shrink-0 text-emerald-300" size={14} /> : <X className="mt-0.5 shrink-0 text-amber-300" size={14} />}
+            {tone === "good" ? <Check className="mt-0.5 shrink-0 text-[var(--green)]" size={14} /> : <X className="mt-0.5 shrink-0 text-[var(--accent)]" size={14} />}
             <span>{item}</span>
           </li>
         ))}
@@ -381,30 +396,30 @@ function Guidance({ title, tone, items }: { title: string; tone: "good" | "warn"
 function DecisionList({ title, tone, items }: { title: string; tone: "good" | "warn" | "neutral"; items: string[] }) {
   const styles = {
     good: {
-      border: "border-emerald-400/20",
-      marker: "text-emerald-300",
-      title: "text-emerald-100",
+      background: "bg-[var(--green)]/20",
+      marker: "text-[var(--green)]",
+      title: "text-[var(--foreground)]",
       icon: Check,
     },
     warn: {
-      border: "border-amber-400/20",
-      marker: "text-amber-300",
-      title: "text-amber-100",
+      background: "bg-[var(--yellow)]/35",
+      marker: "text-[var(--accent)]",
+      title: "text-[var(--foreground)]",
       icon: X,
     },
     neutral: {
-      border: "border-[#2442ed]/25",
-      marker: "text-[#aeb9ff]",
-      title: "text-[#e6eaff]",
+      background: "bg-[var(--paper)]",
+      marker: "text-[#002fa7]",
+      title: "text-[var(--foreground)]",
       icon: ClipboardCheck,
     },
   }[tone];
   const Icon = styles.icon;
 
   return (
-    <div className={`rounded-lg border bg-white/[0.02] p-4 ${styles.border}`}>
-      <h3 className={`text-sm font-semibold ${styles.title}`}>{title}</h3>
-      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+    <div className={`border-2 border-[var(--line)] p-4 ${styles.background}`}>
+      <h3 className={`text-sm font-black ${styles.title}`}>{title}</h3>
+      <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--foreground)]">
         {items.map((item) => (
           <li key={item} className="flex gap-2">
             <Icon className={`mt-1 shrink-0 ${styles.marker}`} size={14} />

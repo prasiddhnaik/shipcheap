@@ -29,11 +29,11 @@ export function CalculatorForm() {
           event.preventDefault();
           setSubmitted(true);
         }}
-        className="rounded-lg border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20"
+        className="rounded-lg border border-[var(--line)] bg-[var(--paper)] p-5 shadow-[7px_7px_0_var(--line)]"
       >
         <div>
-          <h2 className="text-xl font-semibold text-white">Hosting calculator</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-400">
+          <h2 className="text-xl font-semibold text-[var(--foreground)]">Hosting calculator</h2>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
             Tell ShipCheap what you are deploying and it will rank beginner-safe hosting options.
           </p>
         </div>
@@ -48,19 +48,19 @@ export function CalculatorForm() {
           <Select label="Billing risk tolerance" value={input.riskLevel} onChange={(value) => update("riskLevel", value as RiskLevel)} options={risks} />
         </div>
 
-        <button className="mt-6 w-full rounded-md bg-[#2442ed] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3b57ff]">
+        <button className="mt-6 w-full bg-[#002fa7] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#003399]">
           Rank hosting platforms
         </button>
       </form>
 
       <div className="space-y-4">
-        <div className="rounded-lg border border-white/10 bg-[#252525]/70 p-5">
+        <div className="rounded-lg border border-[var(--line)] bg-[var(--panel)]/70 p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-[var(--foreground)]">
                 {submitted ? "Recommended platforms" : "Live recommendation preview"}
               </h2>
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-2 text-sm text-[var(--muted)]">
                 Ranked by app fit, budget fit, card requirement, database support, always-on support, region, and billing risk.
               </p>
             </div>
@@ -89,11 +89,11 @@ function Select({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">{label}</span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-md border border-white/10 bg-[#252525] px-3 py-3 text-sm text-white outline-none transition focus:border-[#2442ed]/70"
+        className="mt-2 w-full border border-[var(--line)] bg-[var(--panel)] px-3 py-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[#002fa7]/70"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>
@@ -116,7 +116,7 @@ function Toggle({
 }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">{label}</p>
       <div className="mt-2 grid grid-cols-2 gap-2">
         {[true, false].map((option) => (
           <button
@@ -125,8 +125,8 @@ function Toggle({
             onClick={() => onChange(option)}
             className={`rounded-md border px-3 py-3 text-sm font-semibold transition ${
               value === option
-                ? "border-[#2442ed]/70 bg-[#2442ed]/15 text-[#e6eaff]"
-                : "border-white/10 bg-[#252525] text-slate-300 hover:bg-white/[0.04]"
+                ? "border-[#002fa7]/70 bg-[#002fa7]/15 text-[var(--accent)]"
+                : "border-[var(--line)] bg-[var(--panel)] text-[var(--foreground)] hover:bg-[var(--paper)]"
             }`}
           >
             {option ? "Yes" : "No"}

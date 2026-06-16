@@ -1,9 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #252525;
-  --foreground: #f8fafc;
-  --accent: #2442ed;
+  --background: #fff7de;
+  --foreground: #111111;
+  --accent: #002fa7;
+  --paper: #fff7de;
+  --panel: #ffffff;
+  --yellow: #ffcf24;
+  --green: #18b869;
+  --red: #ff4b5f;
+  --muted: #5b584e;
+  --line: #111111;
+  --brutal-border: 3px solid var(--line);
+  --brutal-shadow: 7px 7px 0 var(--line);
+  --brutal-shadow-sm: 4px 4px 0 var(--line);
 }
 
 @theme inline {
@@ -14,7 +24,11 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    linear-gradient(90deg, rgba(17, 17, 17, 0.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(17, 17, 17, 0.06) 1px, transparent 1px),
+    var(--background);
+  background-size: 24px 24px;
   color: var(--foreground);
 }
 
@@ -23,5 +37,101 @@ body {
 }
 
 ::selection {
-  background: rgba(36, 66, 237, 0.45);
+  background: rgba(0, 47, 167, 0.28);
+}
+
+button,
+a,
+select,
+input,
+textarea {
+  touch-action: manipulation;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 4px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.brutal-panel {
+  border: var(--brutal-border);
+  background: var(--panel);
+  box-shadow: var(--brutal-shadow);
+}
+
+.brutal-panel-soft {
+  border: var(--brutal-border);
+  background: var(--paper);
+}
+
+.brutal-button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: var(--brutal-border);
+  background: var(--panel);
+  box-shadow: var(--brutal-shadow-sm);
+  color: var(--foreground);
+  font-weight: 900;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.brutal-button:hover {
+  transform: translate(-1px, -1px);
+}
+
+.brutal-button:active {
+  box-shadow: 1px 1px 0 var(--line);
+  transform: translate(3px, 3px);
+}
+
+.brutal-button-primary {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.brutal-button-yellow {
+  background: var(--yellow);
+  color: var(--foreground);
+}
+
+.brutal-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.brutal-input {
+  min-height: 44px;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  color: var(--foreground);
+  font-weight: 800;
+}
+
+.brutal-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid var(--line);
+  background: var(--paper);
+  color: var(--foreground);
+  font-weight: 900;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brutal-button {
+    transition: none;
+  }
 }

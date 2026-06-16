@@ -10,7 +10,6 @@ import {
   CircleHelp,
   Grid2X2,
   Package,
-  Settings2,
   Shield,
   ShieldAlert,
   ShieldCheck,
@@ -19,7 +18,6 @@ import {
 
 const navItems = [
   { label: "Dashboard", href: "/", icon: Grid2X2, key: "dashboard" },
-  { label: "Recommendations", href: "/#recommendations", icon: Settings2, key: "recommendations" },
   { label: "Compare", href: "/compare", icon: BadgeDollarSign, key: "compare" },
   { label: "Risk Simulator", href: "/billing-risk", icon: ShieldAlert, key: "billing-risk" },
   { label: "Providers", href: "/compare", icon: Package, key: "providers" },
@@ -28,23 +26,25 @@ const navItems = [
 ];
 
 const supportItems = [
-  { label: "Billing Risk Guide", href: "/guides/no-card-hosting", icon: Shield },
-  { label: "How It Works", href: "/#calculator", icon: CircleHelp },
+  { label: "Billing Risk Guide", href: "/guides/no-card-hosting", icon: Shield, key: "billing-risk-guide" },
+  { label: "How It Works", href: "/how-it-works", icon: CircleHelp, key: "how-it-works" },
 ];
 
 export function AppChrome({
   active = "dashboard",
   compactSidebar = false,
+  supportActive,
   children,
 }: {
-  active?: "dashboard" | "recommendations" | "compare" | "billing-risk" | "providers" | "saved" | "favorites";
+  active?: "dashboard" | "compare" | "billing-risk" | "providers" | "saved" | "favorites" | "none";
   compactSidebar?: boolean;
+  supportActive?: "billing-risk-guide" | "how-it-works";
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#252525] text-slate-100">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="flex">
-        <Sidebar active={active} compact={compactSidebar} />
+        <Sidebar active={active} compact={compactSidebar} supportActive={supportActive} />
         <main className="min-w-0 flex-1">
           <Topbar />
           {children}
@@ -54,66 +54,72 @@ export function AppChrome({
   );
 }
 
-function Sidebar({ active, compact }: { active: string; compact: boolean }) {
+function Sidebar({ active, compact, supportActive }: { active: string; compact: boolean; supportActive?: string }) {
   return (
-    <aside className={`hidden min-h-screen shrink-0 border-r border-white/10 bg-[#252525] lg:sticky lg:top-0 lg:flex lg:flex-col ${compact ? "w-48" : "w-60"}`}>
-      <Link href="/" className={`flex h-13 items-center gap-3 py-3 ${compact ? "px-4" : "px-5"}`}>
+    <aside className={`hidden min-h-screen shrink-0 border-r-[3px] border-[var(--line)] bg-[var(--yellow)] lg:sticky lg:top-0 lg:flex lg:flex-col ${compact ? "w-52" : "w-64"}`}>
+      <Link href="/" className={`flex items-center gap-3 py-4 ${compact ? "px-4" : "px-5"}`}>
         <ShipCheapLogo compact={compact} />
       </Link>
 
-      <nav className={`space-y-1 py-2 ${compact ? "px-2" : "px-3"}`}>
+      <nav className={`space-y-2 py-2 ${compact ? "px-2" : "px-4"}`}>
         {navItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex items-center rounded-md py-2.5 text-sm font-medium transition ${compact ? "gap-2 px-2.5" : "gap-3 px-3"} ${
+            className={`flex min-h-11 items-center text-sm font-black transition ${compact ? "gap-2 px-2.5" : "gap-3 px-3"} ${
               item.key === active
-                ? "border border-[#2442ed]/35 bg-[#2442ed]/15 text-[#aeb9ff]"
-                : "text-slate-300 hover:bg-white/[0.04] hover:text-white"
+                ? "border-[3px] border-[var(--line)] bg-[var(--panel)] shadow-[4px_4px_0_var(--line)]"
+                : "text-[var(--foreground)] hover:bg-[var(--panel)]"
             }`}
           >
-            <item.icon size={17} />
+            <span className={`grid h-8 w-8 place-items-center border-2 border-[var(--line)] ${item.key === active ? "bg-[var(--accent)] text-white" : "bg-[var(--panel)]"}`}>
+              <item.icon size={18} strokeWidth={2.5} />
+            </span>
             {item.label}
           </Link>
         ))}
       </nav>
 
-      <div className={`${compact ? "mx-2 my-4" : "mx-3 my-5"} border-t border-white/10`} />
+      <div className={`${compact ? "mx-2 my-4" : "mx-4 my-5"} border-t-[3px] border-[var(--line)]`} />
 
-      <nav className={`space-y-1 ${compact ? "px-2" : "px-3"}`}>
+      <nav className={`space-y-2 ${compact ? "px-2" : "px-4"}`}>
         {supportItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex items-center rounded-md py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/[0.04] hover:text-white ${compact ? "gap-2 px-2.5" : "gap-3 px-3"}`}
+            className={`flex min-h-11 items-center text-sm font-black text-[var(--foreground)] transition ${compact ? "gap-2 px-2.5" : "gap-3 px-3"} ${
+              item.key === supportActive
+                ? "border-[3px] border-[var(--line)] bg-[var(--panel)] shadow-[4px_4px_0_var(--line)]"
+                : "hover:bg-[var(--panel)]"
+            }`}
           >
-            <item.icon size={17} />
+            <span className={`grid h-8 w-8 place-items-center border-2 border-[var(--line)] ${item.key === supportActive ? "bg-[var(--accent)] text-white" : "bg-[var(--panel)]"}`}>
+              <item.icon size={18} strokeWidth={2.5} />
+            </span>
             {item.label}
           </Link>
         ))}
       </nav>
 
       <div className={`mt-auto ${compact ? "p-2" : "p-3"}`}>
-        <div className={`rounded-lg border border-white/10 bg-white/[0.03] ${compact ? "p-3" : "p-4"}`}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2442ed]/20 text-[#aeb9ff]">
-            <ShieldCheck size={18} />
+        <div className={`brutal-panel ${compact ? "p-3" : "p-4"}`}>
+          <div className="grid h-10 w-10 place-items-center border-2 border-[var(--line)] bg-[var(--green)]">
+            <ShieldCheck size={20} strokeWidth={2.5} />
           </div>
-          <h2 className="mt-4 text-sm font-semibold text-white">Why ShipCheap?</h2>
-          <p className={`${compact ? "mt-2 text-xs leading-5" : "mt-3 text-sm leading-6"} text-slate-400`}>
+          <h2 className="mt-4 text-sm font-black text-[var(--foreground)]">Why ShipCheap?</h2>
+          <p className={`${compact ? "mt-2 text-xs leading-5" : "mt-3 text-sm leading-6"} text-[var(--muted)]`}>
             We analyze pricing, limits, and upgrade paths so you can deploy without surprise bills.
           </p>
-          <Link href="/guides/no-card-hosting" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] hover:text-[#aeb9ff]">
+          <Link href="/guides/no-card-hosting" className="mt-4 inline-flex items-center gap-2 text-sm font-black text-[var(--accent)] underline-offset-4 hover:underline">
             Learn more <ArrowRight size={14} />
           </Link>
         </div>
 
-        <p className="mt-8 text-xs leading-5 text-slate-500">
+        <p className="mt-8 text-xs font-bold leading-5 text-[var(--muted)]">
           © 2026 ShipCheap
           <br />
           All rights reserved.
         </p>
-
-        <p className="mt-4 rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-medium text-slate-400">Dark mode active</p>
       </div>
     </aside>
   );
@@ -121,11 +127,11 @@ function Sidebar({ active, compact }: { active: string; compact: boolean }) {
 
 function Topbar() {
   return (
-    <header className="flex min-h-13 items-center justify-between border-b border-white/10 bg-[#252525]/90 px-4 py-2 backdrop-blur sm:px-8">
+    <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between border-b-[3px] border-[var(--line)] bg-white/95 px-4 py-2 sm:px-8">
       <Link href="/" className="flex items-center gap-3 lg:hidden">
         <ShipCheapLogo compact />
       </Link>
-      <div className="hidden text-sm text-slate-500 lg:block"> </div>
+      <div className="hidden text-sm font-black text-[var(--muted)] lg:block">ShipCheap Decision Board</div>
       <div className="flex items-center gap-3">
         <AuthControls />
       </div>
