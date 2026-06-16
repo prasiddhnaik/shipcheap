@@ -10,31 +10,31 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
 
   return (
     <AppChrome active="compare" compactSidebar>
-      <main className="mx-auto max-w-[1360px] px-4 py-5 sm:px-5 lg:px-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#7f91ff] transition hover:text-[#aeb9ff]">
+      <main className="mx-auto max-w-[1360px] px-4 py-6 sm:px-5 lg:px-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-black text-[var(--accent)] underline-offset-4 transition hover:underline">
           <ArrowLeft size={15} />
           Dashboard
         </Link>
 
-        <section className="mt-4 rounded-lg border border-white/10 bg-[#252525] p-5 shadow-2xl shadow-black/20">
+        <section className="brutal-panel mt-4 p-5">
           <div className="grid items-start gap-5 xl:grid-cols-[1fr_360px]">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#2442ed]/35 bg-[#2442ed]/10 px-3 py-1 text-xs font-medium text-[#aeb9ff]">
+              <div className="brutal-badge mb-3 gap-2 bg-[var(--yellow)] px-3 py-1 text-xs uppercase">
                 <Filter size={13} />
                 Full comparison
               </div>
-              <h1 className="text-[28px] font-semibold leading-tight text-white sm:text-[34px]">Backend hosting comparison</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+              <h1 className="text-[42px] font-black leading-[0.95] text-[var(--foreground)] sm:text-[60px]">Backend hosting comparison</h1>
+              <p className="mt-3 max-w-3xl text-sm font-medium leading-6 text-[var(--muted)]">
                 Compare common backend hosting options by free tier, card requirement, runtime support, database support,
                 always-on fit, regions, billing risk, and best use cases.
               </p>
             </div>
-            <div className="rounded-lg border border-emerald-400/25 bg-emerald-400/10 p-4 text-sm text-emerald-100">
-              <div className="flex items-center gap-2 font-semibold">
+            <div className="border-[3px] border-[var(--line)] bg-[var(--green)] p-4 text-sm text-[var(--foreground)]">
+              <div className="flex items-center gap-2 font-black">
                 <ShieldCheck size={17} />
                 Billing-first view
               </div>
-              <p className="mt-2 max-w-xs leading-6 text-emerald-100/75">{pricingDisclaimer}</p>
+              <p className="mt-2 max-w-xs font-bold leading-6">{pricingDisclaimer}</p>
             </div>
           </div>
         </section>

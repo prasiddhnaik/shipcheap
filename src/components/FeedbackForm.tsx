@@ -9,7 +9,7 @@ export function FeedbackForm() {
 
   return (
     <form
-      className="mt-4 rounded-lg border border-white/10 bg-[#252525] p-5"
+      className="mt-4 border border-[var(--line)] bg-[var(--panel)] p-5"
       onSubmit={(event) => {
         event.preventDefault();
         if (!message.trim()) return;
@@ -17,8 +17,8 @@ export function FeedbackForm() {
       }}
     >
       <label className="block">
-        <span className="flex items-center gap-2 text-sm font-semibold text-white">
-          <MessageSquare size={16} className="text-[#7f91ff]" />
+        <span className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+          <MessageSquare size={16} className="text-[#002fa7]" />
           Feedback
         </span>
         <textarea
@@ -28,14 +28,14 @@ export function FeedbackForm() {
             setSubmitted(false);
           }}
           rows={6}
-          className="mt-3 w-full rounded-lg border border-white/10 bg-[#252525] p-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-600 focus:border-[#2442ed]/70"
+          className="mt-3 w-full border border-[var(--line)] bg-[var(--panel)] p-3 text-sm leading-6 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted)] focus:border-[#002fa7]/70"
           placeholder="Tell us what is broken, confusing, or missing."
         />
       </label>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          className="inline-flex items-center gap-2 rounded-md bg-[#2442ed] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3b57ff] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-2 bg-[#002fa7] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#003399] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={!message.trim()}
         >
           <Send size={15} />
