@@ -12,8 +12,10 @@ ShipCheap helps developers compare backend hosting platforms and find safer, che
 - Filters for free tier, no card, Docker support, database support, and low billing risk
 - Platform detail pages and SEO-style guides for Node.js, FastAPI, and no-card hosting
 - Cross-provider bill duel on the billing risk simulator (same workload, side-by-side P90 / blow-up ranking)
-- Signed-in favorites with short “why I’m watching this” notes
-- SQLite-backed saved comparison links with Prisma
+- Scenario packs that prefill common beginner hosting situations
+- Provider launch checklists for pre-deploy traps
+- Anonymous shareable comparison links (no account required)
+- SQLite-backed share snapshots with Prisma
 
 ## Tech Stack
 
@@ -59,5 +61,5 @@ Open `http://localhost:3000`.
 - More providers
 - Price change tracker
 - GitHub bot for pricing data updates
-- Deployment guide generator
-- Decision report export and shareable comparison links
+- Decision report export
+- Free-tier failure matrix

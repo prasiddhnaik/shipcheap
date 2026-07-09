@@ -24,11 +24,11 @@ Before changing Next.js code, read the relevant local docs under `node_modules/n
 - App: ShipCheap, a Next.js App Router application.
 - Package manager: `pnpm`.
 - Framework/runtime stack: Next.js `16.2.6`, React `19.2.4`, TypeScript, Tailwind CSS 4.
-- Auth: Clerk via `@clerk/nextjs`.
+- Auth: none. The product is intentionally account-free; share links are anonymous.
 - Data layer: Prisma `6.19.3`, local development database under `prisma/`.
 - UI icons: `lucide-react` and `simple-icons`.
 - Important existing security hygiene: `package.json` pins PostCSS through `pnpm.overrides`.
-- Local Clerk skill files live under `.agents/skills/`; use them when Clerk setup, routing, auth, organizations, custom UI, testing, or webhooks are involved.
+- Local Clerk skill files under `.agents/skills/` are historical reference only unless auth is reintroduced.
 
 ## Product Direction
 
@@ -48,7 +48,7 @@ Use these capabilities when they are available in the current Codex session:
 - Local Browser / Playwright: open localhost routes, inspect UI, capture screenshots, check console errors, and verify desktop/mobile layout after frontend changes.
 - Image handling: view local images when visual inspection is needed; generate or edit images only when the user asks for visual assets.
 - Git: inspect status and diffs freely. Stage, commit, branch, push, or create PRs only when the user asks.
-- Skills: use the local Clerk skills under `.agents/skills/` for Clerk work. Use relevant Codex skills/plugins when explicitly requested or clearly applicable.
+- Skills: use relevant Codex skills/plugins when explicitly requested or clearly applicable.
 - Memory: use prior project memory when it can prevent repeated investigation, but verify drift-prone facts against the current repo before acting.
 - Data/document/report tooling: when asked for reports or plans, create real standalone HTML files in the workspace instead of chat-only outlines.
 
@@ -64,7 +64,7 @@ Use plugins when they are available in the current Codex session and match the t
 - Vercel: use for deployment checks, Vercel docs, project configuration, and build/deploy troubleshooting.
 - Supabase / Neon Postgres: use only if this project is connected to those services or the user asks for database platform work. This repo currently uses Prisma with a local development database.
 - OpenAI Developers: use for OpenAI API, Agents SDK, ChatGPT app, or API-key related work.
-- Clerk skills: prefer the local `.agents/skills/` Clerk guides for Clerk-specific code in this repo.
+- Auth plugins/skills: only if the user explicitly asks to reintroduce accounts.
 - Data Analytics / Build Web Data Visualization: use for analytics reports, dashboards, charts, and source-backed data presentations.
 - Documents: use for Word/Google Docs style artifacts when the user asks for document output.
 - Computer Use: use only when desktop-app control is explicitly needed and the runtime is available.
@@ -93,7 +93,7 @@ If a named plugin is unavailable, say that directly and continue with the best l
 - For database work, update Prisma schema and migrations deliberately, then run the relevant Prisma validation/generation commands.
 - For auth-sensitive behavior, make authorization decisions server-side. Client hooks are for UI state, not trust boundaries.
 - For API routes and server actions, validate input shape, ownership, and size limits. Treat saved comparisons, feedback, freshness checks, and any Prisma writes as trust boundaries.
-- Before changing `src/proxy.ts`, Clerk middleware, route protection, rewrites, or other Next.js request-boundary behavior, read the relevant local Next.js 16 docs under `node_modules/next/dist/docs/` and verify protected API behavior after the change.
+- Before changing `src/proxy.ts`, rewrites, or other Next.js request-boundary behavior, read the relevant local Next.js 16 docs under `node_modules/next/dist/docs/` and verify API behavior after the change.
 
 ## Verification Gates
 
@@ -118,9 +118,9 @@ Run the narrowest useful checks for the change, and report any skipped checks ex
 
 ## Security Posture
 
-- Never log secrets, tokens, cookies, Clerk session data, database URLs, or private user identifiers.
+- Never log secrets, tokens, cookies, database URLs, or private identifiers.
 - Do not expose server-only environment variables through client components.
-- Keep Clerk identity and Prisma ownership checks aligned before returning private data.
+- Treat anonymous share links and Prisma writes as trust boundaries: validate payloads, rate-limit by IP, and avoid leaking unrelated records.
 - Validate user-controlled slugs, IDs, form payloads, and JSON bodies before using them in Prisma calls.
 - Prefer explicit allowlists and canonical data from `src/data/platforms.ts` when platform IDs, plans, or provider slugs are involved.
 - If a security review is requested, inspect concrete trust boundaries and dependencies, then provide validation evidence. Do not present a generic review as an exhaustive scan.

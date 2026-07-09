@@ -10,7 +10,6 @@ datasource db {
 model SavedComparison {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  userId    String
 
   appType   String
   budget    String
@@ -22,8 +21,7 @@ model SavedComparison {
 
   resultJson Json
 
-  @@index([userId])
-  @@index([userId, createdAt])
+  @@index([createdAt])
 }
 
 model ApiRateLimitBucket {
@@ -80,15 +78,3 @@ model FreshnessCheckRun {
   error          String?
 }
 
-model FavoritePlatform {
-  id           String   @id @default(cuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  userId       String
-  platformSlug String
-  note         String   @default("")
-
-  @@unique([userId, platformSlug])
-  @@index([userId])
-  @@index([userId, updatedAt])
-}

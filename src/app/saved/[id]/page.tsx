@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
 import { AppChrome } from "@/components/AppChrome";
 import { PlatformCard } from "@/components/PlatformCard";
 import { prisma } from "@/lib/prisma";
@@ -9,13 +8,12 @@ import { appTypeLabels, budgetLabels, databaseLabels, regionLabels, riskLabels }
 import { ArrowRight } from "lucide-react";
 
 export default async function SavedComparisonPage({ params }: { params: Promise<{ id: string }> }) {
-  const { userId } = await auth();
-  if (!userId) {
+  const { id } = await params;
+  if (!/^[a-z0-9]{20,40}$/i.test(id)) {
     notFound();
   }
 
-  const { id } = await params;
-  const saved = await prisma.savedComparison.findFirst({ where: { id, userId } });
+  const saved = await prisma.savedComparison.findFirst({ where: { id } });
 
   if (!saved) {
     notFound();
@@ -26,9 +24,12 @@ export default async function SavedComparisonPage({ params }: { params: Promise<
   return (
     <AppChrome active="saved">
       <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6 lg:px-10">
-        <div className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[7px_7px_0_var(--line)]">
-          <p className="text-xs font-medium text-[#002fa7]">Saved {saved.createdAt.toLocaleString()}</p>
-          <h1 className="mt-3 text-[28px] font-semibold leading-tight text-[var(--foreground)] sm:text-[34px]">Saved hosting comparison</h1>
+        <div className="border-[3px] border-[var(--line)] bg-[var(--panel)] p-5 shadow-[7px_7px_0_var(--line)]">
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">Shared {saved.createdAt.toLocaleString()}</p>
+          <h1 className="mt-3 text-[28px] font-black leading-tight text-[var(--foreground)] sm:text-[34px]">Shared hosting comparison</h1>
+          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[var(--muted)]">
+            Anyone with this link can view the snapshot. No account required.
+          </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Meta label="App type" value={appTypeLabels[saved.appType as keyof typeof appTypeLabels] ?? saved.appType} />
             <Meta label="Budget" value={budgetLabels[saved.budget as keyof typeof budgetLabels] ?? saved.budget} />
@@ -46,7 +47,7 @@ export default async function SavedComparisonPage({ params }: { params: Promise<
           ))}
         </div>
 
-        <Link className="mt-8 inline-flex items-center gap-2 bg-[#002fa7] px-4 py-3 text-sm font-bold text-white hover:bg-[#003399]" href="/">
+        <Link className="mt-8 inline-flex items-center gap-2 border-[3px] border-[var(--line)] bg-[#002fa7] px-4 py-3 text-sm font-black text-white shadow-[4px_4px_0_var(--line)]" href="/">
           Run another comparison
           <ArrowRight size={15} />
         </Link>
@@ -57,8 +58,8 @@ export default async function SavedComparisonPage({ params }: { params: Promise<
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--line)] bg-[var(--panel)] p-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">{label}</p>
+    <div className="border-2 border-[var(--line)] bg-[var(--paper)] p-3">
+      <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">{label}</p>
       <p className="mt-2 text-sm font-medium text-[var(--foreground)]">{value}</p>
     </div>
   );
