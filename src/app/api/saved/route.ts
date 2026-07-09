@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { getPlatformBySlug } from "@/data/platforms";
 import { prisma } from "@/lib/prisma";
 import type { AppType, Budget, CalculatorInput, DatabaseNeed, RankedPlatform, Region, RiskLevel } from "@/lib/types";
@@ -25,15 +24,10 @@ type SaveRequest = {
 class RequestBodyTooLargeError extends Error {}
 
 export async function POST(request: Request) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: "Sign in to save comparisons." }, { status: 401 });
-  }
-
-  const rateLimit = await checkSaveRateLimit(`user:${userId}`);
+  const rateLimit = await checkSaveRateLimit(getClientIdentifier(request));
   if (rateLimit.limited) {
     return NextResponse.json(
-      { error: "Too many save attempts. Try again shortly." },
+      { error: "Too many share-link attempts. Try again shortly." },
       { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
     );
   }
@@ -44,7 +38,7 @@ export async function POST(request: Request) {
     rawBody = await readLimitedBody(request, MAX_SAVE_BODY_BYTES);
   } catch (error) {
     if (error instanceof RequestBodyTooLargeError) {
-      return NextResponse.json({ error: "Saved comparison payload is too large." }, { status: 413 });
+      return NextResponse.json({ error: "Share link payload is too large." }, { status: 413 });
     }
 
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
@@ -59,12 +53,11 @@ export async function POST(request: Request) {
   const input = parseCalculatorInput(body.input);
   const results = parseRankedResults(body.results);
   if (!input || results.length === 0) {
-    return NextResponse.json({ error: "Invalid saved comparison payload." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid share link payload." }, { status: 400 });
   }
 
   const saved = await prisma.savedComparison.create({
     data: {
-      userId,
       appType: input.appType,
       budget: input.budget,
       database: input.database,
@@ -77,6 +70,15 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({ id: saved.id });
+}
+
+function getClientIdentifier(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for");
+  const first = forwarded?.split(",")[0]?.trim();
+  if (first) return `ip:${first.slice(0, 80)}`;
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return `ip:${realIp.slice(0, 80)}`;
+  return "ip:unknown";
 }
 
 async function checkSaveRateLimit(identifier: string) {

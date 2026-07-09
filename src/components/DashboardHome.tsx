@@ -4,9 +4,9 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { ComponentType } from "react";
 import { useMemo, useState } from "react";
-import { AuthControls } from "@/components/AuthControls";
 import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
 import { SaveComparisonButton } from "@/components/SaveComparisonButton";
+import { ScenarioPacks } from "@/components/ScenarioPacks";
 import { ShipCheapLogo } from "@/components/ShipCheapLogo";
 import { getPlatformCategory, platforms } from "@/data/platforms";
 import { defaultCalculatorInput, recommendPlatforms } from "@/lib/recommend-platform";
@@ -18,6 +18,7 @@ import {
   Boxes,
   Check,
   CircleHelp,
+  ClipboardCheck,
   CreditCard,
   Grid2X2,
   Info,
@@ -27,7 +28,6 @@ import {
   Shield,
   ShieldAlert,
   ShieldCheck,
-  Star,
 } from "lucide-react";
 
 const appTypes = Object.entries(appTypeLabels) as [AppType, string][];
@@ -50,8 +50,8 @@ const navItems = [
   { label: "Compare", href: "/compare", icon: BadgeDollarSign },
   { label: "Risk Simulator", href: "/billing-risk", icon: ShieldAlert },
   { label: "Providers", href: "/compare", icon: Package },
-  { label: "Saved Filters", href: "/saved", icon: Boxes },
-  { label: "Favorites", href: "/favorites", icon: Star },
+  { label: "Share Links", href: "/saved", icon: Boxes },
+  { label: "Launch Checks", href: "/launch-checks", icon: ClipboardCheck },
 ];
 
 const supportItems = [
@@ -191,6 +191,19 @@ export function DashboardHome() {
               </div>
               <HeroSummary selectedResult={selectedResult} />
             </section>
+
+            <div className="pb-4">
+              <ScenarioPacks
+                onApply={(nextInput) => {
+                  setSelectedPlatformSlug(null);
+                  setInput(nextInput);
+                  setSubmitted(true);
+                  window.requestAnimationFrame(() => {
+                    document.getElementById("recommendations")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  });
+                }}
+              />
+            </div>
 
             <section id="calculator">
               <form
@@ -409,7 +422,12 @@ function Topbar() {
       </Link>
       <div className="hidden text-sm font-black text-[var(--muted)] lg:block">ShipCheap Decision Board</div>
       <div className="flex items-center gap-3">
-        <AuthControls />
+        <Link href="/launch-checks" className="brutal-button px-3 py-2 text-sm">
+          Launch checks
+        </Link>
+        <Link href="/billing-risk" className="brutal-button brutal-button-yellow px-3 py-2 text-sm">
+          Bill duel
+        </Link>
       </div>
     </header>
   );

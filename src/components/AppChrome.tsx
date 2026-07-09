@@ -1,19 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { AuthControls } from "@/components/AuthControls";
 import { ShipCheapLogo } from "@/components/ShipCheapLogo";
 import {
   ArrowRight,
   BadgeDollarSign,
   Boxes,
   CircleHelp,
+  ClipboardCheck,
   Grid2X2,
   Package,
   Shield,
   ShieldAlert,
   ShieldCheck,
-  Star,
 } from "lucide-react";
 
 const navItems = [
@@ -21,8 +20,8 @@ const navItems = [
   { label: "Compare", href: "/compare", icon: BadgeDollarSign, key: "compare" },
   { label: "Risk Simulator", href: "/billing-risk", icon: ShieldAlert, key: "billing-risk" },
   { label: "Providers", href: "/compare", icon: Package, key: "providers" },
-  { label: "Saved Filters", href: "/saved", icon: Boxes, key: "saved" },
-  { label: "Favorites", href: "/favorites", icon: Star, key: "favorites" },
+  { label: "Share Links", href: "/saved", icon: Boxes, key: "saved" },
+  { label: "Launch Checks", href: "/launch-checks", icon: ClipboardCheck, key: "launch-checks" },
 ];
 
 const supportItems = [
@@ -36,7 +35,7 @@ export function AppChrome({
   supportActive,
   children,
 }: {
-  active?: "dashboard" | "compare" | "billing-risk" | "providers" | "saved" | "favorites" | "none";
+  active?: "dashboard" | "compare" | "billing-risk" | "providers" | "saved" | "launch-checks" | "none";
   compactSidebar?: boolean;
   supportActive?: "billing-risk-guide" | "how-it-works";
   children: React.ReactNode;
@@ -132,9 +131,12 @@ function Topbar() {
         <ShipCheapLogo compact />
       </Link>
       <div className="hidden text-sm font-black text-[var(--muted)] lg:block">ShipCheap Decision Board</div>
-      <div className="flex items-center gap-3">
-        <AuthControls />
-      </div>
+      <Link
+        href="/billing-risk"
+        className="brutal-button brutal-button-yellow px-3 py-2 text-sm"
+      >
+        Open bill duel
+      </Link>
     </header>
   );
 }

@@ -67,7 +67,16 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
                 </div>
                 <p className="max-w-3xl text-base font-medium leading-7 text-[var(--foreground)]">{platform.description}</p>
               </div>
-              <BillingRiskBadge risk={platform.billingRisk} />
+              <div className="flex flex-col items-stretch gap-3 sm:items-end">
+                <BillingRiskBadge risk={platform.billingRisk} />
+                <Link
+                  href={`/launch-checks?provider=${platform.slug}`}
+                  className="inline-flex items-center justify-center gap-2 border-[3px] border-[var(--line)] bg-[var(--yellow)] px-3 py-2 text-xs font-black shadow-[3px_3px_0_var(--line)] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0_var(--line)]"
+                >
+                  <ClipboardCheck size={14} />
+                  Launch checklist
+                </Link>
+              </div>
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
