@@ -34,6 +34,12 @@
   "pnpm": {
     "overrides": {
       "postcss": "8.5.15"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma"
+    ]
   }
 }

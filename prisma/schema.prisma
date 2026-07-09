@@ -79,3 +79,16 @@ model FreshnessCheckRun {
   resultJson     Json?
   error          String?
 }
+
+model FavoritePlatform {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       String
+  platformSlug String
+  note         String   @default("")
+
+  @@unique([userId, platformSlug])
+  @@index([userId])
+  @@index([userId, updatedAt])
+}

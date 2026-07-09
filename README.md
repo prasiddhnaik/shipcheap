@@ -11,6 +11,8 @@ ShipCheap helps developers compare backend hosting platforms and find safer, che
 - Comparison table for Render, Railway, Fly.io, Koyeb, Vercel, Supabase, Neon, and DigitalOcean App Platform
 - Filters for free tier, no card, Docker support, database support, and low billing risk
 - Platform detail pages and SEO-style guides for Node.js, FastAPI, and no-card hosting
+- Cross-provider bill duel on the billing risk simulator (same workload, side-by-side P90 / blow-up ranking)
+- Signed-in favorites with short “why I’m watching this” notes
 - SQLite-backed saved comparison links with Prisma
 
 ## Tech Stack
@@ -58,4 +60,4 @@ Open `http://localhost:3000`.
 - Price change tracker
 - GitHub bot for pricing data updates
 - Deployment guide generator
-- User accounts and saved dashboards
+- Decision report export and shareable comparison links

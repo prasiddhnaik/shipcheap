@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BillDuel } from "@/components/BillDuel";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { ProviderLogo } from "@/components/ProviderLogo";
 import { platforms } from "@/data/platforms";
@@ -213,6 +214,8 @@ export function BillingRiskSimulator({ initialInput = defaultSimulatorInput }: {
           </section>
 
           <SimulationResults simulation={simulation} />
+
+          <BillDuel key={input.providerSlug} input={input} />
 
           <section className="grid gap-4 lg:grid-cols-2">
             <ResultPanel title="Main risk drivers" icon={TrendingUp} items={riskChecklist.drivers} tone="warn" />

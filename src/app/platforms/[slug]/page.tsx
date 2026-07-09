@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import { AppChrome } from "@/components/AppChrome";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { FeatureBadge } from "@/components/FeatureBadge";
 import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
 import { getPlatformBySlug, getPlatformCategory, getPlatformCommunityInfo, getPlatformSourceLinks, platforms, pricingDisclaimer } from "@/data/platforms";
@@ -67,7 +68,10 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
                 </div>
                 <p className="max-w-3xl text-base font-medium leading-7 text-[var(--foreground)]">{platform.description}</p>
               </div>
-              <BillingRiskBadge risk={platform.billingRisk} />
+              <div className="flex flex-col items-stretch gap-3 sm:items-end">
+                <BillingRiskBadge risk={platform.billingRisk} />
+                <FavoriteButton key={platform.slug} platformSlug={platform.slug} platformName={platform.name} compact />
+              </div>
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
