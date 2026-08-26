@@ -4,6 +4,18 @@ Backend hosting without billing jumpscares.
 
 ShipCheap helps developers compare backend hosting platforms and find safer, cheaper places to deploy backend apps. It includes a calculator, ranked recommendations, a comparison table, platform detail pages, beginner-focused guide pages, and saved comparison links.
 
+## WebMCP Challenge extension
+
+ShipCheap was meaningfully extended for the 2026 WebMCP Challenge after submissions opened on August 25, 2026. The new browser-agent layer lives in `src/components/WebMCPTools.tsx` and registers three imperative WebMCP tools with `document.modelContext.registerTool`:
+
+- `recommend_backend_hosts` ranks providers from structured project constraints.
+- `open_backend_host_comparison` opens the existing human-readable comparison with a provider highlighted.
+- `preview_billing_risk` runs ShipCheap's deterministic 1,000-month risk model and opens the configured simulator so the person and agent share the same visible result.
+
+The integration is progressive enhancement: ShipCheap remains fully usable when `document.modelContext` is unavailable. Tool inputs are constrained with JSON Schema and validated again at execution time. No tool creates infrastructure, spends money, or changes a hosting account.
+
+To test, open the deployed app in ChatGPT's in-app browser or in Chrome 149+ with `chrome://flags/#enable-webmcp-testing` enabled. Ask the agent to recommend a no-card host for a small backend, inspect one recommendation, then preview its billing risk.
+
 ## Features
 
 - Hosting calculator for app type, budget, database, always-on needs, card availability, region, and billing risk tolerance

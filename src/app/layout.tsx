@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { WebMCPTools } from "@/components/WebMCPTools";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +30,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
-        <ClerkProvider>{children}</ClerkProvider>
+        <ClerkProvider>
+          <WebMCPTools />
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );
