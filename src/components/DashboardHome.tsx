@@ -8,7 +8,7 @@ import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
 import { SaveComparisonButton } from "@/components/SaveComparisonButton";
 import { ScenarioPacks } from "@/components/ScenarioPacks";
 import { ShipCheapLogo } from "@/components/ShipCheapLogo";
-import { getPlatformCategory, platforms } from "@/data/platforms";
+import { getPlatformCategory, getPlatformMcpIntegration, platforms } from "@/data/platforms";
 import { defaultCalculatorInput, recommendPlatforms } from "@/lib/recommend-platform";
 import type { AppType, Budget, CalculatorInput, DatabaseNeed, Region, RiskLevel } from "@/lib/types";
 import { appTypeLabels, budgetLabels, categoryLabels, databaseLabels, regionLabels, riskLabels } from "@/lib/utils";
@@ -697,6 +697,7 @@ function RecommendationCard({
               {platform.hasFreeTier && <MiniBadge>Free tier</MiniBadge>}
               {!platform.creditCardRequired && <MiniBadge>No card</MiniBadge>}
               {platform.supports.includes("docker") && <MiniBadge>Docker</MiniBadge>}
+              {getPlatformMcpIntegration(platform.slug) && <MiniBadge>Agent MCP</MiniBadge>}
               <MiniBadge>{platform.billingRisk === "low" ? "Low risk" : `${riskLabels[platform.billingRisk]} risk`}</MiniBadge>
             </div>
           </div>

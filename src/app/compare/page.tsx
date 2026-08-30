@@ -26,7 +26,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
               <h1 className="text-[42px] font-black leading-[0.95] text-[var(--foreground)] sm:text-[60px]">Backend hosting comparison</h1>
               <p className="mt-3 max-w-3xl text-sm font-medium leading-6 text-[var(--muted)]">
                 Compare common backend hosting options by free tier, card requirement, runtime support, database support,
-                always-on fit, regions, billing risk, and best use cases.
+                always-on fit, regions, billing risk, agent-accessible MCP support, and best use cases.
               </p>
             </div>
             <div className="border-[3px] border-[var(--line)] bg-[var(--green)] p-4 text-sm text-[var(--foreground)]">

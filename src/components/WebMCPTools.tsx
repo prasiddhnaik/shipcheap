@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { platforms } from "@/data/platforms";
+import { getPlatformMcpIntegration, platforms } from "@/data/platforms";
 import { defaultSimulatorInput, formatCurrency, formatProbability, simulateMonthlyBill, type SimulatorInput } from "@/lib/billing-risk-simulation";
 import { recommendPlatforms } from "@/lib/recommend-platform";
 import type { CalculatorInput } from "@/lib/types";
@@ -119,11 +119,24 @@ export function WebMCPTools() {
       inputSchema: recommendationSchema, annotations: { readOnlyHint: true, untrustedContentHint: false },
       execute(input) {
         const requirements = recommendationInput(input);
-        const matches = recommendPlatforms(requirements).slice(0, 5).map(({ platform, score, matchedReasons, warnings, rank }) => ({
-          rank, slug: platform.slug, name: platform.name, score, billingRisk: platform.billingRisk,
-          creditCardRequired: platform.creditCardRequired, costRange: platform.costRange,
-          reasons: matchedReasons.slice(0, 4), warnings: warnings.slice(0, 3),
-        }));
+        const matches = recommendPlatforms(requirements).slice(0, 5).map(({ platform, score, matchedReasons, warnings, rank }) => {
+          const mcp = getPlatformMcpIntegration(platform.slug);
+          return {
+            rank, slug: platform.slug, name: platform.name, score, billingRisk: platform.billingRisk,
+            creditCardRequired: platform.creditCardRequired, costRange: platform.costRange,
+            reasons: matchedReasons.slice(0, 4), warnings: warnings.slice(0, 3),
+            agentMcp: mcp ? {
+              available: true,
+              connection: mcp.kind,
+              label: mcp.label,
+              endpoint: mcp.endpoint,
+              capabilities: mcp.capabilities,
+              canHostMcpServer: mcp.canHostMcpServer,
+              caution: mcp.caution,
+              officialDocs: mcp.docsUrl,
+            } : { available: false, status: "No official provider-control MCP verified by ShipCheap." },
+          };
+        });
         return { requirements, matches };
       },
     });

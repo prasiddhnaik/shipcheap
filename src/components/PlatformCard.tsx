@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
 import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
+import { ProviderMcpBadge } from "@/components/ProviderMcpBadge";
 import { getPlatformCategory } from "@/data/platforms";
 import type { RankedPlatform } from "@/lib/types";
 import { categoryLabels } from "@/lib/utils";
@@ -36,6 +37,7 @@ export function PlatformCard({ result }: { result: RankedPlatform }) {
         {!platform.creditCardRequired && <FeatureBadge tone="good">No card</FeatureBadge>}
         {platform.supports.includes("docker") && <FeatureBadge>Docker</FeatureBadge>}
         {platform.databases.length > 0 && <FeatureBadge>Database</FeatureBadge>}
+        <ProviderMcpBadge slug={platform.slug} compact />
       </div>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">

@@ -1,4 +1,10 @@
-import type { CommunityInfo, Platform, PlatformCategory, SourceLink } from "@/lib/types";
+import type {
+  CommunityInfo,
+  Platform,
+  PlatformCategory,
+  PlatformMcpIntegration,
+  SourceLink,
+} from "@/lib/types";
 
 export const pricingDisclaimer =
   "Starter data, verify before relying on it. Hosting prices, free tiers, and card requirements change often.";
@@ -647,19 +653,133 @@ export const platformCategories: Record<string, PlatformCategory> = {
   "platform-sh": "enterprise-paas",
 };
 
+export const platformMcpIntegrations: Record<string, PlatformMcpIntegration> = {
+  render: {
+    kind: "official-remote",
+    label: "Official remote MCP",
+    docsUrl: "https://render.com/docs/mcp-server",
+    endpoint: "https://mcp.render.com/mcp",
+    capabilities: ["deploy services", "inspect logs and metrics", "query databases"],
+    caution: "Can change environment variables and trigger deploys. Review the requested action before approving it.",
+    canHostMcpServer: true,
+  },
+  railway: {
+    kind: "official-remote",
+    label: "Official remote MCP",
+    docsUrl: "https://docs.railway.com/ai/mcp-server",
+    endpoint: "https://mcp.railway.com",
+    capabilities: ["create projects", "deploy templates", "manage environments"],
+    caution: "Uses your Railway account permissions and can deploy or reconfigure services.",
+    canHostMcpServer: true,
+  },
+  fly: {
+    kind: "official-local",
+    label: "Official local MCP",
+    docsUrl: "https://fly.io/docs/mcp/flyctl-server/",
+    capabilities: ["manage apps and machines", "inspect logs", "manage secrets and volumes"],
+    caution: "Runs through flyctl on your machine. Do not expose the local MCP endpoint publicly.",
+    canHostMcpServer: true,
+  },
+  koyeb: {
+    kind: "official-local",
+    label: "Official local MCP",
+    docsUrl: "https://www.koyeb.com/blog/koyeb-mcp-server-interact-with-your-koyeb-resources-in-natural-language",
+    capabilities: ["deploy services", "update service configuration", "inspect logs and metrics"],
+    caution: "Uses a Koyeb API token and can change live service configuration.",
+    canHostMcpServer: true,
+  },
+  vercel: {
+    kind: "official-remote",
+    label: "Official remote MCP",
+    docsUrl: "https://vercel.com/docs/agent-resources/vercel-mcp",
+    endpoint: "https://mcp.vercel.com",
+    capabilities: ["inspect projects", "inspect deployments", "read logs"],
+    caution: "The remote server is beta and operates with the access granted to your Vercel account.",
+    canHostMcpServer: true,
+  },
+  supabase: {
+    kind: "official-remote",
+    label: "Official remote MCP",
+    docsUrl: "https://supabase.com/docs/guides/ai-tools/mcp",
+    endpoint: "https://mcp.supabase.com/mcp",
+    capabilities: ["manage projects", "inspect database schemas", "run database operations"],
+    caution: "Prefer development projects and read-only mode; database tools can modify or expose project data.",
+    canHostMcpServer: false,
+  },
+  neon: {
+    kind: "official-remote",
+    label: "Official remote MCP",
+    docsUrl: "https://neon.com/docs/ai/neon-mcp-server",
+    endpoint: "https://mcp.neon.tech/mcp",
+    capabilities: ["manage projects and branches", "create databases", "run SQL"],
+    caution: "Use a development database when possible because tools can run SQL and change resources.",
+    canHostMcpServer: false,
+  },
+  heroku: {
+    kind: "official-remote",
+    label: "Official remote MCP",
+    docsUrl: "https://devcenter.heroku.com/articles/heroku-remote-mcp-server",
+    endpoint: "https://mcp.heroku.com/mcp",
+    capabilities: ["inspect apps", "manage deployments", "work with Heroku resources"],
+    caution: "OAuth grants the agent access to act on Heroku resources within the connected account.",
+    canHostMcpServer: true,
+  },
+  "cloudflare-workers": {
+    kind: "official-remote",
+    label: "Official remote MCP catalog",
+    docsUrl: "https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/",
+    capabilities: ["inspect account data", "manage supported Cloudflare services", "query observability data"],
+    caution: "Cloudflare exposes multiple scoped servers; connect only the server and permissions the task needs.",
+    canHostMcpServer: true,
+  },
+};
+
 export const platformSourceLinks: Record<string, SourceLink[]> = {
-  render: [{ label: "Pricing", url: "https://render.com/pricing" }],
-  railway: [{ label: "Pricing", url: "https://railway.com/pricing" }],
-  fly: [{ label: "Pricing", url: "https://fly.io/docs/about/pricing/" }],
-  koyeb: [{ label: "Pricing", url: "https://www.koyeb.com/pricing" }],
-  vercel: [{ label: "Pricing", url: "https://vercel.com/pricing" }],
-  supabase: [{ label: "Pricing", url: "https://supabase.com/pricing" }],
-  neon: [{ label: "Pricing", url: "https://neon.com/pricing" }],
+  render: [
+    { label: "Pricing", url: "https://render.com/pricing" },
+    { label: "MCP", url: "https://render.com/docs/mcp-server" },
+  ],
+  railway: [
+    { label: "Pricing", url: "https://railway.com/pricing" },
+    { label: "MCP", url: "https://docs.railway.com/ai/mcp-server" },
+  ],
+  fly: [
+    { label: "Pricing", url: "https://fly.io/docs/about/pricing/" },
+    { label: "MCP", url: "https://fly.io/docs/mcp/flyctl-server/" },
+  ],
+  koyeb: [
+    { label: "Pricing", url: "https://www.koyeb.com/pricing" },
+    {
+      label: "MCP",
+      url: "https://www.koyeb.com/blog/koyeb-mcp-server-interact-with-your-koyeb-resources-in-natural-language",
+    },
+  ],
+  vercel: [
+    { label: "Pricing", url: "https://vercel.com/pricing" },
+    { label: "MCP", url: "https://vercel.com/docs/agent-resources/vercel-mcp" },
+  ],
+  supabase: [
+    { label: "Pricing", url: "https://supabase.com/pricing" },
+    { label: "MCP", url: "https://supabase.com/docs/guides/ai-tools/mcp" },
+  ],
+  neon: [
+    { label: "Pricing", url: "https://neon.com/pricing" },
+    { label: "MCP", url: "https://neon.com/docs/ai/neon-mcp-server" },
+  ],
   "digitalocean-app-platform": [{ label: "Pricing", url: "https://www.digitalocean.com/pricing/app-platform" }],
-  "cloudflare-workers": [{ label: "Pricing", url: "https://developers.cloudflare.com/workers/platform/pricing/" }],
+  "cloudflare-workers": [
+    { label: "Pricing", url: "https://developers.cloudflare.com/workers/platform/pricing/" },
+    {
+      label: "MCP catalog",
+      url: "https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/",
+    },
+  ],
   "google-cloud-run": [{ label: "Pricing", url: "https://cloud.google.com/run/pricing" }],
   "aws-app-runner": [{ label: "Pricing", url: "https://aws.amazon.com/apprunner/pricing/" }],
-  heroku: [{ label: "Pricing", url: "https://www.heroku.com/pricing" }],
+  heroku: [
+    { label: "Pricing", url: "https://www.heroku.com/pricing" },
+    { label: "MCP", url: "https://devcenter.heroku.com/articles/heroku-remote-mcp-server" },
+  ],
   northflank: [{ label: "Pricing", url: "https://northflank.com/pricing" }],
   netlify: [{ label: "Pricing", url: "https://www.netlify.com/pricing/" }],
   "azure-app-service": [{ label: "Pricing", url: "https://azure.microsoft.com/pricing/details/app-service/linux/" }],
@@ -995,6 +1115,10 @@ export function getPlatformCategory(slug: string) {
 
 export function getPlatformSourceLinks(slug: string) {
   return platformSourceLinks[slug] ?? [];
+}
+
+export function getPlatformMcpIntegration(slug: string) {
+  return platformMcpIntegrations[slug];
 }
 
 export function getPlatformCommunityInfo(slug: string) {

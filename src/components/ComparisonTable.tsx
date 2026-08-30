@@ -5,12 +5,13 @@ import Link from "next/link";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
 import { ProviderLogo } from "@/components/ProviderLogo";
-import { getPlatformCategory, platforms } from "@/data/platforms";
+import { ProviderMcpBadge } from "@/components/ProviderMcpBadge";
+import { getPlatformCategory, getPlatformMcpIntegration, platforms } from "@/data/platforms";
 import type { Platform, PlatformCategory } from "@/lib/types";
 import { appTypeLabels, categoryLabels, databaseLabels, regionLabels } from "@/lib/utils";
 import { Check, X } from "lucide-react";
 
-type FilterKey = "free" | "noCard" | "docker" | "database" | "lowRisk";
+type FilterKey = "free" | "noCard" | "docker" | "database" | "lowRisk" | "agentMcp";
 
 const filters: { key: FilterKey; label: string }[] = [
   { key: "free", label: "Free tier only" },
@@ -18,6 +19,7 @@ const filters: { key: FilterKey; label: string }[] = [
   { key: "docker", label: "Docker support" },
   { key: "database", label: "Database support" },
   { key: "lowRisk", label: "Low billing risk" },
+  { key: "agentMcp", label: "Agent MCP available" },
 ];
 
 export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug?: string }) {
@@ -28,6 +30,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
     docker: false,
     database: false,
     lowRisk: false,
+    agentMcp: false,
   });
 
   const filteredPlatforms = useMemo(() => {
@@ -38,6 +41,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
       if (activeFilters.docker && !platform.supports.includes("docker")) return false;
       if (activeFilters.database && platform.databases.length === 0) return false;
       if (activeFilters.lowRisk && platform.billingRisk !== "low") return false;
+      if (activeFilters.agentMcp && !getPlatformMcpIntegration(platform.slug)) return false;
       return true;
     }).sort((a, b) => {
       if (!selectedPlatformSlug) return 0;
@@ -99,7 +103,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
 
       <div className="brutal-panel overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-[1080px] w-full table-fixed border-collapse text-left text-sm">
+          <table className="min-w-[1220px] w-full table-fixed border-collapse text-left text-sm">
             <thead className="bg-[var(--yellow)] text-xs font-black uppercase text-[var(--foreground)]">
               <tr>
                 <Th>Platform</Th>
@@ -113,6 +117,7 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                 <Th>Always-on</Th>
                 <Th>Regions</Th>
                 <Th>Billing risk</Th>
+                <Th>Agent MCP</Th>
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-[var(--line)]">
@@ -145,6 +150,12 @@ export function ComparisonTable({ selectedPlatformSlug }: { selectedPlatformSlug
                   <Td>{platform.regions.map((region) => regionLabels[region]).join(", ")}</Td>
                   <Td>
                     <BillingRiskBadge risk={platform.billingRisk} />
+                  </Td>
+                  <Td>
+                    <ProviderMcpBadge slug={platform.slug} compact />
+                    {!getPlatformMcpIntegration(platform.slug) && (
+                      <span className="text-xs font-bold text-[var(--muted)]">Not verified</span>
+                    )}
                   </Td>
                 </tr>
               ))}

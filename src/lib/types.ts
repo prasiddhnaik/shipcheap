@@ -55,6 +55,16 @@ export type SourceLink = {
   url: string;
 };
 
+export type PlatformMcpIntegration = {
+  kind: "official-remote" | "official-local" | "hosts-mcp";
+  label: string;
+  docsUrl: string;
+  endpoint?: string;
+  capabilities: string[];
+  caution: string;
+  canHostMcpServer: boolean;
+};
+
 export type CommunityInfo = {
   userCount: string;
   strength: "small" | "medium" | "large" | "very-large";

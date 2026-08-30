@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShipCheap — WebMCP Challenge submission kit</title>
+  <style>
+    :root { color-scheme: light; --ink:#151515; --muted:#5c5c5c; --line:#c9c9c9; --paper:#f7f5ef; --accent:#eaff62; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 ui-sans-serif,system-ui,sans-serif; }
+    main { width:min(900px,calc(100% - 32px)); margin:32px auto 72px; }
+    header,section { border:2px solid var(--ink); background:#fff; padding:24px; margin:0 0 16px; box-shadow:5px 5px 0 var(--ink); }
+    h1,h2 { line-height:1.08; margin:0 0 14px; } h1 { font-size:clamp(34px,7vw,64px); } h2 { font-size:24px; }
+    p,ol,ul { margin:10px 0; } code { background:#eee; padding:2px 5px; } a { color:inherit; font-weight:750; }
+    .tag { display:inline-block; background:var(--accent); border:2px solid var(--ink); padding:4px 9px; font-weight:800; text-transform:uppercase; }
+    .copy { white-space:pre-wrap; border-left:5px solid var(--accent); padding-left:14px; }
+    .meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+    .meta div { border:1px solid var(--line); padding:12px; overflow-wrap:anywhere; }
+    small { color:var(--muted); }
+  </style>
+</head>
+<body><main>
+  <header>
+    <span class="tag">Ready for owner submission</span>
+    <h1>ShipCheap × WebMCP</h1>
+    <p>A browser-agent workflow for choosing a backend host and testing surprise-bill risk without handing an agent permission to deploy or spend money.</p>
+  </header>
+
+  <section>
+    <h2>Submission links</h2>
+    <div class="meta">
+      <div><strong>Live app</strong><br><a href="https://shipcheap.vercel.app">shipcheap.vercel.app</a></div>
+      <div><strong>Public source</strong><br><a href="https://github.com/prasiddhnaik/shipcheap/tree/codex/newdesign">GitHub challenge branch</a></div>
+      <div><strong>Challenge</strong><br><a href="https://webmcp.devpost.com/">webmcp.devpost.com</a></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ready-to-paste description</h2>
+    <p class="copy">ShipCheap helps beginners choose where to host a backend without getting trapped by card requirements, confusing free tiers, or surprise usage bills.
+
+WebMCP is a strong fit because hosting decisions are naturally multi-step and constraint-heavy. A person can describe their runtime, database, region, budget, card access, uptime needs, and risk tolerance in plain language. Their agent calls ShipCheap's structured recommendation tool, then opens a recommended provider in the visible comparison and configures a 1,000-month billing-risk simulation for the person to review. The human keeps the final decision; the agent handles the repetitive filtering and configuration.
+
+This is better than UI-only automation because the agent does not need to guess which controls to click or scrape result cards. ShipCheap exposes three imperative tools through document.modelContext.registerTool: recommend_backend_hosts, open_backend_host_comparison, and preview_billing_risk. Each tool has a constrained JSON Schema, validates inputs again during execution, and returns concise structured results. Navigation tools update the same visible pages the person uses.
+
+The WebMCP extension is progressive enhancement and was added to the pre-existing ShipCheap app during the challenge submission period. The site still works normally without WebMCP. None of the tools can deploy infrastructure, attach billing details, spend money, or alter a hosting account.</p>
+  </section>
+
+  <section>
+    <h2>Testing instructions</h2>
+    <ol>
+      <li>Open the live URL in ChatGPT's in-app browser, or Chrome 149+ with <code>chrome://flags/#enable-webmcp-testing</code> enabled.</li>
+      <li>Ask: “Recommend a free, no-card host in Asia for an always-on Node backend with Postgres and low billing risk.”</li>
+      <li>Ask the agent to open the top hosted-platform recommendation for comparison.</li>
+      <li>Ask it to preview billing risk for 500 monthly users, 35 requests per user, a small database, budget alerts, and a $25 budget.</li>
+      <li>Confirm the browser opens the configured risk simulator and the visible provider and usage fields match the request.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Under-three-minute video outline</h2>
+    <ol>
+      <li><strong>0:00–0:20:</strong> State the problem: backend hosting comparisons make beginners translate a real project into dozens of pricing and risk filters.</li>
+      <li><strong>0:20–0:45:</strong> Show ShipCheap's normal dashboard and explain that the human UI remains fully usable.</li>
+      <li><strong>0:45–1:25:</strong> Give the recommendation prompt. Show the agent calling <code>recommend_backend_hosts</code> and returning ranked, reasoned matches.</li>
+      <li><strong>1:25–1:50:</strong> Ask it to inspect a provider. Show the comparison page opening with that provider highlighted.</li>
+      <li><strong>1:50–2:30:</strong> Ask for a billing-risk preview. Show the configured simulator, 1,000 runs, risk level, bill percentiles, and budget-overrun probability.</li>
+      <li><strong>2:30–2:50:</strong> Show the three registrations in source and close with the safety boundary: agents advise and configure; humans decide and deploy.</li>
+    </ol>
+    <small>Devpost requires a public YouTube video with audio and says judges are not required to watch beyond three minutes.</small>
+  </section>
+
+  <section>
+    <h2>Owner-only final steps</h2>
+    <ol>
+      <li>Record and upload the narrated demo to YouTube as public.</li>
+      <li>Join the challenge with your Devpost account and confirm eligibility.</li>
+      <li>Paste the description, live URL, branch URL, testing instructions, and YouTube URL into the submission form.</li>
+      <li>Review and accept the official rules, then submit before September 3, 2026 at 1:00 p.m. Pacific.</li>
+    </ol>
+  </section>
+</main></body>
+</html>

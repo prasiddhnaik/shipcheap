@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { AppChrome } from "@/components/AppChrome";
 import { BillingRiskBadge } from "@/components/BillingRiskBadge";
 import { FeatureBadge } from "@/components/FeatureBadge";
+import { ProviderMcpBadge } from "@/components/ProviderMcpBadge";
 import { getProviderTheme, ProviderLogo } from "@/components/ProviderLogo";
-import { getPlatformBySlug, getPlatformCategory, getPlatformCommunityInfo, getPlatformSourceLinks, platforms, pricingDisclaimer } from "@/data/platforms";
-import type { CommunityInfo, DatabaseNeed, Platform, PlatformCategory } from "@/lib/types";
+import { getPlatformBySlug, getPlatformCategory, getPlatformCommunityInfo, getPlatformMcpIntegration, getPlatformSourceLinks, platforms, pricingDisclaimer } from "@/data/platforms";
+import type { CommunityInfo, DatabaseNeed, Platform, PlatformCategory, PlatformMcpIntegration } from "@/lib/types";
 import { appTypeLabels, budgetLabels, categoryLabels, databaseLabels, regionLabels } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, Check, ClipboardCheck, CreditCard, Database, ExternalLink, MessageCircle, Server, ShieldAlert, Sparkles, Tags, Users, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Check, ClipboardCheck, CreditCard, Database, ExternalLink, MessageCircle, Server, ShieldAlert, Sparkles, Tags, Users, X } from "lucide-react";
 
 type Tone = "good" | "warn" | "bad";
 
@@ -32,6 +33,7 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
   const category = getPlatformCategory(platform.slug);
   const sourceLinks = getPlatformSourceLinks(platform.slug);
   const communityInfo = getPlatformCommunityInfo(platform.slug);
+  const mcpIntegration = getPlatformMcpIntegration(platform.slug);
   const fitInsights = getFitInsights(platform, category);
   const providerTheme = getProviderTheme(platform.name);
   const providerPanelStyle = {
@@ -69,6 +71,7 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
               </div>
               <div className="flex flex-col items-stretch gap-3 sm:items-end">
                 <BillingRiskBadge risk={platform.billingRisk} />
+                <ProviderMcpBadge slug={platform.slug} />
                 <Link
                   href={`/launch-checks?provider=${platform.slug}`}
                   className="inline-flex items-center justify-center gap-2 border-[3px] border-[var(--line)] bg-[var(--yellow)] px-3 py-2 text-xs font-black shadow-[3px_3px_0_var(--line)] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0_var(--line)]"
@@ -134,6 +137,8 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
           <InfoPanel icon={CreditCard} title="Cost range" value={platform.costRange} />
           <InfoPanel icon={Server} title="Free tier details" value={platform.freeTierDetails} />
         </section>
+
+        {mcpIntegration && <McpIntegrationPanel integration={mcpIntegration} providerName={platform.name} />}
 
         <section className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
           <DatabaseFitPanel platform={platform} category={category} />
@@ -221,6 +226,80 @@ export default async function PlatformDetailPage({ params }: { params: Promise<{
         </section>
       </main>
     </AppChrome>
+  );
+}
+
+function McpIntegrationPanel({
+  integration,
+  providerName,
+}: {
+  integration: PlatformMcpIntegration;
+  providerName: string;
+}) {
+  const connection = integration.kind === "official-remote"
+    ? "Connect your compatible agent to the provider-hosted MCP endpoint."
+    : integration.kind === "official-local"
+      ? "Run the provider's official MCP locally and connect it to your agent."
+      : "This provider can host an MCP workload, but ShipCheap has not verified a provider-control MCP.";
+
+  return (
+    <section className="mt-4 border-[3px] border-[var(--line)] bg-[#dbeafe] p-5 shadow-[6px_6px_0_var(--line)]">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex max-w-3xl items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center border-[3px] border-[var(--line)] bg-[var(--panel)] text-[#002fa7]">
+            <Bot size={19} />
+          </span>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">Agent integration</p>
+            <h2 className="mt-1 text-xl font-black text-[var(--foreground)]">An agent can work with {providerName} through MCP</h2>
+            <p className="mt-2 text-sm font-medium leading-6 text-[var(--foreground)]">{connection}</p>
+          </div>
+        </div>
+        <span className="border-2 border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-xs font-black text-[var(--foreground)]">
+          {integration.label}
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">What the agent can do</p>
+          <ul className="mt-2 space-y-2 text-sm font-medium text-[var(--foreground)]">
+            {integration.capabilities.map((capability) => (
+              <li key={capability} className="flex items-start gap-2">
+                <Check className="mt-0.5 shrink-0 text-[#002fa7]" size={15} />
+                <span>{capability}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="border-2 border-[var(--line)] bg-[var(--panel)] p-3">
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">Permission warning</p>
+          <p className="mt-2 text-sm font-medium leading-6 text-[var(--foreground)]">{integration.caution}</p>
+          <p className="mt-2 text-xs font-bold text-[var(--muted)]">
+            {integration.canHostMcpServer
+              ? `${providerName} can also host your own MCP server workload.`
+              : "This label describes provider control, not hosting your own MCP server."}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3 border-t-[3px] border-[var(--line)] pt-4">
+        {integration.endpoint && (
+          <code className="max-w-full overflow-x-auto border-2 border-[var(--line)] bg-[var(--panel)] px-2.5 py-1.5 text-xs font-bold text-[var(--foreground)]">
+            {integration.endpoint}
+          </code>
+        )}
+        <a
+          href={integration.docsUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm font-black text-[#002fa7] underline-offset-4 hover:underline"
+        >
+          Verify in official MCP docs
+          <ExternalLink size={13} />
+        </a>
+      </div>
+    </section>
   );
 }
 
