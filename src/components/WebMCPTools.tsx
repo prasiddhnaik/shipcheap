@@ -49,6 +49,21 @@ function numberValue(input: Record<string, unknown>, key: string, fallback: numb
   return value;
 }
 
+function stringValue(input: Record<string, unknown>, key: string) {
+  const value = input[key];
+  if (typeof value !== "string" || !value.trim()) throw new Error(`${key} must be a non-empty string.`);
+  return value.trim();
+}
+
+async function jsonResponse(response: Response) {
+  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+  if (response.status === 401) {
+    return { authenticated: false as const, data: { status: "authentication_required", signInUrl: "/sign-in?redirect_url=/projects" } };
+  }
+  if (!response.ok) throw new Error(typeof data.error === "string" ? data.error : `ShipCheap request failed (${response.status}).`);
+  return { authenticated: true as const, data };
+}
+
 function recommendationInput(value: unknown): CalculatorInput {
   if (!isRecord(value)) throw new Error("Expected a hosting requirements object.");
   return {
@@ -112,6 +127,95 @@ export function WebMCPTools() {
       try { void Promise.resolve(context.registerTool(tool, { signal: lifecycle.signal })).catch((error) => console.error(`WebMCP registration failed: ${tool.name}`, error)); }
       catch (error) { console.error(`WebMCP registration failed: ${tool.name}`, error); }
     };
+
+    register({
+      name: "open_project_workspace", title: "Open project workspace",
+      description: "Open ShipCheap's authenticated project workspace. If the person is signed out, ShipCheap opens its sign-in flow first.",
+      inputSchema: { type: "object", properties: {}, additionalProperties: false },
+      annotations: { readOnlyHint: false, untrustedContentHint: false },
+      async execute() {
+        router.push("/projects");
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        return { status: "project_workspace_opened", path: "/projects" };
+      },
+    });
+
+    register({
+      name: "list_linked_projects", title: "List linked projects",
+      description: "List the signed-in person's ShipCheap projects and their repository-specific hosting analyses.",
+      inputSchema: { type: "object", properties: {}, additionalProperties: false },
+      annotations: { readOnlyHint: true, untrustedContentHint: true },
+      async execute() {
+        const result = await jsonResponse(await fetch("/api/projects", { cache: "no-store" }));
+        if (!result.authenticated) return result.data;
+        const projects = Array.isArray(result.data.projects) ? result.data.projects : [];
+        return { status: "ok", count: projects.length, projects };
+      },
+    });
+
+    register({
+      name: "list_available_github_repositories", title: "List available GitHub repositories",
+      description: "List repositories available through GitHub App installations already connected to the signed-in ShipCheap account.",
+      inputSchema: { type: "object", properties: {}, additionalProperties: false },
+      annotations: { readOnlyHint: true, untrustedContentHint: true },
+      async execute() {
+        const result = await jsonResponse(await fetch("/api/github/repositories", { cache: "no-store" }));
+        if (!result.authenticated) return result.data;
+        const groups = Array.isArray(result.data.groups) ? result.data.groups : [];
+        return { status: "ok", installationCount: groups.length, groups };
+      },
+    });
+
+    register({
+      name: "start_github_app_installation", title: "Start GitHub App installation",
+      description: "Start ShipCheap's GitHub App installation flow for a signed-in person. This opens GitHub, where the person must review and approve repository access.",
+      inputSchema: { type: "object", properties: {}, additionalProperties: false },
+      annotations: { readOnlyHint: false, untrustedContentHint: false },
+      async execute() {
+        const result = await jsonResponse(await fetch("/api/projects", { cache: "no-store" }));
+        if (!result.authenticated) return result.data;
+        window.location.assign("/api/github/install/start");
+        return { status: "github_installation_started" };
+      },
+    });
+
+    register({
+      name: "analyze_github_repository", title: "Analyze GitHub repository",
+      description: "Link and analyze one GitHub repository for the signed-in person, then open the updated ShipCheap project workspace. Use repositoryUrl for a public repository, or installationId and repositoryId from list_available_github_repositories.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repositoryUrl: { type: "string", description: "Public GitHub repository URL." },
+          installationId: { type: "string", description: "ShipCheap GitHub installation record ID." },
+          repositoryId: { type: "string", description: "GitHub repository ID returned by list_available_github_repositories." },
+        },
+        additionalProperties: false,
+      },
+      annotations: { readOnlyHint: false, untrustedContentHint: true },
+      async execute(input) {
+        if (!isRecord(input)) throw new Error("Expected a GitHub repository selection object.");
+        const hasPublicUrl = typeof input.repositoryUrl === "string" && Boolean(input.repositoryUrl.trim());
+        const hasInstalledRepository = typeof input.installationId === "string" && typeof input.repositoryId === "string";
+        if (hasPublicUrl === hasInstalledRepository) {
+          throw new Error("Provide either repositoryUrl, or both installationId and repositoryId.");
+        }
+        const payload = hasPublicUrl
+          ? { repositoryUrl: stringValue(input, "repositoryUrl") }
+          : { installationId: stringValue(input, "installationId"), repositoryId: stringValue(input, "repositoryId") };
+        const result = await jsonResponse(
+          await fetch("/api/projects", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }),
+        );
+        if (!result.authenticated) return result.data;
+        router.push("/projects");
+        router.refresh();
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        return { status: "repository_analyzed", project: result.data.project };
+      },
+    });
 
     register({
       name: "recommend_backend_hosts", title: "Recommend backend hosts",
