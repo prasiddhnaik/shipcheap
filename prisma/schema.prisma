@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 model SavedComparison {
@@ -78,3 +79,43 @@ model FreshnessCheckRun {
   error          String?
 }
 
+model GitHubInstallation {
+  id                   String          @id @default(cuid())
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  userId               String
+  githubInstallationId String          @unique
+  accountLogin         String
+  accountType          String
+  projects             LinkedProject[]
+
+  @@index([userId])
+  @@index([userId, updatedAt])
+}
+
+model LinkedProject {
+  id                 String             @id @default(cuid())
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  userId             String
+  installationId     String?
+  githubRepositoryId String
+  owner              String
+  name               String
+  fullName           String
+  htmlUrl            String
+  isPrivate          Boolean            @default(false)
+  defaultBranch      String
+  description        String?
+  primaryLanguage    String?
+  detectedStack      Json
+  analysisJson       Json
+  recommendationJson Json
+  lastSyncedAt       DateTime           @default(now())
+  installation       GitHubInstallation? @relation(fields: [installationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, githubRepositoryId])
+  @@index([userId])
+  @@index([userId, updatedAt])
+  @@index([installationId])
+}

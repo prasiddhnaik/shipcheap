@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AuthControls } from "@/components/AuthControls";
 import { ShipCheapLogo } from "@/components/ShipCheapLogo";
 import {
   ArrowRight,
@@ -8,6 +9,7 @@ import {
   Boxes,
   CircleHelp,
   ClipboardCheck,
+  FolderGit2,
   Grid2X2,
   Package,
   Shield,
@@ -21,6 +23,7 @@ const navItems = [
   { label: "Risk Simulator", href: "/billing-risk", icon: ShieldAlert, key: "billing-risk" },
   { label: "Providers", href: "/compare", icon: Package, key: "providers" },
   { label: "Share Links", href: "/saved", icon: Boxes, key: "saved" },
+  { label: "Projects", href: "/projects", icon: FolderGit2, key: "projects" },
   { label: "Launch Checks", href: "/launch-checks", icon: ClipboardCheck, key: "launch-checks" },
 ];
 
@@ -35,7 +38,7 @@ export function AppChrome({
   supportActive,
   children,
 }: {
-  active?: "dashboard" | "compare" | "billing-risk" | "providers" | "saved" | "launch-checks" | "none";
+  active?: "dashboard" | "compare" | "billing-risk" | "providers" | "saved" | "projects" | "launch-checks" | "none";
   compactSidebar?: boolean;
   supportActive?: "billing-risk-guide" | "how-it-works";
   children: React.ReactNode;
@@ -131,12 +134,12 @@ function Topbar() {
         <ShipCheapLogo compact />
       </Link>
       <div className="hidden text-sm font-black text-[var(--muted)] lg:block">ShipCheap Decision Board</div>
-      <Link
-        href="/billing-risk"
-        className="brutal-button brutal-button-yellow px-3 py-2 text-sm"
-      >
-        Open bill duel
-      </Link>
+      <div className="flex items-center gap-3">
+        <Link href="/billing-risk" className="brutal-button brutal-button-yellow hidden px-3 py-2 text-sm sm:inline-flex">
+          Open bill duel
+        </Link>
+        <AuthControls />
+      </div>
     </header>
   );
 }

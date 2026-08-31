@@ -1,13 +1,6 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-export function proxy(request: NextRequest) {
-  return NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-}
+export const proxy = clerkMiddleware();
 
 export const config = {
   matcher: [

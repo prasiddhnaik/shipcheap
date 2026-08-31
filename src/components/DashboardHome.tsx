@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AuthControls } from "@/components/AuthControls";
 import type { CSSProperties } from "react";
 import type { ComponentType } from "react";
 import { useMemo, useState } from "react";
@@ -20,6 +21,7 @@ import {
   CircleHelp,
   ClipboardCheck,
   CreditCard,
+  FolderGit2,
   Grid2X2,
   Info,
   Package,
@@ -51,6 +53,7 @@ const navItems = [
   { label: "Risk Simulator", href: "/billing-risk", icon: ShieldAlert },
   { label: "Providers", href: "/compare", icon: Package },
   { label: "Share Links", href: "/saved", icon: Boxes },
+  { label: "Projects", href: "/projects", icon: FolderGit2 },
   { label: "Launch Checks", href: "/launch-checks", icon: ClipboardCheck },
 ];
 
@@ -422,12 +425,13 @@ function Topbar() {
       </Link>
       <div className="hidden text-sm font-black text-[var(--muted)] lg:block">ShipCheap Decision Board</div>
       <div className="flex items-center gap-3">
-        <Link href="/launch-checks" className="brutal-button px-3 py-2 text-sm">
+        <Link href="/launch-checks" className="brutal-button hidden px-3 py-2 text-sm sm:inline-flex">
           Launch checks
         </Link>
-        <Link href="/billing-risk" className="brutal-button brutal-button-yellow px-3 py-2 text-sm">
+        <Link href="/billing-risk" className="brutal-button brutal-button-yellow hidden px-3 py-2 text-sm md:inline-flex">
           Bill duel
         </Link>
+        <AuthControls />
       </div>
     </header>
   );
