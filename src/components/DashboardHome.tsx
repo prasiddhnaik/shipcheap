@@ -264,7 +264,7 @@ export function DashboardHome() {
                 </div>
                 <SaveComparisonButton input={input} results={results} />
               </div>
-              <div className="grid items-start gap-4 xl:grid-cols-3">
+              <div className="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {topResults.map((result, index) => (
                   <RecommendationCard
                     key={result.platform.slug}
@@ -633,7 +633,7 @@ function NeedPill({
   );
 }
 
-function RecommendationCard({
+export function RecommendationCard({
   result,
   index,
   selected,
@@ -661,75 +661,95 @@ function RecommendationCard({
   const providerTheme = getProviderTheme(platform.name);
   const cardStyle = {
     color: providerTheme.text,
+    backgroundColor: selected ? providerTheme.softBackground : undefined,
   } as CSSProperties;
 
   return (
     <article
-      role="button"
-      tabIndex={0}
-      aria-pressed={selected}
+      aria-label={`${platform.name} recommendation`}
+      data-selected={selected}
       onClick={onSelect}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onSelect();
-        }
-      }}
-      className={`cursor-pointer border-[3px] border-[var(--line)] bg-[var(--panel)] p-4 shadow-[7px_7px_0_var(--line)] outline-none transition hover:-translate-y-0.5 hover:bg-white focus-visible:ring-4 focus-visible:ring-[var(--accent)] ${
-        selected ? "translate-x-[-2px] translate-y-[-2px] shadow-[9px_9px_0_var(--accent)]" : ""
+      className={`flex h-full min-h-[37rem] min-w-0 cursor-pointer flex-col border-[3px] border-[var(--line)] bg-[var(--panel)] p-5 shadow-[7px_7px_0_var(--line)] transition hover:-translate-y-0.5 ${
+        selected
+          ? "translate-x-[-2px] translate-y-[-2px] ring-4 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--background)] shadow-[9px_9px_0_var(--accent)]"
+          : "hover:bg-white"
       }`}
       style={cardStyle}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2.5">
+      <div className="flex min-h-11 items-start justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[var(--line)] text-sm font-black"
+            className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[var(--line)] text-sm font-black"
             style={{ backgroundColor: index === 0 ? "var(--green)" : index === 1 ? "var(--yellow)" : "var(--paper)", color: "var(--foreground)" }}
           >
             {result.rank}
           </span>
-          <ProviderLogo name={platform.name} large />
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <h3 className="truncate text-2xl font-black text-[var(--foreground)]">{platform.name}</h3>
-              <span className="whitespace-nowrap border-2 border-[var(--line)] bg-[var(--paper)] px-1.5 py-0.5 text-[11px] font-black text-[var(--foreground)]">
-                {accent.tag}
-              </span>
-            </div>
-            <p className="mt-0.5 text-xs font-black uppercase text-[var(--muted)]">{categoryLabels[category]}</p>
-            <div className="mt-1.5 flex flex-wrap gap-1">
-              {platform.hasFreeTier && <MiniBadge>Free tier</MiniBadge>}
-              {!platform.creditCardRequired && <MiniBadge>No card</MiniBadge>}
-              {platform.supports.includes("docker") && <MiniBadge>Docker</MiniBadge>}
-              {getPlatformMcpIntegration(platform.slug) && <MiniBadge>Agent MCP</MiniBadge>}
-              <MiniBadge>{platform.billingRisk === "low" ? "Low risk" : `${riskLabels[platform.billingRisk]} risk`}</MiniBadge>
-            </div>
-          </div>
+          <span className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-2.5 py-1 text-[11px] font-black text-[var(--foreground)]">
+            {accent.tag}
+          </span>
         </div>
-        <div className="shrink-0 text-right">
-          {selected && (
-            <span className="mb-1 inline-flex items-center gap-1 border-2 border-[var(--line)] bg-[var(--green)] px-2 py-0.5 text-[11px] font-black text-[var(--foreground)]">
-              <Check size={11} />
-              Selected
-            </span>
-          )}
-          <p className="text-2xl font-black text-[var(--foreground)]">{platform.hasFreeTier ? "$0" : "$5"}<span className="text-xs font-bold text-[var(--muted)]"> /mo</span></p>
-          <p className="text-xs font-bold text-[var(--muted)]">est. monthly</p>
+        <button
+          type="button"
+          aria-pressed={selected}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect();
+          }}
+          className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 border-2 border-[var(--line)] px-3 text-xs font-black transition ${
+            selected ? "bg-[var(--green)] text-[var(--foreground)]" : "bg-[var(--panel)] text-[var(--foreground)] hover:bg-[var(--yellow)]"
+          }`}
+        >
+          {selected && <Check size={13} />}
+          {selected ? "Selected" : "Select"}
+        </button>
+      </div>
+
+      <div className="mt-4 flex min-w-0 items-start gap-4">
+        <ProviderLogo name={platform.name} size="recommendation" />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start gap-2">
+            <h3 className="min-w-0 break-words text-2xl font-black leading-[1.08] text-[var(--foreground)]">{platform.name}</h3>
+            <RiskBadge risk={platform.billingRisk} />
+          </div>
+          <p className="mt-2 text-xs font-black uppercase tracking-[0.1em] text-[var(--muted)]">{categoryLabels[category]}</p>
         </div>
       </div>
-      <p className="mt-3 line-clamp-2 text-sm font-medium leading-5 text-[var(--muted)]">{result.matchedReasons[0] ?? platform.description}</p>
-      <div className="mt-3 flex items-center justify-between border-t-[3px] border-[var(--line)] pt-3">
+
+      <div className="mt-4 flex min-h-8 flex-wrap content-start gap-2">
+        {platform.hasFreeTier && <RecommendationChip>Free tier</RecommendationChip>}
+        {!platform.creditCardRequired && <RecommendationChip>No card</RecommendationChip>}
+        {platform.supports.includes("docker") && <RecommendationChip>Docker</RecommendationChip>}
+        {getPlatformMcpIntegration(platform.slug) && <RecommendationChip>Agent MCP</RecommendationChip>}
+      </div>
+
+      <div className="mt-4 border-y-2 border-[var(--line)] py-3">
+        <p className="brutal-label">Estimated monthly price</p>
+        <p className="mt-1 text-3xl font-black text-[var(--foreground)]">
+          {platform.hasFreeTier ? "$0" : "$5"}
+          <span className="text-xs font-bold text-[var(--muted)]"> /mo</span>
+        </p>
+        <p className="mt-1 text-xs font-medium leading-5 text-[var(--muted)]">{platform.costRange}</p>
+      </div>
+
+      <div className="mt-4 flex-1">
+        <p className="brutal-label">Why it fits</p>
+        <p className="mt-2 min-h-[4.5rem] text-sm font-medium leading-6 text-[var(--muted)]">
+          {result.matchedReasons[0] ?? platform.description}
+        </p>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3 border-t-[3px] border-[var(--line)] pt-4">
         <Link
           href={`/platforms/${platform.slug}`}
           onClick={(event) => event.stopPropagation()}
-          className="inline-flex items-center gap-2 text-sm font-black text-[var(--accent)] underline-offset-4 hover:underline"
+          className="inline-flex min-h-11 items-center justify-center gap-2 border-2 border-[var(--line)] bg-[var(--panel)] px-3 text-center text-sm font-black text-[var(--foreground)] transition hover:bg-[var(--paper)]"
         >
           View details <ArrowRight size={14} />
         </Link>
         <Link
           href={`/compare?platform=${platform.slug}`}
           onClick={(event) => event.stopPropagation()}
-          className="border-2 border-[var(--line)] bg-[var(--paper)] px-3 py-1.5 text-xs font-black text-[var(--foreground)] transition hover:bg-[var(--yellow)]"
+          className="inline-flex min-h-11 items-center justify-center border-2 border-[var(--line)] bg-[var(--accent)] px-3 text-sm font-black text-white transition hover:bg-[#003399]"
         >
           Compare
         </Link>
@@ -738,8 +758,12 @@ function RecommendationCard({
   );
 }
 
-function MiniBadge({ children }: { children: React.ReactNode }) {
-  return <span className="whitespace-nowrap border-2 border-[var(--line)] bg-[var(--paper)] px-1.5 py-0.5 text-[11px] font-black text-[var(--foreground)]">{children}</span>;
+function RecommendationChip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-[var(--line)] bg-[var(--paper)] px-2.5 py-1 text-xs font-bold leading-none text-[var(--foreground)]">
+      {children}
+    </span>
+  );
 }
 
 function RiskBadge({ risk }: { risk: RiskLevel }) {

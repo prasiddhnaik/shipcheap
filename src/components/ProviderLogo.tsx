@@ -1,3 +1,4 @@
+import { ProviderAssetImage } from "@/components/ProviderAssetImage";
 import {
   siAkamai,
   siAppwrite,
@@ -91,24 +92,22 @@ const fallbackLabelByName: Record<string, string> = {
   "Oracle Cloud": "OCI",
 };
 
-const customAssetByName: Record<string, { alt: string; largeClassName: string; smallClassName: string; src: string }> = {
+const customAssetByName: Record<string, { alt: string; src: string }> = {
   "AWS Amplify": {
     alt: "AWS logo",
-    largeClassName: "h-6 w-9",
-    smallClassName: "h-4 w-6",
     src: "/provider-logos/aws.svg",
   },
   "AWS App Runner": {
     alt: "AWS logo",
-    largeClassName: "h-6 w-9",
-    smallClassName: "h-4 w-6",
     src: "/provider-logos/aws.svg",
   },
   Dokku: {
     alt: "Dokku logo",
-    largeClassName: "h-7 w-8",
-    smallClassName: "h-4 w-5",
     src: "/provider-logos/dokku.svg",
+  },
+  Northflank: {
+    alt: "Northflank logo",
+    src: "/provider-logos/northflank.svg",
   },
 };
 
@@ -126,13 +125,31 @@ export function getProviderTheme(name: string) {
   };
 }
 
-export function ProviderLogo({ name, large = false }: { name: string; large?: boolean }) {
+type ProviderLogoSize = "default" | "large" | "recommendation";
+
+export function ProviderLogo({
+  name,
+  large = false,
+  size,
+}: {
+  name: string;
+  large?: boolean;
+  size?: ProviderLogoSize;
+}) {
   const logo = logoByName[name as keyof typeof logoByName];
   const customAsset = customAssetByName[name];
-  const size = large ? "h-11 w-11" : "h-7 w-7";
-  const iconSize = large ? "h-6 w-6" : "h-4 w-4";
-  const imageSize = customAsset ? large ? customAsset.largeClassName : customAsset.smallClassName : "";
-  const fallbackTextSize = large ? "text-xs" : "text-[9px]";
+  const resolvedSize = size ?? (large ? "large" : "default");
+  const containerSize = {
+    default: "h-7 w-7",
+    large: "h-11 w-11",
+    recommendation: "h-14 w-14",
+  }[resolvedSize];
+  const contentSize = {
+    default: "h-full w-full p-1.5",
+    large: "h-full w-full p-2.5",
+    recommendation: "h-full w-full p-3",
+  }[resolvedSize];
+  const fallbackTextSize = resolvedSize === "recommendation" ? "text-sm" : resolvedSize === "large" ? "text-xs" : "text-[9px]";
   const fallbackLabel = fallbackLabelByName[name] ?? name.slice(0, 2).toUpperCase();
   const theme = getProviderTheme(name);
   const style = {
@@ -140,16 +157,21 @@ export function ProviderLogo({ name, large = false }: { name: string; large?: bo
   } as CSSProperties;
 
   return (
-    <span className={`inline-flex shrink-0 items-center justify-center border-[3px] border-[var(--line)] bg-[var(--paper)] shadow-[4px_4px_0_var(--line)] ${size}`} style={style}>
+    <span
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden border-[3px] border-[var(--line)] bg-white shadow-[4px_4px_0_var(--line)] ${containerSize}`}
+      style={style}
+    >
       {customAsset ? (
-        <span
-          aria-label={customAsset.alt}
-          className={`${imageSize} bg-contain bg-center bg-no-repeat`}
-          role="img"
-          style={{ backgroundImage: `url(${customAsset.src})` }}
+        <ProviderAssetImage
+          alt={customAsset.alt}
+          className={`${contentSize} object-contain`}
+          fallbackClassName={fallbackTextSize}
+          fallbackLabel={fallbackLabel}
+          name={name}
+          src={customAsset.src}
         />
       ) : logo ? (
-        <svg className={iconSize} role="img" aria-label={`${name} logo`} viewBox="0 0 24 24">
+        <svg className={`${contentSize} overflow-visible`} role="img" aria-label={`${name} logo`} viewBox="0 0 24 24">
           <path fill="currentColor" d={logo.path} />
         </svg>
       ) : (
