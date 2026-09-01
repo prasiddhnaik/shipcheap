@@ -57,9 +57,9 @@ export const platforms: Platform[] = [
     name: "Fly.io",
     description:
       "A global app platform for running Dockerized apps close to users with strong regional control.",
-    costRange: "Small apps may fit low-cost allowances; production usage is metered",
+    costRange: "Short free trial; continued compute, storage, and network usage is metered",
     budgetFit: ["under-5", "under-10", "under-25", "custom"],
-    hasFreeTier: true,
+    hasFreeTier: false,
     creditCardRequired: true,
     supports: ["node", "fastapi", "docker"],
     databases: ["postgres", "redis"],
@@ -67,7 +67,7 @@ export const platforms: Platform[] = [
     regions: ["us", "europe", "asia"],
     billingRisk: "medium",
     freeTierDetails:
-      "Free allowances and included resources should be checked against the current Fly.io pricing page.",
+      "Fly.io offers a short free trial, not an ongoing free tier. Continued usage is metered and requires a payment method or prepaid credits.",
     bestFor: ["Docker apps", "global APIs", "teams comfortable with infrastructure concepts"],
     pros: ["Excellent regional control", "Docker-native", "good fit for always-on services"],
     cons: ["More operational concepts than beginner platforms", "billing is metered"],
@@ -499,8 +499,8 @@ export const platforms: Platform[] = [
     description:
       "An open-source self-hosted platform for deploying applications, databases, services, and Git-based projects on your own servers.",
     costRange: "Open-source software is free; server, backup, and bandwidth costs depend on where you host it",
-    budgetFit: ["free", "under-5", "under-10", "under-25", "custom"],
-    hasFreeTier: true,
+    budgetFit: ["under-5", "under-10", "under-25", "custom"],
+    hasFreeTier: false,
     creditCardRequired: false,
     supports: ["node", "fastapi", "docker", "static", "worker"],
     databases: ["postgres", "redis", "mysql"],
@@ -520,8 +520,8 @@ export const platforms: Platform[] = [
     description:
       "A lightweight self-hosted PaaS that uses Git pushes, Docker/buildpacks, plugins, and a single server to deploy apps.",
     costRange: "Free open-source software; pay for the VM, storage, backup, and bandwidth you choose",
-    budgetFit: ["free", "under-5", "under-10", "under-25", "custom"],
-    hasFreeTier: true,
+    budgetFit: ["under-5", "under-10", "under-25", "custom"],
+    hasFreeTier: false,
     creditCardRequired: false,
     supports: ["node", "fastapi", "docker", "static"],
     databases: ["postgres", "redis", "mysql"],
@@ -541,8 +541,8 @@ export const platforms: Platform[] = [
     description:
       "A self-hosted app platform for deploying Dockerized apps, one-click services, databases, and web projects on your own server.",
     costRange: "Free open-source software; real monthly cost is the VM or infrastructure you run",
-    budgetFit: ["free", "under-5", "under-10", "under-25", "custom"],
-    hasFreeTier: true,
+    budgetFit: ["under-5", "under-10", "under-25", "custom"],
+    hasFreeTier: false,
     creditCardRequired: false,
     supports: ["node", "fastapi", "docker", "static"],
     databases: ["postgres", "redis", "mysql"],

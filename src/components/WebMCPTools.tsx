@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getPlatformMcpIntegration, platforms } from "@/data/platforms";
-import { defaultSimulatorInput, formatCurrency, formatProbability, simulateMonthlyBill, type SimulatorInput } from "@/lib/billing-risk-simulation";
+import { buildBillingRiskToolResult, defaultSimulatorInput, simulateMonthlyBill, type SimulatorInput } from "@/lib/billing-risk-simulation";
 import { recommendPlatforms } from "@/lib/recommend-platform";
 import type { CalculatorInput } from "@/lib/types";
 
@@ -16,6 +16,7 @@ type ToolDefinition = {
   execute(input: unknown): unknown | Promise<unknown>;
 };
 type ModelContext = { registerTool(tool: ToolDefinition, options?: { signal?: AbortSignal }): void | Promise<void> };
+type RouterPush = { push(path: string): void };
 
 declare global {
   interface Document { readonly modelContext?: ModelContext }
@@ -116,6 +117,41 @@ const simulationSchema = {
     jobHours: { type: "number", minimum: 0, maximum: 100_000 }, budgetLimit: { type: "number", minimum: 1, maximum: 1_000_000 },
   }, required: ["providerSlug", "hasCard", "trafficLevel", "spendControl", "dataLoad", "bandwidthHeavy", "keepsLogs", "jobLoad"], additionalProperties: false,
 };
+
+export function createBillingRiskToolDefinition(router: RouterPush): ToolDefinition {
+  return {
+    name: "preview_billing_risk",
+    title: "Preview billing risk",
+    description: "Run ShipCheap's deterministic 1,000-month billing-risk simulation and open the configured visible simulator for human review.",
+    inputSchema: simulationSchema,
+    annotations: { readOnlyHint: false, untrustedContentHint: false },
+    async execute(input) {
+      const scenario = simulatorInput(input);
+      const provider = platforms.find((item) => item.slug === scenario.providerSlug);
+      if (!provider) throw new Error("Provider was not found.");
+      const result = simulateMonthlyBill(scenario, provider);
+      const query = new URLSearchParams({
+        provider: scenario.providerSlug,
+        hasCard: String(scenario.hasCard),
+        traffic: scenario.trafficLevel,
+        spend: scenario.spendControl,
+        data: scenario.dataLoad,
+        bandwidth: String(scenario.bandwidthHeavy),
+        logs: String(scenario.keepsLogs),
+        jobs: scenario.jobLoad,
+        users: String(scenario.monthlyUsers),
+        rpu: String(scenario.requestsPerUser),
+        responseKb: String(scenario.avgResponseKb),
+        storageGb: String(scenario.storageGb),
+        jobHours: String(scenario.jobHours),
+        budget: String(scenario.budgetLimit),
+      });
+      router.push(`/billing-risk?${query.toString()}`);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      return buildBillingRiskToolResult(provider, result);
+    },
+  };
+}
 
 export function WebMCPTools() {
   const router = useRouter();
@@ -260,26 +296,7 @@ export function WebMCPTools() {
       },
     });
 
-    register({
-      name: "preview_billing_risk", title: "Preview billing risk",
-      description: "Run ShipCheap's deterministic 1,000-month billing-risk simulation and open the configured visible simulator for human review.",
-      inputSchema: simulationSchema, annotations: { readOnlyHint: false, untrustedContentHint: false },
-      async execute(input) {
-        const scenario = simulatorInput(input);
-        const provider = platforms.find((item) => item.slug === scenario.providerSlug);
-        if (!provider) throw new Error("Provider was not found.");
-        const result = simulateMonthlyBill(scenario, provider);
-        const query = new URLSearchParams({ provider: scenario.providerSlug, hasCard: String(scenario.hasCard), traffic: scenario.trafficLevel,
-          spend: scenario.spendControl, data: scenario.dataLoad, bandwidth: String(scenario.bandwidthHeavy), logs: String(scenario.keepsLogs),
-          jobs: scenario.jobLoad, users: String(scenario.monthlyUsers), rpu: String(scenario.requestsPerUser), responseKb: String(scenario.avgResponseKb),
-          storageGb: String(scenario.storageGb), jobHours: String(scenario.jobHours), budget: String(scenario.budgetLimit) });
-        router.push(`/billing-risk?${query.toString()}`);
-        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-        return { status: "simulation_opened", provider: provider.name, runs: result.runs, riskLevel: result.level,
-          medianBill: formatCurrency(result.p50), highUsageBill: formatCurrency(result.p90), worstSample: formatCurrency(result.worst),
-          overBudgetProbability: formatProbability(result.overBudgetProbability), headline: result.headline, caveat: result.caveat };
-      },
-    });
+    register(createBillingRiskToolDefinition(router));
     return () => lifecycle.abort();
   }, [router]);
   return null;

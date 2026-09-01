@@ -207,7 +207,11 @@ export function BillingRiskSimulator({ initialInput = defaultSimulatorInput }: {
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-3">
-              <Metric icon={Banknote} label="P90 simulated bill" value={formatCurrency(simulation.p90)} />
+              <Metric
+                icon={Banknote}
+                label="P90 simulated bill"
+                value={simulation.availability === "available" ? formatCurrency(simulation.p90) : "Card required"}
+              />
               <Metric icon={CreditCard} label="Card path" value={selectedProvider.creditCardRequired ? "Card likely" : "No-card path"} />
               <Metric icon={ServerCog} label="Always-on" value={selectedProvider.alwaysOn ? "Supported" : "Limited"} />
             </div>
@@ -375,21 +379,43 @@ function SimulationSummary({ simulation }: { simulation: BillSimulationResult })
     high: "bg-[var(--red)]",
   };
 
+  const tone = simulation.availability === "available" ? styles[simulation.level] : "bg-[var(--yellow)]";
+
   return (
-    <div className={cn("border-[3px] border-[var(--line)] p-4 text-[var(--foreground)] shadow-[5px_5px_0_var(--line)]", styles[simulation.level])}>
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      className={cn("border-[3px] border-[var(--line)] p-4 text-[var(--foreground)] shadow-[5px_5px_0_var(--line)]", tone)}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 font-black">
-          {simulation.level === "low" ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
-          {riskLabels[simulation.level]} simulated bill risk
+          {simulation.availability === "available" && simulation.level === "low" ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
+          {simulation.availability === "available"
+            ? `${riskLabels[simulation.level]} simulated bill risk`
+            : "Unavailable without a card"}
         </div>
         <span className="border-2 border-[var(--line)] bg-[var(--panel)] px-3 py-1 text-sm font-black">{simulation.runs.toLocaleString("en-US")} runs</span>
       </div>
-      <p className="mt-3 text-sm font-medium leading-6">{simulation.headline}</p>
+      <p className="mt-3 text-sm font-medium leading-6">
+        {simulation.availabilityReason ?? simulation.headline}
+      </p>
     </div>
   );
 }
 
 function SimulationResults({ simulation }: { simulation: BillSimulationResult }) {
+  if (simulation.availability !== "available") {
+    return (
+      <section className="border-[3px] border-[var(--line)] bg-[var(--panel)] p-4 shadow-[7px_7px_0_var(--line)]">
+        <h2 className="text-base font-black text-[var(--foreground)]">Monthly bill unavailable for this setup</h2>
+        <p className="mt-2 text-sm font-medium leading-6 text-[var(--foreground)]">
+          {simulation.availabilityReason} Attach a card in the scenario to model its metered monthly cost.
+        </p>
+      </section>
+    );
+  }
+
   const barMax = Math.max(simulation.worst, simulation.p90, 1);
   const bars = [
     { label: "Typical month", value: simulation.p50, tone: "bg-[var(--green)]" },
@@ -525,6 +551,7 @@ function SegmentedControl<T extends string>({
           <button
             key={optionValue}
             type="button"
+            aria-pressed={value === optionValue}
             onClick={() => onChange(optionValue)}
             className={cn(
               "border-2 border-[var(--line)] px-3 py-2 text-left text-sm font-black transition",
@@ -564,6 +591,7 @@ function ToggleField({
           <button
             key={String(option)}
             type="button"
+            aria-pressed={value === option}
             onClick={() => onChange(option)}
             className={cn(
               "inline-flex min-h-11 items-center justify-center gap-2 border-2 border-[var(--line)] px-3 text-sm font-black transition",

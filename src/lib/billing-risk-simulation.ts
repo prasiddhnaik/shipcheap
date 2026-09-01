@@ -70,6 +70,8 @@ export type SimulatedCostCenter = {
 };
 
 export type BillSimulationResult = {
+  availability: "available" | "requires-card";
+  availabilityReason: string | null;
   runs: number;
   level: RiskLevel;
   p50: number;
@@ -126,6 +128,11 @@ export function simulateMonthlyBill(input: SimulatorInput, provider: Platform): 
   const level = p90 >= 100 || shockProbability >= 0.08 ? "high" : p90 >= 25 || over100Probability >= 0.08 ? "medium" : "low";
 
   return {
+    availability: !input.hasCard && provider.creditCardRequired ? "requires-card" : "available",
+    availabilityReason:
+      !input.hasCard && provider.creditCardRequired
+        ? `${provider.name} requires a payment card or prepaid credits before this scenario can keep running.`
+        : null,
     runs: SIMULATION_RUNS,
     level,
     p50,
@@ -274,6 +281,25 @@ export function formatProbability(value: number) {
   if (value === 0) return "0%";
   if (value < 0.01) return "<1%";
   return `${Math.round(value * 100)}%`;
+}
+
+export function buildBillingRiskToolResult(provider: Platform, result: BillSimulationResult) {
+  const isAvailable = result.availability === "available";
+
+  return {
+    status: "simulation_opened" as const,
+    provider: provider.name,
+    availability: result.availability,
+    availabilityReason: result.availabilityReason,
+    runs: result.runs,
+    riskLevel: isAvailable ? result.level : null,
+    medianBill: isAvailable ? formatCurrency(result.p50) : null,
+    highUsageBill: isAvailable ? formatCurrency(result.p90) : null,
+    worstSample: isAvailable ? formatCurrency(result.worst) : null,
+    overBudgetProbability: isAvailable ? formatProbability(result.overBudgetProbability) : null,
+    headline: result.availabilityReason ?? result.headline,
+    caveat: result.caveat,
+  };
 }
 
 function percentile(values: number[], p: number) {

@@ -24,8 +24,16 @@ type DuelRow = {
   blowUpLabel: string;
 };
 
-export function BillDuel({ input }: { input: SimulatorInput }) {
-  const defaultChallengers = useMemo(() => pickDefaultChallengers(input.providerSlug), [input.providerSlug]);
+type BillDuelProps = {
+  input: SimulatorInput;
+  initialChallengerSlugs?: readonly [string, string];
+};
+
+export function BillDuel({ input, initialChallengerSlugs }: BillDuelProps) {
+  const defaultChallengers = useMemo(
+    () => initialChallengerSlugs ?? pickDefaultChallengers(input.providerSlug),
+    [initialChallengerSlugs, input.providerSlug],
+  );
   const [challengerA, setChallengerA] = useState(defaultChallengers[0] ?? "");
   const [challengerB, setChallengerB] = useState(defaultChallengers[1] ?? "");
 
@@ -56,9 +64,19 @@ export function BillDuel({ input }: { input: SimulatorInput }) {
       .sort((a, b) => b.simulation.p90 - a.simulation.p90 || b.simulation.overBudgetProbability - a.simulation.overBudgetProbability);
   }, [activeSlugs, input]);
 
-  const firstToBlow = rows[0] ?? null;
-  const safest = rows.length > 0 ? [...rows].sort((a, b) => a.simulation.p90 - b.simulation.p90 || a.simulation.overBudgetProbability - b.simulation.overBudgetProbability)[0] : null;
-  const barMax = Math.max(...rows.map((row) => row.simulation.p90), 1);
+  const availableRows = rows.filter((row) => row.simulation.availability === "available");
+  const firstToBlow = availableRows[0] ?? null;
+  const safest = availableRows.length > 0 ? [...availableRows].sort((a, b) => a.simulation.p90 - b.simulation.p90 || a.simulation.overBudgetProbability - b.simulation.overBudgetProbability)[0] : null;
+  const allAvailableTied = Boolean(
+    firstToBlow &&
+      availableRows.length >= 2 &&
+      availableRows.every(
+        (row) =>
+          row.simulation.p90 === firstToBlow.simulation.p90 &&
+          row.simulation.overBudgetProbability === firstToBlow.simulation.overBudgetProbability,
+      ),
+  );
+  const barMax = Math.max(...availableRows.map((row) => row.simulation.p90), 1);
 
   return (
     <section className="border-[3px] border-[var(--line)] bg-[var(--panel)] shadow-[7px_7px_0_var(--line)]">
@@ -74,7 +92,7 @@ export function BillDuel({ input }: { input: SimulatorInput }) {
               Keep the scenario fixed and pit up to {MAX_DUELISTS} providers against each other on P90 bill, over-budget odds, and the cost center that spikes first.
             </p>
           </div>
-          {firstToBlow && safest && firstToBlow.platform.slug !== safest.platform.slug && (
+          {firstToBlow && safest && !allAvailableTied && firstToBlow.platform.slug !== safest.platform.slug && (
             <div className="border-2 border-[var(--line)] bg-[var(--panel)] px-3 py-2 text-sm font-black text-[var(--foreground)]">
               First to blow: {firstToBlow.platform.name}
             </div>
@@ -130,8 +148,9 @@ export function BillDuel({ input }: { input: SimulatorInput }) {
           <>
             <div className="grid gap-3 lg:grid-cols-3">
               {rows.map((row) => {
-                const isFirst = firstToBlow?.platform.slug === row.platform.slug;
-                const isSafest = safest?.platform.slug === row.platform.slug;
+                const isAvailable = row.simulation.availability === "available";
+                const isFirst = !allAvailableTied && firstToBlow?.platform.slug === row.platform.slug;
+                const isSafest = !allAvailableTied && safest?.platform.slug === row.platform.slug;
                 return (
                   <article
                     key={row.platform.slug}
@@ -147,7 +166,7 @@ export function BillDuel({ input }: { input: SimulatorInput }) {
                         <div>
                           <h3 className="font-black text-[var(--foreground)]">{row.platform.name}</h3>
                           <p className="mt-1 text-xs font-medium text-[var(--foreground)]">
-                            {isFirst ? "Blows up first" : isSafest ? "Safest in this duel" : "In the mix"}
+                            {!isAvailable ? "Card required" : isFirst ? "Blows up first" : isSafest ? "Safest in this duel" : "In the mix"}
                           </p>
                         </div>
                       </div>
@@ -157,12 +176,14 @@ export function BillDuel({ input }: { input: SimulatorInput }) {
                     <div className="mt-3">
                       <div className="mb-1 flex items-center justify-between text-sm">
                         <span className="font-black text-[var(--foreground)]">P90 bill</span>
-                        <span className="font-black text-[var(--foreground)]">{formatCurrency(row.simulation.p90)}</span>
+                        <span className="font-black text-[var(--foreground)]">
+                          {isAvailable ? formatCurrency(row.simulation.p90) : "Unavailable"}
+                        </span>
                       </div>
                       <div className="h-3 border-2 border-[var(--line)] bg-[var(--panel)]">
                         <div
                           className={riskBarTone(row.simulation.level)}
-                          style={{ width: `${Math.max(6, Math.min(100, (row.simulation.p90 / barMax) * 100))}%`, height: "100%" }}
+                          style={{ width: isAvailable ? `${Math.max(6, Math.min(100, (row.simulation.p90 / barMax) * 100))}%` : "0%", height: "100%" }}
                         />
                       </div>
                     </div>
@@ -170,26 +191,27 @@ export function BillDuel({ input }: { input: SimulatorInput }) {
                     <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
                       <div className="border-2 border-[var(--line)] bg-[var(--panel)] p-2">
                         <dt className="text-[10px] font-black uppercase tracking-[0.08em] text-[var(--muted)]">Typical</dt>
-                        <dd className="mt-1 font-black text-[var(--foreground)]">{formatCurrency(row.simulation.p50)}</dd>
+                        <dd className="mt-1 font-black text-[var(--foreground)]">{isAvailable ? formatCurrency(row.simulation.p50) : "—"}</dd>
                       </div>
                       <div className="border-2 border-[var(--line)] bg-[var(--panel)] p-2">
                         <dt className="text-[10px] font-black uppercase tracking-[0.08em] text-[var(--muted)]">Worst</dt>
-                        <dd className="mt-1 font-black text-[var(--foreground)]">{formatCurrency(row.simulation.worst)}</dd>
+                        <dd className="mt-1 font-black text-[var(--foreground)]">{isAvailable ? formatCurrency(row.simulation.worst) : "—"}</dd>
                       </div>
                       <div className="border-2 border-[var(--line)] bg-[var(--panel)] p-2">
                         <dt className="text-[10px] font-black uppercase tracking-[0.08em] text-[var(--muted)]">Over budget</dt>
-                        <dd className="mt-1 font-black text-[var(--foreground)]">{formatProbability(row.simulation.overBudgetProbability)}</dd>
+                        <dd className="mt-1 font-black text-[var(--foreground)]">{isAvailable ? formatProbability(row.simulation.overBudgetProbability) : "—"}</dd>
                       </div>
                       <div className="border-2 border-[var(--line)] bg-[var(--panel)] p-2">
                         <dt className="text-[10px] font-black uppercase tracking-[0.08em] text-[var(--muted)]">Risk</dt>
-                        <dd className="mt-1 font-black capitalize text-[var(--foreground)]">{riskLabels[row.simulation.level]}</dd>
+                        <dd className="mt-1 font-black capitalize text-[var(--foreground)]">{isAvailable ? riskLabels[row.simulation.level] : "Blocked"}</dd>
                       </div>
                     </dl>
 
                     <div className="mt-3 flex items-start gap-2 border-2 border-[var(--line)] bg-[var(--panel)] p-2">
                       <Zap size={14} className="mt-0.5 shrink-0 text-[var(--foreground)]" />
                       <p className="text-xs font-medium leading-5 text-[var(--foreground)]">
-                        First cost center to spike: <span className="font-black">{row.blowUpLabel}</span>
+                        {isAvailable ? "First cost center to spike: " : "Eligibility: "}
+                        <span className="font-black">{isAvailable ? row.blowUpLabel : row.simulation.availabilityReason}</span>
                       </p>
                     </div>
 
@@ -205,11 +227,23 @@ export function BillDuel({ input }: { input: SimulatorInput }) {
               })}
             </div>
 
-            {firstToBlow && safest && (
+            {availableRows.length >= 2 && firstToBlow && safest && !allAvailableTied && (
               <p className="border-t-[3px] border-[var(--line)] pt-3 text-sm font-medium leading-6 text-[var(--foreground)]">
                 Under this scenario, <span className="font-black">{firstToBlow.platform.name}</span> shows the highest P90 /
                 over-budget pressure, while <span className="font-black">{safest.platform.name}</span> stays cheapest at the
                 rough high-usage month. Verify live pricing before you trust the ranking.
+              </p>
+            )}
+            {allAvailableTied && (
+              <p className="border-t-[3px] border-[var(--line)] pt-3 text-sm font-medium leading-6 text-[var(--foreground)]">
+                All eligible providers are tied under this scenario at the modeled P90 bill and over-budget probability.
+                Verify live pricing before you trust the result.
+              </p>
+            )}
+            {availableRows.length === 1 && safest && (
+              <p className="border-t-[3px] border-[var(--line)] pt-3 text-sm font-medium leading-6 text-[var(--foreground)]">
+                Only <span className="font-black">{safest.platform.name}</span> is eligible under this scenario, so ShipCheap
+                is not ranking it against the blocked providers.
               </p>
             )}
           </>
